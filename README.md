@@ -1,11 +1,15 @@
 # COMP1531 Group Assignment
 
-## Team
+# Team
 
-###Keiran Sampson 		(Z5168147)		3N1GMA-HPY
+##Keiran Sampson	3N1GMA-HPY 		
+Z5168147		
 
-###Nicholas Quinn		(Z-------)		thequinneffect
+##Nicholas Quinn	thequinneffect		
+Z-------		
 
-###Ryan 				(Z-------)		RyanJE
+##Ryan ---------	RyanJE
+Z-------		
 
-###Matthew Adeline 		(Z-------)		mkadeline
+##Matthew Adeline	(mkadeline)	
+Z-------		
