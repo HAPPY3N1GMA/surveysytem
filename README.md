@@ -2,14 +2,14 @@
 
 ## Team
 
-### Keiran Sampson	3N1GMA-HPY 		
+### Keiran Sampson	-- 3N1GMA-HPY 		
 Z5168147		
 
-### Nicholas Quinn	thequinneffect		
+### Nicholas Quinn	--	thequinneffect		
 Z-------		
 
 ### Ryan ---------	RyanJE
 Z-------		
 
-### Matthew Adeline	(mkadeline)	
+### Matthew Adeline	--	mkadeline	
 Z-------		
