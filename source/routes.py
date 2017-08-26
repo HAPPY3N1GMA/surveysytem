@@ -16,17 +16,16 @@ def index():
 		# Check Password
 
 		if check_password(user,pwd):
+			
 			print("Valid password")
 			authenticated = 1
 			return redirect(url_for("home"))
 
 		else:
 
-			print("Incorrect Password")
-			#make it render saying invalid username/password
-			return render_template("index.html", invalid=True)
+			print("Invalid Password") #tmp
 
-	return render_template("index.html", invalid=False)
+			return render_template("index.html", invalid=True)
 
 
 def check_password(user, pwd):
