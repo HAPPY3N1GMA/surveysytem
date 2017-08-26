@@ -12,13 +12,15 @@ def index():
 		# Check Password
 
 		if check_password(user,pwd):
+
 			print("Valid password")
 
-			#render to main page
+			#todo: link to home page
 
 		else:
 
 			print("Incorrect Password")
+			
 			#make it render saying invalid username/password
 			return render_template("index.html", invalid=True)
 
