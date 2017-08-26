@@ -27,6 +27,8 @@ def index():
 
 			return render_template("index.html", invalid=True)
 
+	return render_template("index.html", invalid=False)
+
 
 def check_password(user, pwd):
 
