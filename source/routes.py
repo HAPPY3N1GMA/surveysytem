@@ -2,8 +2,12 @@ import csv
 from flask import Flask, redirect, render_template, request, url_for
 from server import app, users
 
+authenticated = 0
+
 @app.route("/", methods=["GET", "POST"])
 def index():
+	global authenticated
+	authenticated = 0
 	if request.method == "POST":
 
 		user = request.form["username"]
@@ -13,8 +17,8 @@ def index():
 
 		if check_password(user,pwd):
 			print("Valid password")
-
-			#render to main page
+			authenticated = 1
+			return redirect(url_for("home"))
 
 		else:
 
@@ -36,5 +40,12 @@ def check_password(user, pwd):
 	else:
 		return False
 
-
-
+@app.route("/home")
+def home():
+	# button to go to questions
+	# button to go to surveys
+	global authenticated
+	if (authenticated):
+		return render_template("home.html")
+	else:
+		return redirect(url_for("index"))
