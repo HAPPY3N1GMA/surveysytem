@@ -130,6 +130,11 @@ body{
     Login Icons
 */
 
+/*
+User Icon made by [Freepic] from www.flaticon.com 
+https://image.flaticon.com/icons/svg/64/64096.svg
+*/
+
 .login_box i {
     background: url(../images/user.png)no-repeat 6px 6px;
     width: 38px;
@@ -137,6 +142,11 @@ body{
     float: left;
     display: inline-block;
 }
+
+/*
+Padlock Icon made by [Gregor Cresnar] from www.flaticon.com
+https://image.flaticon.com/icons/svg/483/483408.svg
+*/
 
 .login_box i.icon {
     background: url(../images/password.png)no-repeat 6px 6px;  
@@ -162,8 +172,8 @@ body{
 }
 
 .login-btn input[type="submit"] {
-    font-size: 15px;
-    font-weight: 700;
+    font-size: 18px;
+    font-weight: 600;
     color: #fff;
     padding: 13px 0;
     background: #ace;
