@@ -24,60 +24,60 @@ table {
 
 
 
-    a {
-        text - decoration: none;
-    }
+a {
+    text - decoration: none;
+}
 
-    /* text align right */
-    .txt - rt {
-        text - align: right;
-    }
+/* text align right */
+.txt - rt {
+    text - align: right;
+}
 
-    /* text align left */
-    .txt - lt {
-        text - align: left;
-    }
+/* text align left */
+.txt - lt {
+    text - align: left;
+}
 
-    /* text align center */
-    .txt - center {
-        text - align: center;
-    } 
+/* text align center */
+.txt - center {
+    text - align: center;
+} 
 
-    /* float right */
-    .float - rt {
-        float: right;
-    } 
+/* float right */
+.float - rt {
+    float: right;
+} 
 
-    /* float left */
-    .float - lt {
-        float: left;
-    }
+/* float left */
+.float - lt {
+    float: left;
+}
 
-    /* clear float */
-    .clear {
-        clear: both;
-    } 
+/* clear float */
+.clear {
+    clear: both;
+} 
 
-    /* Position Relative */
-    .pos - relative {
-        position: relative;
-    } 
+/* Position Relative */
+.pos - relative {
+    position: relative;
+} 
 
-    /* Position Absolute */
-    .pos - absolute {
-        position: absolute;
-    } 
+/* Position Absolute */
+.pos - absolute {
+    position: absolute;
+} 
 
-    /* vertical align baseline */
-    .vertical - base {
-        vertical - align: baseline;
-    } 
+/* vertical align baseline */
+.vertical - base {
+    vertical - align: baseline;
+} 
 
-    /* vertical align top */
-    .vertical - top {
-        vertical - align: top;
-    } 
-    
+/* vertical align top */
+.vertical - top {
+    vertical - align: top;
+} 
+
 
 
 
@@ -96,46 +96,13 @@ body{
 }
 
 
-
-.login-form{
-	
-	padding:100px 0px 50px 0px;
-
+/*
+    pad login form down from the top (increase number to pad more)
+*/
+.login-form h1 {
+    margin-bottom:18em;
 }
 
-.login-form h1{
-	font-size:2em;
-	color:#fff;
-	font-weight:800;
-	text-transform:uppercase;
-	text-align:center;
-	margin-bottom:6em;
-}
-
-.top-login {
-    width: 130px;
-    height: 130px;
-    display: block;
-    -webkit-transform: rotate(45deg) translate3d(0, 0, 0);
-    -moz-transform: rotate(45deg) translate3d(0, 0, 0);
-    -ms-transform: rotate(45deg) translate3d(0, 0, 0);
-    -o-transform: rotate(45deg) translate3d(0, 0, 0);
-    transform: rotate(45deg) translate3d(0, 0, 0);
-    margin: 0 auto 4em;
-    background: #fff;
-    position: relative;
-}
-
-.top-login span{
-    border: 2px solid #F36;
-    width: 105px;
-    height: 105px;
-    display: block;
-    margin: 0px auto;
-    position: absolute;
-    top: 11px;
-    left: 11px;
-}
 
 
 /*
@@ -143,17 +110,18 @@ body{
 */
 
 .login-top{
-	width: 460px;
+	width: 420px;
 	display: block;
 	margin: 0 auto;
 }
 /*
     backround colours for the login boxes
+    thickness of login boxes
 */
-.login-ic {
-    background: rgba(255, 255, 255, 0.32); 
+.login_box {
+    background: rgba(255, 255, 255, 0.35); 
     margin-bottom:1.5em;
-    padding: 8px;	
+    padding: 10px;	
 }
 
 
@@ -162,7 +130,7 @@ body{
     Login Icons
 */
 
-.login-ic i {
+.login_box i {
     background: url(../images/user.png)no-repeat 6px 6px;
     width: 38px;
     height: 38px;
@@ -170,21 +138,21 @@ body{
     display: inline-block;
 }
 
-.login-ic i.icon {
+.login_box i.icon {
     background: url(../images/password.png)no-repeat 6px 6px;  
 }
 
-.login-ic input[type="text"],.login-ic  input[type="password"] {
+.login_box input[type="text"], .login_box  input[type="password"] {
  float: left;
  background: none;
  outline: none;
- font-size: 15px;
+ font-size: 19px;
  font-weight: 400;
  color: #fff;
- padding: 10px 16px;
+ padding: 8px 16px; /* login form text padd (vert, hor)*/
  border: none;
  border-left: 1px solid #fff;
- width: 82%;
+ width: 80%;
  display: inline-block;
  margin-left: 7px;
 }
@@ -248,7 +216,7 @@ p.copy{
     .login-top {
         width: 425px;
     }
-    .login-ic input[type="text"], .login-ic input[type="password"] {
+    .login_box input[type="text"], .login_box input[type="password"] {
         width: 79%;
     }
 }
@@ -265,9 +233,9 @@ p.copy{
     .login-top {
         width: 360px;
     }
-    .login-ic input[type="text"], .login-ic input[type="password"] {
+    .login_box input[type="text"], .login_box input[type="password"] {
         width: 76%;
-        /*-- agileits --*/
+
     }
     .top-login {
         width: 90px;
@@ -294,7 +262,7 @@ p.copy{
     .login-form {
         padding: 80px 0px 45px 0px;
     }
-    .login-ic {
+    .login_box {
         margin-bottom: 1em;
         padding: 3px;
     }
@@ -313,7 +281,7 @@ p.copy{
     .login-top {
         width: 340px;
     }
-    .login-ic input[type="text"], .login-ic input[type="password"] {
+    .login_box input[type="text"], .login_box input[type="password"] {
         width: 75%;
     }
     body {
@@ -325,7 +293,7 @@ p.copy{
     .login-top {
         width: 280px;
     }
-    .login-ic input[type="text"], .login-ic input[type="password"] {
+    .login_box input[type="text"], .login_box input[type="password"] {
         width: 70%;
     }
     .login-form {
