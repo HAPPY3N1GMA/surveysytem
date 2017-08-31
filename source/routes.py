@@ -74,6 +74,13 @@ def createsurvey():
 
 	return render_template("createsurvey.html")
 
+@app.route("/createquestion", methods=["GET", "POST"])
+def createquestion():
+	# if request.method == "POST":
+		# TO DO: Add new question creation
+
+	return render_template("createquestion.html")
+
 
 class IDfile():
 	def __init__(self, filename):
