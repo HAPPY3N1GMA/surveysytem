@@ -1,63 +1,67 @@
 import csv, ast, os, time
 from flask import Flask, redirect, render_template, request, url_for
-from server import app, users
+from server import app, users, authenticated
 from functions import append
 
-authenticated = 0
+_authenticated = authenticated
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-	global authenticated
-	authenticated = 0
+	# button to go to questions
+	# button to go to surveys
+	return render_template("home.html")
+
+
+@app.route("/admin")
+def admin(): 
+	global _authenticated
+	if _authenticated:
+		# read csv data into a list
+		return render_template("admin.html")
+	else:
+		return redirect(url_for("login"))
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+	global _authenticated
 	if request.method == "POST":
 
 		user = request.form["username"]
 		pwd = request.form["password"]
 
 		# Check Password
-
-		if check_password(user,pwd):
+		if check_password(user, pwd):
 			
 			print("Valid password")
-			authenticated = 1
-			return redirect(url_for("home"))
+			_authenticated = 1
+			return redirect(url_for("admin"))
 
 		else:
+			return render_template("login.html", invalid=True)
 
-			print("Invalid Password") #tmp
-
-			return render_template("index.html", invalid=True)
-
-	return render_template("index.html", invalid=False)
+	return render_template("login.html", invalid=False)
 
 
 def check_password(user, pwd):
 
-	#if you dont use .get to look inside the dictionary
-	#you will get errors if the username is not there
-	#.get will return none which is seen as false by the statement
+	# if you dont use .get to look inside the dictionary
+	# you will get errors if the username is not there
+	# .get will return none which is seen as false by the statement
 
 	if pwd == users.get(user):
 		return True
 	else:
 		return False
 
-@app.route("/home",methods=["GET", "POST"])
-def home():
-	# button to go to questions
-	# button to go to surveys
-	global authenticated
-	if request.method == "POST":
-	   if "createsvy" in request.form:
-		   return redirect(url_for("createsurvey"))
 
-	if (authenticated):
-		return render_template("home.html")
-	else:
+@app.route("/home")
+def home():
 		return redirect(url_for("index"))
 
 
-@app.route("/createsurvey",methods=["GET", "POST"])
+@app.route("/createsurvey", methods=["GET", "POST"])
 def createsurvey():
 	if request.method == "POST":
 		survey_name = request.form["svyname"]
@@ -66,14 +70,15 @@ def createsurvey():
 		ID = textfile("surveyID.txt")
 		survey_ID = ID.updateID()
 		mastercsv = csvfile("mastersurvey.csv")
-		mastercsv.writeto(survey_ID,survey_name,survey_course,survey_date)
+		mastercsv.writeto(survey_ID, survey_name, survey_course, survey_date)
 
-	return render_template("createsvy.html")
+	return render_template("createsurvey.html")
 
 
 class IDfile():
-	def __init__(self,filename):
+	def __init__(self, filename):
 		self._name = filename
+
 
 class textfile(IDfile):
 	def getcurrentID(self):
@@ -89,6 +94,7 @@ class textfile(IDfile):
 		new_val += 1
 		IDfile.write(str(new_val))
 		return str(new_val)
+
 
 class csvfile(IDfile):
 	def writeto(self,ID,name,course,time):
