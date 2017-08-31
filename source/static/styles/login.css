@@ -112,7 +112,7 @@ body{
 .login-top{
 	width: 420px;
 	display: block;
-	margin: 0 auto;
+	margin: auto;
 }
 /*
     backround colours for the login boxes
@@ -201,7 +201,7 @@ p.copy{
 	margin-top:6em;
 }
 
-@media (max-width:1024px){
+/* @media (max-width:1024px){
     p.copy {
         margin-top: 3.5em;
     }
@@ -312,5 +312,5 @@ p.copy{
     body {
         min-height: 540px;
     }
-}
+} */
 
