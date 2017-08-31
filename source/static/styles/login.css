@@ -1,7 +1,7 @@
 
-html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt,
+/* html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt,
 var, b, u, i, dl, dt, dd, ol, nav ul, nav li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
-    margin: 0;padding: 0;border: 0;font - size: 100 % ;font: inherit;vertical - align: baseline;
+    margin: 0;padding: 0;border: 0;font-size:100% ;font: inherit;vertical - align: baseline;
 }
 article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
     display: block;
@@ -20,37 +20,10 @@ blockquote: before, blockquote: after, q: before, q: after {
 table {
     border - collapse: collapse;
     border - spacing: 0;
-}
+} */
 
-
-
-a {
-    text - decoration: none;
-}
-
-/* text align right */
-.txt - rt {
-    text - align: right;
-}
-
-/* text align left */
-.txt - lt {
-    text - align: left;
-}
-
-/* text align center */
-.txt - center {
-    text - align: center;
-} 
-
-/* float right */
-.float - rt {
-    float: right;
-} 
-
-/* float left */
-.float - lt {
-    float: left;
+html {
+    height:100%;
 }
 
 /* clear float */
@@ -58,36 +31,11 @@ a {
     clear: both;
 } 
 
-/* Position Relative */
-.pos - relative {
-    position: relative;
-} 
-
-/* Position Absolute */
-.pos - absolute {
-    position: absolute;
-} 
-
-/* vertical align baseline */
-.vertical - base {
-    vertical - align: baseline;
-} 
-
-/* vertical align top */
-.vertical - top {
-    vertical - align: top;
-} 
-
-
-
-
-
-
-
 body{
   font-family: 'Encode Sans', sans-serif;
   font-size: 100%;
   background: #666;
+  height: 100%;
   /*
     If we want an image place it here and comment out the background colour
   */
@@ -100,17 +48,12 @@ body{
     pad login form down from the top (increase number to pad more)
 */
 .login-form h1 {
-    margin-bottom:18em;
+    margin-bottom: 25%;
 }
 
 
-
-/*
-    how big do i want the login box to display on various screen sizes?
-*/
-
 .login-top{
-	width: 420px;
+	max-width: 420px;
 	display: block;
 	margin: auto;
 }
