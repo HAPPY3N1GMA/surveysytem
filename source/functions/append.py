@@ -141,9 +141,10 @@ def master_survey(qID, sID):
 	for row in reader:
 		current_survey = {
 			"surveyID":		row[0],
-			"course": 		row[1],
-			"date":  		row[2],
-			"questionID":	row[3:],	
+			"surveytitle":  row[1],
+			"course": 		row[2],
+			"date":  		row[3],
+			"questionID":	row[4:],	
 		}
 		if (current_survey['surveyID'] == sID):
 			if (qID not in current_survey['questionID']):
@@ -166,7 +167,7 @@ def master_survey(qID, sID):
 				survey['questionID'] = line
 
 	# output new output to temporary file
-	field_names = ['surveyID', 'course', 'date', 'questionID']
+	field_names = ['surveyID', 'surveytitle','course', 'date', 'questionID']
 	with open('survey_temp.csv', 'w+') as csv_out:
 		dict_writer = csv.DictWriter(csv_out, fieldnames = field_names)
 		dict_writer.writerows(survey_list)

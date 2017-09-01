@@ -12,6 +12,8 @@ class textfile(IDfile):
 			return 0
 		else:
 			val = fileID.read()
+			if val == '':
+				val = 0
 			fileID.close()
 			return str(val)
 	def updateID(self):

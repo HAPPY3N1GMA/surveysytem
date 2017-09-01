@@ -1,6 +1,6 @@
 import csv, ast, os, time
 from flask import Flask, redirect, render_template, request, url_for
-from server import app, users, authenticated
+from server import app, users, authenticated,errorMSG
 from functions import append
 from classes import fileclasses
 
@@ -69,18 +69,17 @@ def createsurvey():
 	if not _authenticated:
 		return redirect(url_for("login"))
 
-	#TODO: Display Error to user adding question if they forget fields
 
 	if request.method == "POST":
 		survey_name = request.form["svyname"]
 		survey_course = request.form["svycourse"]
 		survey_date = time.strftime("%d/%m/%Y,%I:%M:%S")
 		if (survey_name == "" or survey_course == "" or survey_date == ""):
-			print("Invalid Input")
+			errorMSG("routes.createsurvey","Invalid input in fields")
 		else:
 			ID = fileclasses.textfile("surveyID.txt")
 			survey_ID = ID.updateID()
-			mastercsv = fileclasses.csvfile("mastersurvey.csv")
+			mastercsv = fileclasses.csvfile("master_survey.csv")
 			mastercsv.writeto(survey_ID, survey_name, survey_course, survey_date)
 
 	return render_template("createsurvey.html")
