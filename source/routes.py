@@ -75,10 +75,13 @@ def createsurvey():
 		survey_name = request.form["svyname"]
 		survey_course = request.form["svycourse"]
 		survey_date = time.strftime("%d/%m/%Y,%I:%M:%S")
-		ID = fileclasses.textfile("surveyID.txt")
-		survey_ID = ID.updateID()
-		mastercsv = fileclasses.csvfile("mastersurvey.csv")
-		mastercsv.writeto(survey_ID, survey_name, survey_course, survey_date)
+		if (survey_name == "" or survey_course == "" or survey_date == ""):
+			print("Invalid Input")
+		else:
+			ID = fileclasses.textfile("surveyID.txt")
+			survey_ID = ID.updateID()
+			mastercsv = fileclasses.csvfile("mastersurvey.csv")
+			mastercsv.writeto(survey_ID, survey_name, survey_course, survey_date)
 
 	return render_template("createsurvey.html")
 

@@ -6,12 +6,14 @@ class IDfile():
 
 class textfile(IDfile):
 	def getcurrentID(self):
-		fileID = open(self._name,"r+")
-		val = fileID.read()
-		if val == "":
+		try:
+			fileID = open(self._name,"r+")
+		except FileNotFoundError:
 			return 0
-		fileID.close()
-		return str(val)
+		else:
+			val = fileID.read()
+			fileID.close()
+			return str(val)
 	def updateID(self):
 		new_val = int(self.getcurrentID())
 		IDfile = open(self._name,"w")
