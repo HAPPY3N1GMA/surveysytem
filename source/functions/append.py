@@ -88,14 +88,23 @@ def master_question(qID, question, answers):
 	if (question==""):
 		errorMSG("append.master_question","No Question Provided")
 		return
-	if(answers==""):
+
+	answerStr = ""
+	for ans in answers:
+		if(ans!=""):
+			if(answerStr==""):
+				answerStr = answerStr+ans
+			else:
+				answerStr = answerStr+","+ans
+
+	if(answerStr==""):
 		errorMSG("append.master_question","No Answers Provided")
 		return
 
 	# write new row in order of qID, question, answers (in form id, question, ans1, ans2, ans3 etc.)
 	with open('question_temp.csv','w+', newline = '') as csv_out:
 			writer = csv.writer(csv_out)
-			writer.writerow([qID, question, answers])
+			writer.writerow([qID, question, answerStr])
 
 	# overwrite master with changes and get rid of "" symbols
 	try:
@@ -106,6 +115,8 @@ def master_question(qID, question, answers):
 	except IOError:
 		errorMSG("append.master_question","Error overwriting master with changes")
 		return	
+
+
 
 #####################################################
 # 				append.master_survey()				#

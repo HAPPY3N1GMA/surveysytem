@@ -64,6 +64,11 @@ def home():
 
 @app.route("/createsurvey", methods=["GET", "POST"])
 def createsurvey():
+
+	global _authenticated
+	if not _authenticated:
+		return redirect(url_for("login"))
+
 	if request.method == "POST":
 		survey_name = request.form["svyname"]
 		survey_course = request.form["svycourse"]
@@ -77,36 +82,26 @@ def createsurvey():
 
 @app.route("/createquestion", methods=["GET", "POST"])
 def createquestion():
+
+	global _authenticated
+	if not _authenticated:
+		return redirect(url_for("login"))
+	
 	if request.method == "POST":
+
+		#TODO:	implement method to add any number of answers to a question
+		# 		possibly use a dict, and add answer button that polls server
+		# 		storing each answer, until final submission submitted
+
 		question = request.form["question"]
 		answer_one = request.form["option_one"]
 		answer_two = request.form["option_two"]
 		answer_three = request.form["option_three"]
 		answer_four = request.form["option_four"]
-		answers = ""
-
-		#needs a better way to do this...
-		if(answer_one!=""):
-			answers = answer_one
-		if(answer_two!=""):
-			if(answers==""):
-				answers = answer_two
-			else:
-				answers = answers+','+answer_two
-		if(answer_three!=""):
-			if(answers==""):
-				answers = answer_three
-			else:
-				answers = answers+','+answer_three
-		if(answer_four!=""):
-			if(answers==""):
-				answers = answer_four
-			else:
-				answers = answers+','+answer_four
 
 		survey = -1
 
-		append.question(survey, question, answers)
+		append.question(survey, question, [answer_one,answer_two,answer_three,answer_four])
 
 	return render_template("createquestion.html")
 
