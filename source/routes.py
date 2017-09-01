@@ -85,6 +85,21 @@ def createquestion():
 		answer_three = request.form["option_three"]
 		answer_four = request.form["option_four"]
 
+		answers = ""
+
+		if(answer_one!=""):
+			answers = answers+','+answer_one
+		if(answer_two!=""):
+			answers = answers+','+answer_two
+		if(answer_three!=""):
+			answers = answers+','+answer_three
+		if(answer_four!=""):
+			answers = answers+','+answer_four
+
+		survey = -1
+
+		append.question(survey, question, answers)
+
 
 
 		# TO DO: Add new question creation
