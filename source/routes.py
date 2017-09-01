@@ -68,7 +68,7 @@ def createsurvey():
 		survey_name = request.form["svyname"]
 		survey_course = request.form["svycourse"]
 		survey_date = time.strftime("%d/%m/%Y,%I:%M:%S")
-		if (survey_name == "" or survey_course == "" or survey_date == "")
+		if (survey_name == "" or survey_course == "" or survey_date == ""):
 			print("Invalid Input")
 		else:
 			ID = fileclasses.textfile("surveyID.txt")
