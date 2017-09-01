@@ -77,7 +77,16 @@ def createsurvey():
 
 @app.route("/createquestion", methods=["GET", "POST"])
 def createquestion():
-	# if request.method == "POST":
+	if request.method == "POST":
+
+		question = request.form["question"]
+		answer_one = request.form["option_one"]
+		answer_two = request.form["option_two"]
+		answer_three = request.form["option_three"]
+		answer_four = request.form["option_four"]
+
+
+
 		# TO DO: Add new question creation
 
 	return render_template("createquestion.html")
