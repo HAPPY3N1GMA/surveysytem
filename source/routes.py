@@ -69,6 +69,8 @@ def createsurvey():
 	if not _authenticated:
 		return redirect(url_for("login"))
 
+	#TODO: Display Error to user adding question if they forget fields
+
 	if request.method == "POST":
 		survey_name = request.form["svyname"]
 		survey_course = request.form["svycourse"]
@@ -86,7 +88,7 @@ def createquestion():
 	global _authenticated
 	if not _authenticated:
 		return redirect(url_for("login"))
-	
+
 	if request.method == "POST":
 
 		#TODO:	implement method to add any number of answers to a question
@@ -102,6 +104,8 @@ def createquestion():
 		survey = -1
 
 		append.question(survey, question, [answer_one,answer_two,answer_three,answer_four])
+
+		#TODO: Display Error to user adding question if they forget fields
 
 	return render_template("createquestion.html")
 
