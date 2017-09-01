@@ -98,6 +98,8 @@ def createquestion():
 		# 		possibly use a dict, and add answer button that polls server
 		# 		storing each answer, until final submission submitted
 
+		#TODO: Display Error to user adding question if they forget fields
+
 		question = request.form["question"]
 		answer_one = request.form["option_one"]
 		answer_two = request.form["option_two"]
@@ -108,8 +110,21 @@ def createquestion():
 
 		append.question(survey, question, [answer_one,answer_two,answer_three,answer_four])
 
-		#TODO: Display Error to user adding question if they forget fields
+		#Do we want to store this as a list/dict on server that is global
+		#and only updated on server restart and question add/remove
 
-	return render_template("createquestion.html")
+		mastercsv = fileclasses.csvfile("master_question.csv")
+		questions_pool = mastercsv.readfrom()
+
+		#print(questions_pool)
+		return render_template("createquestion.html",questions_pool=questions_pool)
+
+	else:
+		mastercsv = fileclasses.csvfile("master_question.csv")
+		questions_pool = mastercsv.readfrom()
+
+
+		#print(questions_pool)
+		return render_template("createquestion.html",questions_pool=questions_pool)
 
 
