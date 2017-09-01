@@ -111,19 +111,17 @@ def createquestion():
 
 		#Do we want to store this as a list/dict on server that is global
 		#and only updated on server restart and question add/remove
+		#atm it reloads the file each time change made/server reloaded which is bad...
 
 		mastercsv = fileclasses.csvfile("master_question.csv")
 		questions_pool = mastercsv.readfrom()
 
-		#print(questions_pool)
 		return render_template("createquestion.html",questions_pool=questions_pool)
 
 	else:
 		mastercsv = fileclasses.csvfile("master_question.csv")
 		questions_pool = mastercsv.readfrom()
 
-
-		#print(questions_pool)
 		return render_template("createquestion.html",questions_pool=questions_pool)
 
 
