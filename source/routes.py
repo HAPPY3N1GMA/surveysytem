@@ -78,31 +78,35 @@ def createsurvey():
 @app.route("/createquestion", methods=["GET", "POST"])
 def createquestion():
 	if request.method == "POST":
-
 		question = request.form["question"]
 		answer_one = request.form["option_one"]
 		answer_two = request.form["option_two"]
 		answer_three = request.form["option_three"]
 		answer_four = request.form["option_four"]
-
 		answers = ""
 
+		#needs a better way to do this...
 		if(answer_one!=""):
-			answers = answers+','+answer_one
+			answers = answer_one
 		if(answer_two!=""):
-			answers = answers+','+answer_two
+			if(answers==""):
+				answers = answer_two
+			else:
+				answers = answers+','+answer_two
 		if(answer_three!=""):
-			answers = answers+','+answer_three
+			if(answers==""):
+				answers = answer_three
+			else:
+				answers = answers+','+answer_three
 		if(answer_four!=""):
-			answers = answers+','+answer_four
+			if(answers==""):
+				answers = answer_four
+			else:
+				answers = answers+','+answer_four
 
 		survey = -1
 
 		append.question(survey, question, answers)
-
-
-
-		# TO DO: Add new question creation
 
 	return render_template("createquestion.html")
 
