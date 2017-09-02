@@ -1,9 +1,10 @@
 import csv, ast, os, time
+#Classes for different file types
 class IDfile():
 	def __init__(self, filename):
 		self._name = filename
 
-
+#class for textfiles, accessing mainly ID files
 class textfile(IDfile):
 	def getcurrentID(self):
 		try:
@@ -23,12 +24,12 @@ class textfile(IDfile):
 		IDfile.write(str(new_val))
 		return str(new_val)
 
-
+#Writing to and from CSV files
 class csvfile(IDfile):
-	def writeto(self,ID,name,course,time):
+	def writeto(self,ID,name,course,time,questions):
 		with open(self._name,'a') as csv_out:
 			writer = csv.writer(csv_out)
-			writer.writerow([ID,name,course,time])
+			writer.writerow([ID,name,course,time,list(questions)])
 	def readfrom(self):
 		with open(self._name,'r') as csv_in:
 			reader = csv.reader(csv_in)

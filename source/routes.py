@@ -74,15 +74,20 @@ def createsurvey():
 		survey_name = request.form["svyname"]
 		survey_course = request.form["svycourse"]
 		survey_date = time.strftime("%d/%m/%Y,%I:%M:%S")
+		survey_questions = request.form.getlist('question')
+		print(survey_questions)
 		if (survey_name == "" or survey_course == "" or survey_date == ""):
 			errorMSG("routes.createsurvey","Invalid input in fields")
 		else:
 			ID = fileclasses.textfile("surveyID.txt")
 			survey_ID = ID.updateID()
 			mastercsv = fileclasses.csvfile("master_survey.csv")
-			mastercsv.writeto(survey_ID, survey_name, survey_course, survey_date)
+			mastercsv.writeto(survey_ID, survey_name, survey_course, survey_date,list(survey_questions))
 
-	return render_template("createsurvey.html")
+	mastercsv = fileclasses.csvfile("master_question.csv")
+	questions_pool = mastercsv.readfrom()
+
+	return render_template("createsurvey.html",questions_pool=questions_pool)
 
 @app.route("/createquestion", methods=["GET", "POST"])
 def createquestion():
