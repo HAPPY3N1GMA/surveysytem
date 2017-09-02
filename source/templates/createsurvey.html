@@ -8,7 +8,36 @@
       <Form method="POST">
          <input name="svyname" placeholder="Enter survey name"/>
          <input name="svycourse" placeholder="Enter course name"/>
-         <button type="submit" name="bt">Submit</button>
+         <button type="submit" name="bt">Submit</button></br>
+         {% for question in questions_pool -%}
+            <input type="checkbox" name="question" value="{{question[0]}}"></br>
+         {%endfor-%}
       </Form>
+      <div class="questionPool">
+        <table cellpadding="5" cellspacing="20">
+
+            <colgroup>
+                <col span="5" style="">
+
+            </colgroup>
+            <tr>
+                <th>Question</th>
+                <th>A</th>
+                <th>B</th>
+                <th>C</th>
+                <th>D</th>
+            </tr>
+                {% if questions_pool %}  
+                    {% for question in questions_pool -%}
+                        <tr>
+                        {%- for answer in question[1:] -%}
+                            <span style="float:right;"><td>{{ answer }}</td></span>
+                        {%- endfor -%}
+                    {%- endfor %}
+                {% endif %}
+            </tr>
+        </table>
+    </div> 
    </body>
+   
 </html>

@@ -1,7 +1,7 @@
 import csv, ast, os, time
 from flask import Flask, redirect, render_template, request, url_for
 from server import app, users, authenticated,errorMSG
-from functions import append
+from functions import append, get
 from classes import fileclasses
 
 _authenticated = authenticated
@@ -74,15 +74,20 @@ def createsurvey():
 		survey_name = request.form["svyname"]
 		survey_course = request.form["svycourse"]
 		survey_date = time.strftime("%d/%m/%Y,%I:%M:%S")
+		survey_questions = request.form.getlist('question')
+		print(survey_questions)
 		if (survey_name == "" or survey_course == "" or survey_date == ""):
 			errorMSG("routes.createsurvey","Invalid input in fields")
 		else:
 			ID = fileclasses.textfile("surveyID.txt")
 			survey_ID = ID.updateID()
 			mastercsv = fileclasses.csvfile("master_survey.csv")
-			mastercsv.writeto(survey_ID, survey_name, survey_course, survey_date)
+			mastercsv.writeto(survey_ID, survey_name, survey_course, survey_date,list(survey_questions))
 
-	return render_template("createsurvey.html")
+	mastercsv = fileclasses.csvfile("master_question.csv")
+	questions_pool = mastercsv.readfrom()
+
+	return render_template("createsurvey.html",questions_pool=questions_pool)
 
 @app.route("/createquestion", methods=["GET", "POST"])
 def createquestion():
@@ -125,24 +130,30 @@ def createquestion():
 		return render_template("createquestion.html",questions_pool=questions_pool)
 
 
-@app.route('/<int:sID>')
+@app.route('/<int:sID>',methods=["GET", "POST"])
 def complete_survey(sID):
-	#see if that is a valid survey
-	#if not then return to homepage with error msg?
 
-	mastercsv = fileclasses.csvfile("master_survey.csv")
-	surveyInfo = mastercsv.readrow(sID)
+	if request.method == "GET":
+		#see if it is a valid survey
+		#if not then return to homepage with error msg?
 
-	if surveyInfo is not None:
-		#grab list of question Id's
-		questionIDs = surveyInfo[4:]
-		questioncsv = fileclasses.csvfile("master_question.csv")
-		questionList = []
+		#atm bad request page if not all checkboxes filled out
 
-		#using qID's, create list of questions from master
-		for qID in questionIDs:	
-			questionList = questionList+[(questioncsv.readrow(qID))]
-		return render_template('answersurvey.html',questionList=questionList)
+		questionList = get.questionList(sID)
 
+		if questionList != []:
+			return render_template('answersurvey.html',questionList=questionList, surveyID=sID)
+
+		else:
+			#not a valid survey link
+			print("TEST1")
+			return redirect(url_for("home"))
 	else:
+		#append answers to answer sheet
+		questionList = get.questionList(sID)
+		answersList = [];
+		for qID in questionList:
+			answer = request.form[qID[0]]
+			append.answer(sID, str(qID[0]), str(answer))
+
 		return redirect(url_for("home"))

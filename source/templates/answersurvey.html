@@ -10,20 +10,20 @@
 	<body>
 		<h1 align="center">Answer Survey page</h1>
 			 <div><br><br>
-				{% if questionList %}  
+			{% if questionList %}  
+				<form method="POST">
 					{% for question in questionList -%}
-					<form method="POST">
 						<br>
 						{{ question[1] }}
 							<br><br>
 						{%- for answer in question[2:] -%}
-							<input type="radio" name="{{ answer.count }}" value="{{ question.count }}" id="{{ answer.count }}">
-							<label>{{ answer }}</label> <br>
+ 							<input type="radio" name="{{ question[0] }}" value="{{ loop.index0 }}"><label for="{{ loop.index0 }}"> {{ answer }}</label><br>
 						{%- endfor -%}
-						</form>
 						<br><br>
 					{%- endfor %}
-				{% endif %}
+         			<button type="submit" name="bt">Submit</button></br>
+				</form>
+			{% endif %}
 		</div>
 	</body>
 </html>
