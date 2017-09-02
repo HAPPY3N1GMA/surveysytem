@@ -125,3 +125,24 @@ def createquestion():
 		return render_template("createquestion.html",questions_pool=questions_pool)
 
 
+@app.route('/<int:sID>')
+def complete_survey(sID):
+	#see if that is a valid survey
+	#if not then return to homepage with error msg?
+
+	mastercsv = fileclasses.csvfile("master_survey.csv")
+	surveyInfo = mastercsv.readrow(sID)
+
+	if surveyInfo is not None:
+		#grab list of question Id's
+		questionIDs = surveyInfo[4:]
+		questioncsv = fileclasses.csvfile("master_question.csv")
+		questionList = []
+
+		#using qID's, create list of questions from master
+		for qID in questionIDs:	
+			questionList = questionList+[(questioncsv.readrow(qID))]
+		return render_template('answersurvey.html',questionList=questionList)
+
+	else:
+		return redirect(url_for("home"))

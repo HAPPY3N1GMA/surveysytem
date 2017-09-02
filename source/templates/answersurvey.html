@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+
+ <head>
+ <title>Answer Survey</title>
+ </head>
+	<body>
+		<h1 align="center">Answer Survey page</h1>
+			 <div><br><br>
+				{% if questionList %}  
+					{% for question in questionList -%}
+					<form method="POST">
+						<br>
+						{{ question[1] }}
+							<br><br>
+						{%- for answer in question[2:] -%}
+							<input type="radio" name="{{ answer.count }}" value="{{ question.count }}" id="{{ answer.count }}">
+							<label>{{ answer }}</label> <br>
+						{%- endfor -%}
+						</form>
+						<br><br>
+					{%- endfor %}
+				{% endif %}
+		</div>
+	</body>
+</html>

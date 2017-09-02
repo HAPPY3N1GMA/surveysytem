@@ -36,3 +36,8 @@ class csvfile(IDfile):
 			for row in reader:
 				namelist.append(row)
 			return namelist
+	def readrow(self,ID):
+		file = self.readfrom()
+		for row in file:
+			if row[0]==str(ID):
+				return row
