@@ -1,8 +1,26 @@
 import csv, ast, os, time
+from defines import masterSurveys
+_masterSurveys = masterSurveys
+
 #Classes for different file types
 class IDfile():
 	def __init__(self, filename):
 		self._name = filename
+
+
+class survey(object):
+	def __init__(self, surveyID,surveyTitle,courseName,date,questionList):
+		self.surveyID = surveyID
+		self.surveyTitle = surveyTitle
+		self.courseName = courseName
+		self.date = date
+		self.questionList = questionList
+
+	def create(surveyID,surveyTitle,courseName,date,questionList):
+		global _masterSurveys
+		newsurvey = survey(surveyID,surveyTitle,courseName,date,questionList)
+		_masterSurveys.append(newsurvey)
+		return newsurvey
 
 #class for textfiles, accessing mainly ID files
 class textfile(IDfile):
@@ -30,6 +48,8 @@ class csvfile(IDfile):
 		with open(self._name,'a') as csv_out:
 			writer = csv.writer(csv_out)
 			writer.writerow([ID,name,course,time,list(questions)])
+		#add to masterSurvey classlist
+		survey.create(ID,name,course,time,questions)
 	def readfrom(self):
 		with open(self._name,'r') as csv_in:
 			reader = csv.reader(csv_in)

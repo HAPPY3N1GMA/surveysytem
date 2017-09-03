@@ -3,9 +3,10 @@ from flask import Flask, redirect, render_template, request, url_for
 from server import app, users, authenticated,errorMSG
 from functions import append, get
 from classes import fileclasses
+from defines import masterSurveys
 
 _authenticated = authenticated
-
+_masterSurveys = masterSurveys
 
 @app.route("/", methods=["GET", "POST"])
 def index():
