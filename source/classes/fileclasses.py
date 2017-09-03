@@ -1,6 +1,7 @@
 import csv, ast, os, time
-from defines import masterSurveys
+from defines import masterSurveys,masterQuestions
 _masterSurveys = masterSurveys
+_masterQuestions = masterQuestions
 
 #Classes for different file types
 class IDfile():
@@ -8,19 +9,45 @@ class IDfile():
 		self._name = filename
 
 
+class question(object):
+	def __init__(self,questionID,questionName,answers):
+		self.questionID = questionID
+		self.questionName = questionName
+		self.answers = answers
+
+	def create(questionID,questionName,answers):
+		global _masterQuestions
+		newquestion = question(questionID,questionName,answers)
+		_masterQuestions.append(newquestion)
+		return newquestion
+
+	def read(questionID):
+		global _masterQuestions
+		for question in _masterQuestions:
+			if question.questionID == questionID:
+				return question
+		return None
+
 class survey(object):
-	def __init__(self, surveyID,surveyTitle,courseName,date,questionList):
+	def __init__(self,surveyID,surveyTitle,courseName,date,questionList):
 		self.surveyID = surveyID
 		self.surveyTitle = surveyTitle
 		self.courseName = courseName
 		self.date = date
-		self.questionList = questionList
+		self.questionList = ast.literal_eval(str(questionList))
 
 	def create(surveyID,surveyTitle,courseName,date,questionList):
 		global _masterSurveys
 		newsurvey = survey(surveyID,surveyTitle,courseName,date,questionList)
 		_masterSurveys.append(newsurvey)
 		return newsurvey
+
+	def read(surveyID):
+		global _masterSurveys
+		for survey in _masterSurveys:
+			if survey.surveyID == surveyID:
+				return survey
+		return None
 
 #class for textfiles, accessing mainly ID files
 class textfile(IDfile):
