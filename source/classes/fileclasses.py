@@ -37,8 +37,21 @@ class csvfile(IDfile):
 			for row in reader:
 				namelist.append(row)
 			return namelist
-	def readrow(self,ID):
+	def readfromid(self,rowID):
 		file = self.readfrom()
 		for row in file:
-			if row[0]==str(ID):
+			if row[0]==str(rowID):
 				return row
+	def writetoid(self,rowID,content): #content needs to formated as desired before passing
+		file = self.readfrom()
+		for row in file:
+			if row[0]==str(rowID):
+				row = [row[0]]+content
+			row = list(row)
+		print(file)
+		self.writetotest(file)
+
+	def writetotest(self,content):
+		with open(self._name,'w') as csv_out:
+			writer = csv.writer(csv_out)
+			writer.writerow(content)

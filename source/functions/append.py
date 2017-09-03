@@ -30,26 +30,23 @@ def answer(sID, qID, answer):
 		errorMSG("append.answer","No Answer Provided")
 		return
 
-	file = str(sID)+".csv"
-	tmp = str(sID)+"_tmp.csv"	
+	answercsv = fileclasses.csvfile(str(sID)+".csv")
+	currentAnswersRow = answercsv.readfromid(qID)
+	print("OLD: ",currentAnswersRow)
+	currentAnswers = ast.literal_eval(currentAnswersRow[1])
+	currentAnswers.append(answer)
+	#print([qID]+[currentAnswers])
+	print("NEW:",qID,currentAnswers)
 
-	try:
-		with open(file, 'r+') as csvReadFile:
-			fieldnames = ['question_id', 'answers']
-			reader = csv.DictReader(csvReadFile, fieldnames=fieldnames)
-			with open (tmp, 'w') as write_row:
-				writer=csv.DictWriter(write_row, fieldnames=fieldnames)
-				for row in reader:
-					if(row['question_id']==qID):
-						tmp_list=ast.literal_eval(row['answers'])
-						tmp_list.append(answer)
-						row['answers'] = tmp_list
-					writer.writerow(row)				
-		os.remove(file)
-		os.rename(tmp, file)
-	except IOError:
-		errorMSG("append.answer","No Survey Results File Found")
-		return	
+
+	#tmp = currentAnswers[1].append([answer])
+	#print("TRY?",[qID]+[currentAnswers])
+	#print(tmp)
+
+	answercsv.writetoid(qID,[currentAnswers])
+
+
+
 
 #####################################################
 # 				append.question() 					#

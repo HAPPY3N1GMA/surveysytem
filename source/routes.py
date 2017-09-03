@@ -137,7 +137,7 @@ def complete_survey(sID):
 		#see if it is a valid survey
 		#if not then return to homepage with error msg?
 
-		#atm bad request page if not all checkboxes filled out
+		#atm it goes to a bad request page if not all checkboxes filled out
 
 		questionList = get.questionList(sID)
 
@@ -146,7 +146,7 @@ def complete_survey(sID):
 
 		else:
 			#not a valid survey link
-			print("TEST1")
+			#print("TEST1")
 			return redirect(url_for("home"))
 	else:
 		#append answers to answer sheet

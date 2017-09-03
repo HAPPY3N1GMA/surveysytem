@@ -9,7 +9,7 @@ from server import errorMSG
 
 def questionList(sID):
 	mastercsv = fileclasses.csvfile("master_survey.csv")
-	surveyInfo = mastercsv.readrow(sID)
+	surveyInfo = mastercsv.readfromid(sID)
 
 	questionList = []
 
@@ -20,6 +20,6 @@ def questionList(sID):
 
 		#using qID's, create list of questions from master
 		for qID in questionIDs:	
-			questionList = questionList+[(questioncsv.readrow(qID))]
+			questionList = questionList+[(questioncsv.readfromid(qID))]
 
 	return questionList
