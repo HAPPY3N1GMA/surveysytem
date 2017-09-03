@@ -5,49 +5,6 @@ from server import errorMSG
 
 
 
-#####################################################################
-# 					append.answer()									#
-#																	#
-# appends a new answer result to a question for a specified survey  #
-#																	#
-# 	Input: 															#
-#			SurveyID 	- String									#														#														#
-# 			QuestionID 	- String									#														#
-# 			Answer 		- String									#
-#																	#
-# Sample CSV Format: 1,"['a', 'a', 'b', 'b', 'c', 'a', 'd', 'j']" 	#
-#####################################################################
-
-def answer(sID, qID, answer):
-
-	if(sID==""):
-		errorMSG("append.answer","No sID Provided")
-		return
-	if(qID==""):
-		errorMSG("append.answer","No qID Provided")
-		return
-	if(answer==""):
-		errorMSG("append.answer","No Answer Provided")
-		return
-
-	answercsv = fileclasses.csvfile(str(sID)+".csv")
-	currentAnswersRow = answercsv.readfromid(qID)
-	print("OLD: ",currentAnswersRow)
-	currentAnswers = ast.literal_eval(currentAnswersRow[1])
-	currentAnswers.append(answer)
-	#print([qID]+[currentAnswers])
-	print("NEW:",qID,currentAnswers)
-
-
-	#tmp = currentAnswers[1].append([answer])
-	#print("TRY?",[qID]+[currentAnswers])
-	#print(tmp)
-
-	answercsv.writetoid(qID,[currentAnswers])
-
-
-
-
 #####################################################
 # 				append.question() 					#
 #####################################################

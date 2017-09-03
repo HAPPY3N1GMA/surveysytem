@@ -42,16 +42,23 @@ class csvfile(IDfile):
 		for row in file:
 			if row[0]==str(rowID):
 				return row
-	def writetoid(self,rowID,content): #content needs to formated as desired before passing
-		file = self.readfrom()
-		for row in file:
-			if row[0]==str(rowID):
-				row = [row[0]]+content
-			row = list(row)
-		print(file)
-		self.writetotest(file)
 
-	def writetotest(self,content):
-		with open(self._name,'w') as csv_out:
-			writer = csv.writer(csv_out)
-			writer.writerow(content)
+	def appendfield(self,rowID,fieldID,content):
+		tmp = "tmp.csv"
+		with open(self._name, 'r+') as csvReadFile:
+			reader = csv.DictReader(csvReadFile)
+			with open (tmp, 'w') as write_row:
+				#get list of fields from the csv header
+				fields = reader.fieldnames;
+				#rowIDField is always the first field/column
+				rowIDField = fields[0]
+				writer=csv.DictWriter(write_row, fieldnames=fields)
+				writer.writeheader() #write headerfiles
+				for row in reader:
+					if(row[rowIDField]==rowID):
+						tmp_list=ast.literal_eval(row[fieldID])
+						tmp_list.append(content)
+						row[fieldID] = tmp_list
+					writer.writerow(row)				
+		os.remove(self._name)
+		os.rename(tmp, self._name)

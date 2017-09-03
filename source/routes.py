@@ -154,6 +154,8 @@ def complete_survey(sID):
 		answersList = [];
 		for qID in questionList:
 			answer = request.form[qID[0]]
-			append.answer(sID, str(qID[0]), str(answer))
+			filename = str(sID)+".csv"
+			answercsv = fileclasses.csvfile(filename)
+			answercsv.appendfield(str(qID[0]),"answers",str(answer))
 
 		return redirect(url_for("home"))
