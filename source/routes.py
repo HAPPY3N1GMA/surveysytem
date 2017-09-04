@@ -97,8 +97,8 @@ def createsurvey():
 def createquestion():
 
 	global _authenticated, _masterQuestions
-	#if not _authenticated:
-		#return redirect(url_for("login"))
+	if not _authenticated:
+		return redirect(url_for("login"))
 
 	if request.method == "POST":
 
@@ -108,6 +108,11 @@ def createquestion():
 
 		#TODO: Display Error to user adding question if they forget fields
 
+		#old method using csv file each time - now redundant using classes
+		#mastercsv = fileclasses.csvfile("master_question.csv")
+		#questions_pool = mastercsv.readfrom()
+		questions_pool = fileclasses.question.readall()
+
 		question = request.form["question"]
 		answer_one = request.form["option_one"]
 		answer_two = request.form["option_two"]
@@ -116,11 +121,15 @@ def createquestion():
 
 		survey = -1
 
-		append.question(survey, question, [answer_one,answer_two,answer_three,answer_four])
+		answers = [answer_one,answer_two,answer_three,answer_four]
+		answers = list(filter(None, answers))
 
-		#old method using csv file each time - now redundant using classes
-		#mastercsv = fileclasses.csvfile("master_question.csv")
-		#questions_pool = mastercsv.readfrom()
+		#if only one answer provided then return with error msg (this is not a valid question)
+		if(len(answers)<2):
+			return render_template("createquestion.html",questions_pool=questions_pool)
+
+		append.question(survey, question, str(answers))
+
 		questions_pool = fileclasses.question.readall()
 
 		return render_template("createquestion.html",questions_pool=questions_pool)

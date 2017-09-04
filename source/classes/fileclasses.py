@@ -18,7 +18,7 @@ class question(object):
 	def create(questionID,questionName,answers):
 		global _masterQuestions
 		newquestion = question(questionID,questionName,answers)
-		print(newquestion.answers)
+		#print(newquestion.answers)
 		_masterQuestions.append(newquestion)
 		return newquestion
 
@@ -57,7 +57,7 @@ class survey(object):
 	def read(surveyID):
 		global _masterSurveys
 		for survey in _masterSurveys:
-			print(survey.surveyID)
+			#print(survey.surveyID)
 			if survey.surveyID == surveyID:
 				return survey
 		return None
@@ -84,6 +84,7 @@ class textfile(IDfile):
 
 #Writing to and from CSV files
 class csvfile(IDfile):
+	#this should be renamed as its specific to surveys nothing else
 	def writeto(self,ID,name,course,time,questions):
 		with open(self._name,'a') as csv_out:
 			writer = csv.writer(csv_out)
@@ -124,6 +125,14 @@ class csvfile(IDfile):
 		os.remove(self._name)
 		os.rename(tmp, self._name)
 
+	def writetofile(self,row):
+		with open(self._name,'a') as csv_out:
+			writer = csv.writer(csv_out)
+			writer.writerow(ast.literal_eval([row]))
+
+
+
+	#not used
 	def readDict(self):
 		with open(self._name, 'r+') as csvReadFile:
 			reader = csv.DictReader(csvReadFile)

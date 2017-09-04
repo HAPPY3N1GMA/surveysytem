@@ -24,10 +24,22 @@ def question(sID, question, answers): #assumes all params are strings
 	ID = fileclasses.textfile("questionID.txt")
 	qID = ID.updateID()
 
+	#(ast.literal_eval([answers]))
+	print("TEMP:",answers)
+
+
 	append.master_question(qID, question, answers)
 
-	if (sID != -1): # -1 is a flag meaning there is no survey to immediately add it to
-		append.master_survey(qID, sID)
+	#mastercsv = fileclasses.csvfile("master_question.csv")
+
+	#row = str(qID),question+"'"+','+str(answers)
+	#print(row)
+
+	#mastercsv.writetofile(row)
+
+
+	#if (sID != -1): # -1 is a flag meaning there is no survey to immediately add it to
+	#	append.master_survey(qID, sID)
 
 
 #####################################################
@@ -43,6 +55,8 @@ def master_question(qID, question, answers):
 		errorMSG("append.master_question","No Question Provided")
 		return
 
+	# FROM HERE NOT USED
+
 	answerStr = ""
 	for ans in answers:
 		if(ans!=""):
@@ -55,17 +69,32 @@ def master_question(qID, question, answers):
 		errorMSG("append.master_question","No Answers Provided")
 		return
 
+
+	# TO HERE NOT USED 
+
 	# write new row in order of qID, question, answers (in form id, question, ans1, ans2, ans3 etc.)
 	with open('question_temp.csv','w+', newline = '') as csv_out:
 			writer = csv.writer(csv_out)
-			writer.writerow([qID, question, answerStr])
+			writer.writerow([qID, question, answers])
 
 	# overwrite master with changes and get rid of "" symbols
 	try:
 		with open('question_temp.csv') as csv_in, open('master_question.csv', 'a') as csv_out:
 			for line in csv_in:
-				csv_out.write(line.replace('\"',''))
+				line = line.replace(',[',',"[')
+				line = line.replace(']\n',']"\n')
+				#print(line.replace('\"','\"'))
+				csv_out.write(line)
 		os.remove('question_temp.csv')
+
+		#write to answers master class
+
+		answers = str(answers).replace(']', "")
+		answers = str(answers).replace('[', "")
+		#print(answers)
+		fileclasses.question.create(qID, question, answers)
+
+
 	except IOError:
 		errorMSG("append.master_question","Error overwriting master with changes")
 		return	

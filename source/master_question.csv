@@ -4,3 +4,7 @@ question_id,question,answers
 3,Is comp1521 any good?,"['yes', 'no', 'maybe so']"
 4,Is comp1531 any good?,"['yes', 'no', 'maybe so']"
 5,Is comp2521 any good?,"['yes', 'no', 'maybe so']"
+6,Did this survey make you feel more enlightened?,"['i hope', 'this works']"
+7,Do you hate python,"['YES', 'MORE NOW THAN EVER', 'ITS STUPID', 'Whats Python?']"
+8,Test,"['One', 'two']"
+9,A new question,"['You have to', 'Have atleast', 'Two answers', 'To have a question']"
