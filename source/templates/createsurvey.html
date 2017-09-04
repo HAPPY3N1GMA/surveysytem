@@ -9,10 +9,7 @@
          <input name="svyname" placeholder="Enter survey name"/>
          <input name="svycourse" placeholder="Enter course name"/>
          <button type="submit" name="bt">Submit</button></br>
-         {% for question in questions_pool -%}
-            <input type="checkbox" name="question" value="{{question[0]}}"></br>
-         {%endfor-%}
-      </Form>
+      
       <p>Please check which questions you would like to include in survey</p>
       <div class="questionPool">
         <table cellpadding="5" cellspacing="20">
@@ -31,6 +28,9 @@
                 {% if questions_pool %}  
                     {% for question in questions_pool -%}
                         <tr>
+                        
+                        <span style="float:right;"><td>{{ answer }}<input type="checkbox" name="question" value="{{question[0]}}"></td></span>
+                        </Form>
                         {%- for answer in question[1:] -%}
                             <span style="float:right;"><td>{{ answer }}</td></span>
                         {%- endfor -%}
