@@ -19,7 +19,7 @@ def questionList(sID):
 
 	if survey is not None:
 		#grab list of question Id's
-		questioncsv = fileclasses.csvfile("master_question.csv")
+		#questioncsv = fileclasses.csvfile("master_question.csv")
 
 		#using qID's, create list of questions from master
 		for qID in survey.questionList:
