@@ -18,6 +18,7 @@ class question(object):
 	def create(questionID,questionName,answers):
 		global _masterQuestions
 		newquestion = question(questionID,questionName,answers)
+		print(newquestion.answers)
 		_masterQuestions.append(newquestion)
 		return newquestion
 
@@ -26,7 +27,14 @@ class question(object):
 		for question in _masterQuestions:
 			if question.questionID == questionID:
 				return question
-		return None
+		return 
+
+	def readall():
+		global _masterQuestions
+		question_pool = []
+		for question in _masterQuestions:
+			question_pool = question_pool + [[question.questionID,question.questionName,question.answers]]
+		return question_pool
 
 class survey(object):
 	def __init__(self,surveyID,surveyTitle,courseName,date,questionList):
@@ -79,6 +87,7 @@ class csvfile(IDfile):
 		survey.create(ID,name,course,time,questions)
 	def readfrom(self):
 		with open(self._name,'r') as csv_in:
+			next(csv_in) #skip header line
 			reader = csv.reader(csv_in)
 			namelist = []
 			for row in reader:
@@ -109,3 +118,18 @@ class csvfile(IDfile):
 					writer.writerow(row)				
 		os.remove(self._name)
 		os.rename(tmp, self._name)
+
+	def readDict(self):
+		with open(self._name, 'r+') as csvReadFile:
+			reader = csv.DictReader(csvReadFile)
+			#get list of fields from the csv header
+			fields = reader.fieldnames;
+			tmp = []
+			output = []
+			for row in reader:
+				for field in fields:
+					tmp = tmp + list([row[field]])
+				output = output+[tmp]
+			#result = str(output).replace('"', "")
+			#print(result)
+			return output

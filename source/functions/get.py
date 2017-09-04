@@ -11,10 +11,7 @@ _masterQuestions = masterQuestions
 #build list of survey questions
 
 def questionList(sID):
-	global _masterQuestions
-
 	survey = fileclasses.survey.read(str(sID))
-
 	questionList = []
 
 	if survey is not None:

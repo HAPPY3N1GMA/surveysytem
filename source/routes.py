@@ -3,10 +3,11 @@ from flask import Flask, redirect, render_template, request, url_for
 from server import app, users, authenticated,errorMSG
 from functions import append, get
 from classes import fileclasses
-from defines import masterSurveys
+from defines import masterSurveys, masterQuestions
 
 _authenticated = authenticated
 _masterSurveys = masterSurveys
+_masterQuestions = masterQuestions
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -93,7 +94,7 @@ def createsurvey():
 @app.route("/createquestion", methods=["GET", "POST"])
 def createquestion():
 
-	global _authenticated
+	global _authenticated, _masterQuestions
 	if not _authenticated:
 		return redirect(url_for("login"))
 
@@ -122,11 +123,19 @@ def createquestion():
 		mastercsv = fileclasses.csvfile("master_question.csv")
 		questions_pool = mastercsv.readfrom()
 
+
 		return render_template("createquestion.html",questions_pool=questions_pool)
 
 	else:
 		mastercsv = fileclasses.csvfile("master_question.csv")
 		questions_pool = mastercsv.readfrom()
+
+		print("OLD: ",questions_pool)
+
+		#append works withthis
+		#mastercsv.appendfield('1','answers','A LONG ANSWER')
+
+		print("NEW: ",fileclasses.question.readall())
 
 		return render_template("createquestion.html",questions_pool=questions_pool)
 
