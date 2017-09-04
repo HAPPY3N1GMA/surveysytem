@@ -90,8 +90,10 @@ def createsurvey():
 	#mastercsv = fileclasses.csvfile("master_question.csv")
 	#questions_pool = mastercsv.readfrom()
 	questions_pool = fileclasses.question.readall()
+	courses = fileclasses.csvfile("courses.csv")
+	course_list = courses.readfrom()
 
-	return render_template("createsurvey.html",questions_pool=questions_pool)
+	return render_template("createsurvey.html",questions_pool=questions_pool,course_list = course_list)
 
 @app.route("/createquestion", methods=["GET", "POST"])
 def createquestion():
