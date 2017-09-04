@@ -53,6 +53,7 @@ class survey(object):
 	def read(surveyID):
 		global _masterSurveys
 		for survey in _masterSurveys:
+			print(survey.surveyID)
 			if survey.surveyID == surveyID:
 				return survey
 		return None

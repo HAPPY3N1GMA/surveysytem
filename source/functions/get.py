@@ -2,9 +2,7 @@ import csv, ast, os
 from classes import fileclasses
 from functions import append
 from server import errorMSG
-from defines import masterQuestions
 
-_masterQuestions = masterQuestions
 
 
 
@@ -13,6 +11,8 @@ _masterQuestions = masterQuestions
 def questionList(sID):
 	survey = fileclasses.survey.read(str(sID))
 	questionList = []
+
+	print("survey:",survey)
 
 	if survey is not None:
 		#grab list of question Id's

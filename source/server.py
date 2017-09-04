@@ -14,8 +14,8 @@ authenticated = 0
 masterquestioncsv = fileclasses.csvfile("master_question.csv")
 for row in masterquestioncsv.readfrom():
 	answers = row[2]
-	#answers = str(answers).replace(']', "")
-	#answers = str(answers).replace('[', "")
+	answers = str(answers).replace(']', "")
+	answers = str(answers).replace('[', "")
 	#print(answers)
 	fileclasses.question.create(row[0],row[1],answers)
 

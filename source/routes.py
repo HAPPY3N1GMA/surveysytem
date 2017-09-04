@@ -151,6 +151,8 @@ def complete_survey(sID):
 
 		questionList = get.questionList(sID)
 
+		print("getrequest:",questionList)
+
 		if questionList != []:
 			return render_template('answersurvey.html',questionList=questionList, surveyID=sID)
 
