@@ -1,5 +1,6 @@
 import csv, ast, os, time
 from defines import masterSurveys,masterQuestions
+from shutil import copyfile
 _masterSurveys = masterSurveys
 _masterQuestions = masterQuestions
 
@@ -125,14 +126,16 @@ class csvfile(IDfile):
 		os.remove(self._name)
 		os.rename(tmp, self._name)
 
-	def writetofile(self,row):
+	def buildanswer(self,questions):
 		with open(self._name,'a') as csv_out:
 			writer = csv.writer(csv_out)
-			writer.writerow(ast.literal_eval([row]))
+			writer.writerow(['question_id','answers'])
+			for qID in questions:
+				writer.writerow([qID,list()])
 
 
 
-	#not used
+	#not used at this time
 	def readDict(self):
 		with open(self._name, 'r+') as csvReadFile:
 			reader = csv.DictReader(csvReadFile)
