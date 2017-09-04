@@ -9,7 +9,15 @@
          <input name="svyname" placeholder="Enter survey name"/>
          <input name="svycourse" placeholder="Enter course name"/>
          <button type="submit" name="bt">Submit</button></br>
-      
+      {% with messages = get_flashed_messages() %}
+         {% if messages %}
+            <ul>
+               {% for message in messages %}
+               <li>{{ message }}</li>
+               {% endfor %}
+            </ul>
+         {% endif %}
+      {% endwith %}
       <p>Please check which questions you would like to include in survey</p>
       <div class="questionPool">
         <table cellpadding="5" cellspacing="20">
