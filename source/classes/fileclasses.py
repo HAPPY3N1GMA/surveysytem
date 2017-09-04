@@ -33,7 +33,11 @@ class question(object):
 		global _masterQuestions
 		question_pool = []
 		for question in _masterQuestions:
-			question_pool = question_pool + [[question.questionID,question.questionName,question.answers]]
+			#correctly format the strings
+			questionAnswers = str(question.answers)
+			questionAnswers = ast.literal_eval(str(questionAnswers))
+			question_pool = question_pool + [[question.questionID,question.questionName,questionAnswers]]
+
 		return question_pool
 
 class survey(object):

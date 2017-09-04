@@ -86,8 +86,9 @@ def createsurvey():
 			mastercsv = fileclasses.csvfile("master_survey.csv")
 			mastercsv.writeto(survey_ID, survey_name, survey_course, survey_date,list(survey_questions))
 
-	mastercsv = fileclasses.csvfile("master_question.csv")
-	questions_pool = mastercsv.readfrom()
+	#mastercsv = fileclasses.csvfile("master_question.csv")
+	#questions_pool = mastercsv.readfrom()
+	questions_pool = fileclasses.question.readall()
 
 	return render_template("createsurvey.html",questions_pool=questions_pool)
 
@@ -95,8 +96,8 @@ def createsurvey():
 def createquestion():
 
 	global _authenticated, _masterQuestions
-	if not _authenticated:
-		return redirect(url_for("login"))
+	#if not _authenticated:
+		#return redirect(url_for("login"))
 
 	if request.method == "POST":
 
@@ -116,27 +117,19 @@ def createquestion():
 
 		append.question(survey, question, [answer_one,answer_two,answer_three,answer_four])
 
-		#Do we want to store this as a list/dict on server that is global
-		#and only updated on server restart and question add/remove
-		#atm it reloads the file each time change made/server reloaded which is bad...
-
-		mastercsv = fileclasses.csvfile("master_question.csv")
-		questions_pool = mastercsv.readfrom()
-
+		#old method using csv file each time - now redundant using classes
+		#mastercsv = fileclasses.csvfile("master_question.csv")
+		#questions_pool = mastercsv.readfrom()
+		questions_pool = fileclasses.question.readall()
 
 		return render_template("createquestion.html",questions_pool=questions_pool)
 
 	else:
-		mastercsv = fileclasses.csvfile("master_question.csv")
-		questions_pool = mastercsv.readfrom()
+		#old method using csv file each time - now redundant using classes
+		#mastercsv = fileclasses.csvfile("master_question.csv")
+		#questions_pool = mastercsv.readfrom()
 
-		print("OLD: ",questions_pool)
-
-		#append works withthis
-		#mastercsv.appendfield('1','answers','A LONG ANSWER')
-
-		print("NEW: ",fileclasses.question.readall())
-
+		questions_pool = fileclasses.question.readall()
 		return render_template("createquestion.html",questions_pool=questions_pool)
 
 
