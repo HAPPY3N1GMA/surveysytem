@@ -42,7 +42,9 @@
 						{% if questions_pool %}  
 							{% for question in questions_pool -%}
 								<tr>
-								{%- for answer in question[1:] -%}
+								<span style="float:right;"><td>{{ question[1] }}</td></span>
+
+								{%- for answer in question[2]: -%}
 									<span style="float:right;"><td>{{ answer }}</td></span>
 								{%- endfor -%}
 							{%- endfor %}

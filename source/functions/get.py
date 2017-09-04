@@ -2,30 +2,18 @@ import csv, ast, os
 from classes import fileclasses
 from functions import append
 from server import errorMSG
-from defines import masterQuestions
 
-_masterQuestions = masterQuestions
 
 
 
 #build list of survey questions
 
 def questionList(sID):
-	global _masterQuestions
-
 	survey = fileclasses.survey.read(str(sID))
-
 	questionList = []
-
 	if survey is not None:
-		#grab list of question Id's
-		#questioncsv = fileclasses.csvfile("master_question.csv")
-
 		#using qID's, create list of questions from master
 		for qID in survey.questionList:
-
-			#questionList = questionList+[(questioncsv.readfromid(qID))]
-
 			question = fileclasses.question.read(qID)
 			if question is not None:	
 				#clean up formatting of list

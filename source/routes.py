@@ -3,10 +3,11 @@ from flask import Flask, redirect, render_template, request, url_for,flash
 from server import app, users, authenticated,errorMSG
 from functions import append, get
 from classes import fileclasses
-from defines import masterSurveys
+from defines import masterSurveys, masterQuestions
 
 _authenticated = authenticated
 _masterSurveys = masterSurveys
+_masterQuestions = masterQuestions
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -86,15 +87,16 @@ def createsurvey():
 			mastercsv.writeto(survey_ID, survey_name, survey_course, survey_date,list(survey_questions))
 			flash("Your unique survey ID is {}".format(survey_ID))
 
-	mastercsv = fileclasses.csvfile("master_question.csv")
-	questions_pool = mastercsv.readfrom()
+	#mastercsv = fileclasses.csvfile("master_question.csv")
+	#questions_pool = mastercsv.readfrom()
+	questions_pool = fileclasses.question.readall()
 
 	return render_template("createsurvey.html",questions_pool=questions_pool)
 
 @app.route("/createquestion", methods=["GET", "POST"])
 def createquestion():
 
-	global _authenticated
+	global _authenticated, _masterQuestions
 	if not _authenticated:
 		return redirect(url_for("login"))
 
@@ -106,6 +108,11 @@ def createquestion():
 
 		#TODO: Display Error to user adding question if they forget fields
 
+		#old method using csv file each time - now redundant using classes
+		#mastercsv = fileclasses.csvfile("master_question.csv")
+		#questions_pool = mastercsv.readfrom()
+		questions_pool = fileclasses.question.readall()
+
 		question = request.form["question"]
 		answer_one = request.form["option_one"]
 		answer_two = request.form["option_two"]
@@ -114,21 +121,25 @@ def createquestion():
 
 		survey = -1
 
-		append.question(survey, question, [answer_one,answer_two,answer_three,answer_four])
+		answers = [answer_one,answer_two,answer_three,answer_four]
+		answers = list(filter(None, answers))
 
-		#Do we want to store this as a list/dict on server that is global
-		#and only updated on server restart and question add/remove
-		#atm it reloads the file each time change made/server reloaded which is bad...
+		#if only one answer provided then return with error msg (this is not a valid question)
+		if(len(answers)<2):
+			return render_template("createquestion.html",questions_pool=questions_pool)
 
-		mastercsv = fileclasses.csvfile("master_question.csv")
-		questions_pool = mastercsv.readfrom()
+		append.question(survey, question, str(answers))
+
+		questions_pool = fileclasses.question.readall()
 
 		return render_template("createquestion.html",questions_pool=questions_pool)
 
 	else:
-		mastercsv = fileclasses.csvfile("master_question.csv")
-		questions_pool = mastercsv.readfrom()
+		#old method using csv file each time - now redundant using classes
+		#mastercsv = fileclasses.csvfile("master_question.csv")
+		#questions_pool = mastercsv.readfrom()
 
+		questions_pool = fileclasses.question.readall()
 		return render_template("createquestion.html",questions_pool=questions_pool)
 
 
@@ -142,6 +153,8 @@ def complete_survey(sID):
 		#atm it goes to a bad request page if not all checkboxes filled out
 
 		questionList = get.questionList(sID)
+
+		print("getrequest:",questionList)
 
 		if questionList != []:
 			return render_template('answersurvey.html',questionList=questionList, surveyID=sID)

@@ -13,9 +13,10 @@ authenticated = 0
 #build list of questions from the master question list on server start
 masterquestioncsv = fileclasses.csvfile("master_question.csv")
 for row in masterquestioncsv.readfrom():
-	answers = row[2:]
+	answers = row[2]
 	answers = str(answers).replace(']', "")
 	answers = str(answers).replace('[', "")
+	#print(answers)
 	fileclasses.question.create(row[0],row[1],answers)
 
 #need questions built before surveys so they can be linked into surveys

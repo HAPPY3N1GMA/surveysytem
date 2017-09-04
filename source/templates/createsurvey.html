@@ -2,30 +2,53 @@
 <html>
    <head>
    <title>Create a Survey </title>
+
+  <!-- CSS Style Sheet -->
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+  <link rel= "stylesheet" type= "text/css" href= "static/styles/createsurvey.css">
+
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+  <meta name="keywords" content="" />
+
+
+  <!--Gives access to Google Fonts-->
+  <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+
    </head>
    <body>
+         <a href="/admin">Home</a>
+         <br><br>
       <h1> Enter survey name and course</h1>
+      <br>
       <Form method="POST">
          <input name="svyname" placeholder="Enter survey name"/>
          <input name="svycourse" placeholder="Enter course name"/>
          <button type="submit" name="bt">Submit</button></br>
-      {% with messages = get_flashed_messages() %}
-         {% if messages %}
-            <ul>
-               {% for message in messages %}
-               <li>{{ message }}</li>
-               {% endfor %}
-            </ul>
-         {% endif %}
-      {% endwith %}
+
+        <br>
+
+        {% with messages = get_flashed_messages() %}
+           {% if messages %}
+              <ul>
+                 {% for message in messages %}
+                 <li>{{ message }}</li>
+                 {% endfor %}
+              </ul>
+           {% endif %}
+        {% endwith %}
+
+        <br>
+
       <p>Please check which questions you would like to include in survey</p>
+      <br>
       <div class="questionPool">
         <table cellpadding="5" cellspacing="20">
 
-            <colgroup>
-                <col span="5" style="">
-
-            </colgroup>
             <tr>
                 <th>Question</th>
                 <th>A</th>
@@ -35,11 +58,10 @@
             </tr>
                 {% if questions_pool %}  
                     {% for question in questions_pool -%}
-                        <tr>
-                        
-                        <span style="float:right;"><td>{{ answer }}<input type="checkbox" name="question" value="{{question[0]}}"></td></span>
-                        </Form>
-                        {%- for answer in question[1:] -%}
+                        <tr><span style="float:right;"><td><label>
+                        <input type="checkbox" name="question" value="{{question[0]}}" 
+                        />{{ question[1] }}</label></td></span>
+                        {%- for answer in question[2] -%}
                             <span style="float:right;"><td>{{ answer }}</td></span>
                         {%- endfor -%}
                     {%- endfor %}
@@ -47,6 +69,11 @@
             </tr>
         </table>
     </div> 
+</Form>
+
    </body>
    
 </html>
+
+
+
