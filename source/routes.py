@@ -1,5 +1,5 @@
 import csv, ast, os, time
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, redirect, render_template, request, url_for,flash
 from server import app, users, authenticated,errorMSG
 from functions import append, get
 from classes import fileclasses
@@ -85,6 +85,7 @@ def createsurvey():
 			survey_ID = ID.updateID()
 			mastercsv = fileclasses.csvfile("master_survey.csv")
 			mastercsv.writeto(survey_ID, survey_name, survey_course, survey_date,list(survey_questions))
+			flash("Your unique survey ID is {}".format(survey_ID))
 
 	#mastercsv = fileclasses.csvfile("master_question.csv")
 	#questions_pool = mastercsv.readfrom()
