@@ -7,11 +7,11 @@ from defines import masterSurveys, masterQuestions
 
 _authenticated = authenticated
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/")
 def index():
-	# button to go to questions
-	# button to go to surveys
-	return render_template("home.html")
+	survey_pool = fileclasses.survey.read_all()
+
+	return render_template("home.html", survey_pool=survey_pool)
 
 
 @app.route("/admin")

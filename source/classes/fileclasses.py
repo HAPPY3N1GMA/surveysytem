@@ -1,5 +1,9 @@
 import csv, ast, os, time
+<<<<<<< HEAD
 from defines import masterSurveys,masterQuestions,masterCourses
+=======
+from defines import masterSurveys, masterQuestions
+>>>>>>> pagechanges
 from shutil import copyfile
 _masterSurveys = masterSurveys
 _masterQuestions = masterQuestions
@@ -77,7 +81,7 @@ class question(object):
 			#correctly format the strings
 			questionAnswers = str(question.answers)
 			questionAnswers = ast.literal_eval(str(questionAnswers))
-			question_pool = question_pool + [[question.questionID,question.questionName,questionAnswers]]
+			question_pool = question_pool + [[question.questionID, question.questionName, questionAnswers]]
 
 		return question_pool
 
@@ -102,6 +106,14 @@ class survey(object):
 			if survey.surveyID == surveyID:
 				return survey
 		return None
+
+	def read_all():
+		global _masterSurveys
+		survey_pool = []
+		for survey in _masterSurveys:
+			survey_pool = survey_pool + [[survey.surveyID, survey.surveyTitle, survey.courseName]]
+			
+		return survey_pool
 
 #class for textfiles, accessing mainly ID files
 class textfile(IDfile):
