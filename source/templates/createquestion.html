@@ -74,6 +74,7 @@
 				</div>
 				<div class="panel-body">
 					<table class="table table-hover">
+					{% if questions_pool %}  
 						<thead>
 						<tr>
 							<!-- <th>        </th> -->
@@ -85,7 +86,6 @@
 						</tr>
 						</thead>
 						<tbody>
-						{% if questions_pool %}  
 							{% for question in questions_pool -%}
 								<tr>
 									<!-- <td>
@@ -105,7 +105,9 @@
 									{%- endfor -%}
 								</tr>
 							{%- endfor %}
-						{% endif %}
+                        {% else %}
+                        <p> No Questions Created <p>
+                        {% endif %}
 						</table>
 					</div> 
 					<span></span>
