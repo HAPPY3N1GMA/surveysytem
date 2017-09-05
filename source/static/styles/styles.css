@@ -11,3 +11,6 @@ header .navbar {
 .panel .panel-body {
     margin:auto;
 }
+input {
+    width: 100%;
+}

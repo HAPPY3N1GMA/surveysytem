@@ -49,7 +49,7 @@
                         <form method="POST">
                             <input name="svyname" placeholder="Enter survey name"style="width: 200px;height: 25px"/>
                             <input name="svycourse" placeholder="Enter course name"style="width: 200px;height: 25px"/>
-                            <button type="submit" name="bt">Submit</button></br>
+                        </br>
 
                             {% with messages = get_flashed_messages() %}
                             {% if messages %}
@@ -63,40 +63,46 @@
 
                             <br>
 
-                            <p>Please check which questions you would like to include in survey</p>
-                            <br>
-                            <div class="questionPool">
-                                <table cellpadding="5" cellspacing="20">
-
-                                <tr>
-                                    <th>Question</th>
-                                    <th>A</th>
-                                    <th>B</th>
-                                    <th>C</th>
-                                    <th>D</th>
-                                </tr>
-                                {% if questions_pool %}  
-                                    {% for question in questions_pool -%}
-                                        <tr>
-                                            <span style="float:right;">
-                                                <td>
-                                                    <label>
-                                                        <input type="checkbox" name="question" value="{{question[0]}}"/>{{ question[1] }}
-                                                    </label>
-                                                </td>
-                                            </span>
-                                            {%- for answer in question[2] -%}
-                                                <span style="float:right;">
-                                                    <td>
-                                                        {{ answer }}
-                                                    </td>
-                                                </span>
-                                            {%- endfor -%}
-                                    {%- endfor %}
-                                {% endif %}
+                            <p>Please check which questions you would like to include in survey, or add new questions <a href="/createquestion">here</a></p>
+                            <div class="panel panel-default col-md-11">
+                                <table class="table table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Included</th>
+                                        <th>Question</th>
+                                        <th>A</th>
+                                        <th>B</th>
+                                        <th>C</th>
+                                        <th>D</th>
                                     </tr>
-                                </table>
-                            </div> 
+                                    </thead>
+                                    <tbody>
+                                    {% if questions_pool %}  
+                                        {% for question in questions_pool -%}
+                                            <tr>
+                                                <td>
+                                                    <div class="checkbox">
+                                                        <label><input type="checkbox" name="question" value="{{question[0]}}"/>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    {{ question[1] }}
+                                                </td>
+                                                {%- for answer in question[2] -%}
+                                                    <span style="float:right;">
+                                                        <td>
+                                                            {{ answer }}
+                                                        </td>
+                                                    </span>
+                                                {%- endfor -%}
+                                            </tr>
+                                        {%- endfor %}
+                                    {% endif %}
+                                    </table>
+                                </div> 
+                                <span></span>
+                            </div>
+                            <button type="submit" class="btn-primary" name="bt">Submit</button>
                         </form>
                     </div>
                 </div>

@@ -34,7 +34,7 @@
 				</div>
 				<div class="panel-body">
 					{% if questionList %}  
-						<form method="POST">
+						<form method="POST" class="form-horizontal">
 							{% for question in questionList -%}
 								<br>
 								{{ question[1] }}
@@ -44,7 +44,7 @@
 								{%- endfor -%}
 								<br><br>
 							{%- endfor %}
-							<button type="submit" name="bt">Submit</button></br>
+							<button type="submit" class="btn-primary" name="bt">Submit</button></br>
 						</form>
 					{% endif %}
 				</div>
