@@ -1,12 +1,35 @@
 <!doctype html>
 <html>
-   <head>
-   <title>Admin Dashboard</title>
-   </head>
-   <body>
-		<h1 align="center">Admin Dashboard</h1>
-		<a href="/createsurvey">Create Survey</a>
-		<a href="/createquestion">Create Question</a>      
-   </body>
-   </html>
-
+    <head>
+        	<link rel="stylesheet" type= "text/css" href="static/styles/bootstrap.min.css">
+            <link rel="stylesheet" type= "text/css" href="static/styles/font-awesome.min.css">
+            <link rel="stylesheet" type= "text/css" href="static/styles/ionicons.min.css">
+            <script src="static/js/bootstrap.min.js"></script>
+            <link rel="stylesheet" type= "text/css" href="static/styles/styles.css">
+    </head>
+<header>
+        <!-- Header Start -->
+        <div class="container row full-width">
+               <!--<div class="bg">-->
+               <!--<div class="row">-->
+                   <!-- header Nav Start -->
+                   <nav class="navbar navbar-default col-sm-10">
+                           <ul class="nav navbar-nav navbar-right">
+                             <li><a href="/admin">Admin Home</a></li>
+                             <li><a href="/createsurvey">Create Survery</a></li>
+                             <li><a href="/createquestion">Create Question</a></li>
+                             <li><a href="/">Answer Survey</a></li>
+                           </ul>
+                     </nav> 
+        </div>
+    </header>
+    <body>
+        <div class="container">
+<div class="panel">
+<p>Welcome to the Admin Panel</p>
+<a href="/createsurvey">Create Survey</a>
+<a href="/createquestion">Create Question</a>
+</div>
+        </div>
+    </body>
+    </html>

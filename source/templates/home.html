@@ -1,9 +1,52 @@
 <!doctype html>
 <html>
    <head>
+
+    	<link rel="stylesheet" type= "text/css" href="static/styles/bootstrap.min.css">
+        <link rel="stylesheet" type= "text/css" href="static/styles/font-awesome.min.css">
+        <link rel="stylesheet" type= "text/css" href="static/styles/ionicons.min.css">
+        <script src="static/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" type= "text/css" href="static/styles/styles.css">
+
    <title>home page</title>
    </head>
-   <body>
-      <h1 align="center">Successfully made it to user home page</h1>
+   <header>
+        <!-- Header Start -->
+        <div class="container row full-width">
+               <!--<div class="bg">-->
+               <!--<div class="row">-->
+                   <!-- header Nav Start -->
+                   <nav class="navbar navbar-default col-sm-10">
+                           <ul class="nav navbar-nav navbar-right">
+                             <li><a href="/admin">Admin Home</a></li>
+                             <li><a href="/createsurvey">Create Survery</a></li>
+                             <li><a href="/createquestion">Create Question</a></li>
+                             <li><a href="/">Answer Survey</a></li>
+                           </ul>
+                     </nav> 
+        </div>
+    </header>
+    <body>
+        <div class="container">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h1 align="center">Answer a Survey</h1>
+                </div>
+                <div class="panel-body">
+                    <p align="center"> Choose a survey below to answer </p>
+                    {% if survey_pool %}  
+                        {% for survey in survey_pool -%}
+                        <div class="contianer">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                <span><a href="/{{ survey[0] }}"><p align="center">{{ survey[1] }} - {{ survey[2] }}</a></p></span>
+                                </div>
+                            </div>
+                        </div>
+                        {%- endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
    </body>
    </html>
