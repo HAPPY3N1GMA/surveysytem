@@ -26,6 +26,10 @@ def admin():
 		return redirect(url_for("login"))
 
 
+@app.route("/submitted")
+def submit(): 
+	return render_template("completed.html")
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
 	global _authenticated
@@ -74,6 +78,7 @@ def createsurvey():
 
 	if request.method == "POST":
 		survey_name = request.form["svyname"]
+		survey_name = str(survey_name)
 		survey_course = request.form["svycourse"]
 		survey_date = time.strftime("%d/%m/%Y,%I:%M:%S")
 		survey_questions = request.form.getlist('question')
@@ -92,11 +97,13 @@ def createsurvey():
 			answercsv.buildanswer(survey_questions)
 
 
-	#mastercsv = fileclasses.csvfile("master_question.csv")
-	#questions_pool = mastercsv.readfrom()
 	questions_pool = fileclasses.question.readall()
-	courses = fileclasses.csvfile("courses.csv")
-	course_list = courses.readfrom()
+
+	course_list = fileclasses.course.readall()
+	#print(courses)
+
+	#courses = fileclasses.csvfile("courses.csv")
+	#course_list = courses.readfrom()
 
 	return render_template("createsurvey.html",questions_pool=questions_pool,course_list = course_list)
 
@@ -180,4 +187,4 @@ def complete_survey(sID):
 			answercsv = fileclasses.csvfile(filename)
 			answercsv.appendfield(str(qID[0]),"answers",str(answer))
 
-		return redirect(url_for("home"))
+		return redirect(url_for("submit"))

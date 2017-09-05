@@ -2,12 +2,20 @@ from flask import Flask
 from classes import fileclasses
 
 
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "Highly secret key"
 
 
 users = {"admin": "password"}
 authenticated = 0
+
+
+
+#build list of courses from the master course list on server start
+mastercoursecsv = fileclasses.csvfile("master_course.csv")
+for row in mastercoursecsv.readfrom():
+	fileclasses.course.create(row[0],row[1])
 
 
 #build list of questions from the master question list on server start

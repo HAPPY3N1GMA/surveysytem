@@ -30,7 +30,7 @@
          {%if course_list%}
              <select name = "svycourse"style="width: 200px;height: 25px">
              {%for course in course_list%}
-                 <option value="{{course}}">{{course}}</option>
+                 <option value="{{course[0]}}">{{course[0]}} - ({{course[1]}} )</option>
              {%endfor%}
              </select>
          {%endif%}

@@ -25,7 +25,7 @@ def question(sID, question, answers): #assumes all params are strings
 	qID = ID.updateID()
 
 	#(ast.literal_eval([answers]))
-	print("TEMP:",answers)
+	#print("TEMP:",answers)
 
 
 	append.master_question(qID, question, answers)

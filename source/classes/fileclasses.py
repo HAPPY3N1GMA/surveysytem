@@ -1,13 +1,37 @@
 import csv, ast, os, time
-from defines import masterSurveys,masterQuestions
+from defines import masterSurveys,masterQuestions,masterCourses
 from shutil import copyfile
 _masterSurveys = masterSurveys
 _masterQuestions = masterQuestions
+_masterCourses = masterCourses
 
 #Classes for different file types
 class IDfile():
 	def __init__(self, filename):
 		self._name = filename
+
+class course(object):
+	def __init__(self,courseName,offering):
+		self.name = courseName
+		self.offering = offering
+
+	def create(courseName,offering):
+		global _masterCourses
+		newcourse = course(courseName,offering)
+		#print(newquestion.answers)
+		_masterCourses.append(newcourse)
+		return newcourse
+
+	#build list of courses
+	def readall():
+		global _masterCourses
+		course_pool = []
+		for course in _masterCourses:
+			course_pool = course_pool + [[course.name,course.offering]]
+		return course_pool
+
+	#TODO: Add course object to survey class
+	#TODO: Add question objects to survey class
 
 
 class question(object):
