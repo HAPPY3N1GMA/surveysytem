@@ -14,3 +14,4 @@ question_id,question,answers
 13,lets try break this,"[""!@#$%^&*()_+~ '"", ""' 123456789*-**/*"", ""'"", '""']"
 26,this is question,"['q', 'w', 'e', 'r']"
 27,jal,"['q', 'w', 'e', 'r']"
+28,Is python a good language,"['No', 'Definitely Not', 'Most Definitely Not', 'Hellno']"
