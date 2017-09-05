@@ -33,7 +33,18 @@
                     <h1 align="center">Answer a Survey</h1>
                 </div>
                 <div class="panel-body">
-                    <p> Need list of surveys to answer </p>
+                    <p align="center"> Choose a survey below to answer </p>
+                    {% if survey_pool %}  
+                        {% for survey in survey_pool -%}
+                        <div class="contianer">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                <span><a href="/{{ survey[0] }}"><p align="center">{{ survey[1] }} - {{ survey[2] }}</a></p></span>
+                                </div>
+                            </div>
+                        </div>
+                        {%- endfor %}
+                    {% endif %}
                 </div>
             </div>
         </div>

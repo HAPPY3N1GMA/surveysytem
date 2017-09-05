@@ -9,11 +9,11 @@ _authenticated = authenticated
 _masterSurveys = masterSurveys
 _masterQuestions = masterQuestions
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/")
 def index():
-	# button to go to questions
-	# button to go to surveys
-	return render_template("home.html")
+	survey_pool = fileclasses.survey.read_all()
+
+	return render_template("home.html", survey_pool=survey_pool)
 
 
 @app.route("/admin")
@@ -171,7 +171,7 @@ def complete_survey(sID):
 	else:
 		#append answers to answer sheet
 		questionList = get.questionList(sID)
-		answersList = [];
+		answersList = []
 		for qID in questionList:
 			answer = request.form[qID[0]]
 			filename = str(sID)+".csv"
