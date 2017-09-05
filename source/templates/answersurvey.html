@@ -34,16 +34,25 @@
 				</div>
 				<div class="panel-body">
 					{% if questionList %}  
-						<form method="POST" class="form-horizontal">
+						<form method="POST">
 							{% for question in questionList -%}
-								<br>
-								{{ question[1] }}
-									<br><br>
-								{%- for answer in question[2:] -%}
-									<input type="radio" name="{{ question[0] }}" value="{{ loop.index0 }}"><label for="{{ loop.index0 }}"> {{ answer }}</label><br>
-								{%- endfor -%}
-								<br><br>
+							<div class="panel panel-default">
+								<div class="panel-heading">
+									{{ question[1] }}
+								</div>
+								<div class="panel-body">
+									{%- for answer in question[2:] -%}
+										<div class="form-check">
+											<label class="form-check-label">
+											  <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
+											</label>
+											Option one is this and that&mdash;be sure to include why it's great
+										</div>
+									{%- endfor -%}
+								</div>
+							</div>
 							{%- endfor %}
+							<br>
 							<button type="submit" class="btn-primary" name="bt">Submit</button></br>
 						</form>
 					{% endif %}

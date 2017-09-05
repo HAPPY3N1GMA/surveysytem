@@ -9,9 +9,10 @@ _authenticated = authenticated
 
 @app.route("/")
 def index():
+	global _authenticated
 	survey_pool = fileclasses.survey.read_all()
 
-	return render_template("home.html", survey_pool=survey_pool)
+	return render_template("home.html", survey_pool=survey_pool, authenticated=_authenticated)
 
 
 @app.route("/admin")

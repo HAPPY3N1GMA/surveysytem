@@ -11,23 +11,27 @@
    <title>home page</title>
    </head>
    <header>
+
         <!-- Header Start -->
         <div class="container row full-width">
                <!--<div class="bg">-->
                <!--<div class="row">-->
                    <!-- header Nav Start -->
                    <nav class="navbar navbar-default col-sm-10">
-                           <ul class="nav navbar-nav navbar-right">
-                             <li><a href="/admin">Admin Home</a></li>
-                             <li><a href="/createsurvey">Create Survery</a></li>
-                             <li><a href="/createquestion">Create Question</a></li>
-                             <li><a href="/">Answer Survey</a></li>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li><a href="/admin">Admin Home</a></li>
+                            {% if authenticated %}
+                                <li><a href="/createsurvey">Create Survery</a></li>
+                                <li><a href="/createquestion">Create Question</a></li>
+                                <li><a href="/">Answer Survey</a></li>
+                            {% endif %}
                            </ul>
                      </nav> 
         </div>
     </header>
     <body>
-        <div class="container">
+        <h1 align="center">Home Page</h1>
+        <!-- <div class="container">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h1 align="center">Answer a Survey</h1>
@@ -47,6 +51,6 @@
                     {% endif %}
                 </div>
             </div>
-        </div>
+        </div> -->
    </body>
    </html>
