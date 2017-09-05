@@ -82,7 +82,7 @@ def createsurvey():
 		survey_date = time.strftime("%d/%m/%Y,%I:%M:%S")
 		survey_questions = request.form.getlist('question')
 		print(survey_questions)
-		if (survey_name == "" or survey_course == "" or survey_date == ""):
+		if (survey_name == "" or survey_course == "" or survey_date == "" or survey_questions == []):
 			errorMSG("routes.createsurvey","Invalid input in fields")
 		else:
 			ID = fileclasses.textfile("surveyID.txt")
@@ -132,7 +132,20 @@ def createquestion():
 		if(len(answers)<2):
 			return render_template("createquestion.html",questions_pool=questions_pool)
 
-		append.question(survey, question, str(answers))
+		ID = fileclasses.textfile("questionID.txt")
+		qID = ID.updateID()
+
+		if(qID==""):
+			errorMSG("append.question","No qID Provided")
+			return
+		if(question==""):
+			errorMSG("append.question","No Question Provided")
+			return
+
+		answercsv = fileclasses.csvfile("master_question.csv")
+		answercsv.master_question(qID, question, str(answers))
+
+		#append.question(survey, question, str(answers))
 
 		questions_pool = fileclasses.question.list()
 

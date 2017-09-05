@@ -9,3 +9,8 @@ question_id,question,answers
 8,Test,"['One', 'two']"
 9,A new question,"['You have to', 'Have atleast', 'Two answers', 'To have a question']"
 10,What is your favourite Programming language?,"['C++', 'C', 'Python', 'Java']"
+11,Do you like C better than Python?,"['lots more', 'barely', 'no', 'hell no']"
+12,will a comma in an answer break it?,"['maybe, sp', 'lol', 'defs.,/[]09()-=""\'']"
+13,lets try break this,"[""!@#$%^&*()_+~ '"", ""' 123456789*-**/*"", ""'"", '""']"
+26,this is question,"['q', 'w', 'e', 'r']"
+27,jal,"['q', 'w', 'e', 'r']"
