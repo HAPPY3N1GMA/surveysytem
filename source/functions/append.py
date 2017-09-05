@@ -25,7 +25,7 @@ def question(sID, question, answers): #assumes all params are strings
 	qID = ID.updateID()
 
 	#(ast.literal_eval([answers]))
-	print("TEMP:",answers)
+	#print("TEMP:",answers)
 
 
 	append.master_question(qID, question, answers)
@@ -55,22 +55,17 @@ def master_question(qID, question, answers):
 		errorMSG("append.master_question","No Question Provided")
 		return
 
-	# FROM HERE NOT USED
-
-	answerStr = ""
-	for ans in answers:
-		if(ans!=""):
-			if(answerStr==""):
-				answerStr = answerStr+ans
-			else:
-				answerStr = answerStr+","+ans
-
-	if(answerStr==""):
-		errorMSG("append.master_question","No Answers Provided")
-		return
-
-
-	# TO HERE NOT USED 
+	#answerStr = ""
+	#for ans in answers:
+	#	if(ans!=""):
+	#		if(answerStr==""):
+	#			answerStr = answerStr+ans
+	#		else:
+	#			answerStr = answerStr+","+ans
+	#
+	#if(answerStr==""):
+	#	errorMSG("append.master_question","No Answers Provided")
+	#	return
 
 	# write new row in order of qID, question, answers (in form id, question, ans1, ans2, ans3 etc.)
 	with open('question_temp.csv','w+', newline = '') as csv_out:

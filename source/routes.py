@@ -6,8 +6,6 @@ from classes import fileclasses
 from defines import masterSurveys, masterQuestions
 
 _authenticated = authenticated
-_masterSurveys = masterSurveys
-_masterQuestions = masterQuestions
 
 @app.route("/")
 def index():
@@ -25,6 +23,10 @@ def admin():
 	else:
 		return redirect(url_for("login"))
 
+
+@app.route("/submitted")
+def submit(): 
+	return render_template("completed.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -74,6 +76,7 @@ def createsurvey():
 
 	if request.method == "POST":
 		survey_name = request.form["svyname"]
+		survey_name = str(survey_name)
 		survey_course = request.form["svycourse"]
 		survey_date = time.strftime("%d/%m/%Y,%I:%M:%S")
 		survey_questions = request.form.getlist('question')
@@ -91,17 +94,15 @@ def createsurvey():
 			answercsv = fileclasses.csvfile(str(survey_ID)+".csv")
 			answercsv.buildanswer(survey_questions)
 
+	questions_pool = fileclasses.question.list()
+	course_list = fileclasses.course.readall()
 
-	#mastercsv = fileclasses.csvfile("master_question.csv")
-	#questions_pool = mastercsv.readfrom()
-	questions_pool = fileclasses.question.readall()
-
-	return render_template("createsurvey.html",questions_pool=questions_pool)
+	return render_template("createsurvey.html",questions_pool=questions_pool,course_list = course_list)
 
 @app.route("/createquestion", methods=["GET", "POST"])
 def createquestion():
 
-	global _authenticated, _masterQuestions
+	global _authenticated
 	if not _authenticated:
 		return redirect(url_for("login"))
 
@@ -113,10 +114,7 @@ def createquestion():
 
 		#TODO: Display Error to user adding question if they forget fields
 
-		#old method using csv file each time - now redundant using classes
-		#mastercsv = fileclasses.csvfile("master_question.csv")
-		#questions_pool = mastercsv.readfrom()
-		questions_pool = fileclasses.question.readall()
+		questions_pool = fileclasses.question.list()
 
 		question = request.form["question"]
 		answer_one = request.form["option_one"]
@@ -135,16 +133,12 @@ def createquestion():
 
 		append.question(survey, question, str(answers))
 
-		questions_pool = fileclasses.question.readall()
+		questions_pool = fileclasses.question.list()
 
 		return render_template("createquestion.html",questions_pool=questions_pool)
 
 	else:
-		#old method using csv file each time - now redundant using classes
-		#mastercsv = fileclasses.csvfile("master_question.csv")
-		#questions_pool = mastercsv.readfrom()
-
-		questions_pool = fileclasses.question.readall()
+		questions_pool = fileclasses.question.list()
 		return render_template("createquestion.html",questions_pool=questions_pool)
 
 
@@ -166,7 +160,6 @@ def complete_survey(sID):
 
 		else:
 			#not a valid survey link
-			#print("TEST1")
 			return redirect(url_for("home"))
 	else:
 		#append answers to answer sheet
@@ -178,4 +171,4 @@ def complete_survey(sID):
 			answercsv = fileclasses.csvfile(filename)
 			answercsv.appendfield(str(qID[0]),"answers",str(answer))
 
-		return redirect(url_for("home"))
+		return redirect(url_for("submit"))

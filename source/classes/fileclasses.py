@@ -1,13 +1,53 @@
 import csv, ast, os, time
-from defines import masterSurveys, masterQuestions
+from defines import masterSurveys,masterQuestions,masterCourses
 from shutil import copyfile
 _masterSurveys = masterSurveys
 _masterQuestions = masterQuestions
+_masterCourses = masterCourses
 
 #Classes for different file types
 class IDfile():
 	def __init__(self, filename):
 		self._name = filename
+
+class course(object):
+	def __init__(self,courseName,offering):
+		self.name = courseName
+		self.offering = offering
+
+	def create(courseName,offering):
+		global _masterCourses
+		newcourse = course(courseName,offering)
+		#print(newquestion.answers)
+		_masterCourses.append(newcourse)
+		return newcourse
+
+	#build list of courses
+	def readall():
+		global _masterCourses
+		course_pool = []
+		for course in _masterCourses:
+			course_pool = course_pool + [[course.name,course.offering]]
+		return course_pool
+
+	def name(courseName):
+		global _masterCourses
+		for course in _masterCourses:
+			if course.name == courseName:
+				return course
+		return 
+
+	#return list of all course offerings
+	def offering(courseOffering):
+		global _masterCourses
+		course_pool = []
+		for course in _masterCourses:
+			if course.offering == courseOffering:
+				course_pool = course_pool + [[course.offering]]
+		return course_pool
+
+	#TODO: Add course object to survey class
+	#TODO: Add question objects to survey class
 
 
 class question(object):
@@ -23,14 +63,14 @@ class question(object):
 		_masterQuestions.append(newquestion)
 		return newquestion
 
-	def read(questionID):
+	def qID(questionID):
 		global _masterQuestions
 		for question in _masterQuestions:
 			if question.questionID == questionID:
 				return question
 		return 
 
-	def readall():
+	def list():
 		global _masterQuestions
 		question_pool = []
 		for question in _masterQuestions:
@@ -55,7 +95,7 @@ class survey(object):
 		_masterSurveys.append(newsurvey)
 		return newsurvey
 
-	def read(surveyID):
+	def sID(surveyID):
 		global _masterSurveys
 		for survey in _masterSurveys:
 			#print(survey.surveyID)
