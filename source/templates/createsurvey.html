@@ -48,7 +48,15 @@
                     <div class="container">
                         <form method="POST">
                             <input name="svyname" placeholder="Enter survey name"style="width: 200px;height: 25px"/>
-                            <input name="svycourse" placeholder="Enter course name"style="width: 200px;height: 25px"/>
+
+                           {%if course_list%}
+                               <select name = "svycourse"style="width: 200px;height: 25px">
+                               {%for course in course_list%}
+                                   <option value="{{course[0]}}">{{course[0]}} - ({{course[1]}} )</option>
+                               {%endfor%}
+                               </select>
+                           {%endif%}
+                           
                         </br>
 
                             {% with messages = get_flashed_messages() %}
