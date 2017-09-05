@@ -30,7 +30,6 @@
 		<div class="container">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-<<<<<<< HEAD
 					<h1 align="center">Answer Survey page</h1>
 				</div>
 				<div class="panel-body">
@@ -48,29 +47,6 @@
 							<button type="submit" name="bt">Submit</button></br>
 						</form>
 					{% endif %}
-=======
-					<h1 align="center">Complete Survey</h1>
-				</div>
-				<div class="panel-body">
-					<div class="question-list"><br><br>
-						{% if questionList %}  
-							<form method="POST">
-								{% for question in questionList -%}
-								<div class="panel-body container row">
-									{{ question[1] }}
-									{%- for answer in question[2:] -%}
-									<div class="row">
-										<input type="radio" name="{{ question[0] }}" value="{{ loop.index0 }}">
-										<label for="{{ loop.index0 }}"> {{ answer }}</label>
-									</div>
-									{%- endfor -%}
-								</div>
-								{%- endfor %}
-								<button type="submit" name="bt">Submit</button></br>
-							</form>
-						{% endif %}
-					</div>
->>>>>>> pagechanges
 				</div>
 			</div>
 		</div>

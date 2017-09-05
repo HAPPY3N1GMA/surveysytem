@@ -1,9 +1,6 @@
 import csv, ast, os, time
-<<<<<<< HEAD
 from defines import masterSurveys,masterQuestions,masterCourses
-=======
-from defines import masterSurveys, masterQuestions
->>>>>>> pagechanges
+
 from shutil import copyfile
 _masterSurveys = masterSurveys
 _masterQuestions = masterQuestions
