@@ -30,12 +30,21 @@ class course(object):
 			course_pool = course_pool + [[course.name,course.offering]]
 		return course_pool
 
-	def read(courseName):
+	def name(courseName):
 		global _masterCourses
 		for course in _masterCourses:
 			if course.name == courseName:
 				return course
 		return 
+
+	#return list of all course offerings
+	def offering(courseOffering):
+		global _masterCourses
+		course_pool = []
+		for course in _masterCourses:
+			if course.offering == courseOffering:
+				course_pool = course_pool + [[course.offering]]
+		return course_pool
 
 	#TODO: Add course object to survey class
 	#TODO: Add question objects to survey class
@@ -54,14 +63,14 @@ class question(object):
 		_masterQuestions.append(newquestion)
 		return newquestion
 
-	def read(questionID):
+	def qID(questionID):
 		global _masterQuestions
 		for question in _masterQuestions:
 			if question.questionID == questionID:
 				return question
 		return 
 
-	def readall():
+	def list():
 		global _masterQuestions
 		question_pool = []
 		for question in _masterQuestions:
@@ -86,7 +95,7 @@ class survey(object):
 		_masterSurveys.append(newsurvey)
 		return newsurvey
 
-	def read(surveyID):
+	def sID(surveyID):
 		global _masterSurveys
 		for survey in _masterSurveys:
 			#print(survey.surveyID)
