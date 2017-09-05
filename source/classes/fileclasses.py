@@ -30,6 +30,13 @@ class course(object):
 			course_pool = course_pool + [[course.name,course.offering]]
 		return course_pool
 
+	def read(courseName):
+		global _masterCourses
+		for course in _masterCourses:
+			if course.name == courseName:
+				return course
+		return 
+
 	#TODO: Add course object to survey class
 	#TODO: Add question objects to survey class
 
