@@ -87,6 +87,11 @@ def createsurvey():
 			mastercsv.writeto(survey_ID, survey_name, survey_course, survey_date,list(survey_questions))
 			flash("{}".format(survey_ID))
 
+			#create survey answers page template
+			answercsv = fileclasses.csvfile(str(survey_ID)+".csv")
+			answercsv.buildanswer(survey_questions)
+
+
 	#mastercsv = fileclasses.csvfile("master_question.csv")
 	#questions_pool = mastercsv.readfrom()
 	questions_pool = fileclasses.question.readall()
