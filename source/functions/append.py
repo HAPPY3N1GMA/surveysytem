@@ -3,45 +3,6 @@ from classes import fileclasses
 from functions import append
 from server import errorMSG
 
-
-
-#####################################################
-# 				append.question() 					#
-#####################################################
-
-def question(sID, question, answers): #assumes all params are strings
-
-	if(sID==""):
-		errorMSG("append.question","No sID Provided")
-		return
-	if(question==""):
-		errorMSG("append.question","No Question Provided")
-		return
-	if(answers==""):
-		errorMSG("append.question","No Answers Provided")
-		return
-
-	ID = fileclasses.textfile("questionID.txt")
-	qID = ID.updateID()
-
-	#(ast.literal_eval([answers]))
-	#print("TEMP:",answers)
-
-
-	append.master_question(qID, question, answers)
-
-	#mastercsv = fileclasses.csvfile("master_question.csv")
-
-	#row = str(qID),question+"'"+','+str(answers)
-	#print(row)
-
-	#mastercsv.writetofile(row)
-
-
-	#if (sID != -1): # -1 is a flag meaning there is no survey to immediately add it to
-	#	append.master_survey(qID, sID)
-
-
 #####################################################
 # 			append.master_question()				#
 #####################################################
