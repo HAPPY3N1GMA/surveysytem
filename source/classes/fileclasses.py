@@ -139,7 +139,6 @@ class csvfile(IDfile):
 		with open(self._name,'a') as csv_out:
 			writer = csv.writer(csv_out)
 			writer.writerow([ID,name,course,time,list(questions)])
-		#add to masterSurvey classlist
 		survey.create(ID,name,course,time,questions)
 	def readfrom(self):
 		with open(self._name,'r') as csv_in:
