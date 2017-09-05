@@ -5,9 +5,11 @@
 
   <!-- CSS Style Sheet -->
 
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
-  <link rel= "stylesheet" type= "text/css" href= "static/styles/createsurvey.css">
+  <link rel="stylesheet" type= "text/css" href="static/styles/bootstrap.min.css">
+  <link rel="stylesheet" type= "text/css" href="static/styles/font-awesome.min.css">
+  <link rel="stylesheet" type= "text/css" href="static/styles/ionicons.min.css">
+  <script src="static/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" type= "text/css" href="static/styles/styles.css">
 
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -20,62 +22,85 @@
 
 
    </head>
+   <header>
+        <!-- Header Start -->
+        <div class="container row full-width">
+               <!--<div class="bg">-->
+               <!--<div class="row">-->
+                   <!-- header Nav Start -->
+                   <nav class="navbar navbar-default col-sm-10">
+                           <ul class="nav navbar-nav navbar-right">
+                             <li><a href="/admin">Admin Home</a></li>
+                             <li><a href="/createsurvey">Create Survery</a></li>
+                             <li><a href="/createquestion">Create Question</a></li>
+                             <li><a href="/">Answer Survey</a></li>
+                           </ul>
+                     </nav> 
+        </div>
+    </header>
    <body>
-         <a href="/admin">Home</a>
-         <br><br>
-      <h1> Enter survey name and course</h1>
-      <br>
-      <Form method="POST">
-         <input name="svyname" placeholder="Enter survey name"style="width: 200px;height: 25px"/>
-         {%if course_list%}
-             <select name = "svycourse"style="width: 200px;height: 25px">
-             {%for course in course_list%}
-                 <option value="{{course[0]}}">{{course[0]}} - ({{course[1]}} )</option>
-             {%endfor%}
-             </select>
-         {%endif%}
-         <button type="submit" name="bt">Submit</button></br>
+        <div class="container">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h1 align="center"> Create New Survey</h1>
+                </div>
+                <div class="panel-body">
+                    <div class="container">
+                        <form method="POST">
+                            <input name="svyname" placeholder="Enter survey name"style="width: 200px;height: 25px"/>
+                            <input name="svycourse" placeholder="Enter course name"style="width: 200px;height: 25px"/>
+                            <button type="submit" name="bt">Submit</button></br>
 
-        <br>
+                            {% with messages = get_flashed_messages() %}
+                            {% if messages %}
+                                <ul>
+                                {% for message in messages %}
+                                <a href="/{{ message }}">Survey Link</a>
+                                {% endfor %}
+                                </ul>
+                                {% endif %}
+                            {% endwith %}
 
-        {% with messages = get_flashed_messages() %}
-           {% if messages %}
-              <ul>
-                 {% for message in messages %}
-                 <a href="/{{ message }}">Survey Link</a>
-                 {% endfor %}
-              </ul>
-           {% endif %}
-        {% endwith %}
+                            <br>
 
-        <br>
+                            <p>Please check which questions you would like to include in survey</p>
+                            <br>
+                            <div class="questionPool">
+                                <table cellpadding="5" cellspacing="20">
 
-      <p>Please check which questions you would like to include in survey</p>
-      <br>
-      <div class="questionPool">
-        <table cellpadding="5" cellspacing="20">
-
-            <tr>
-                <th>Question</th>
-                <th>A</th>
-                <th>B</th>
-                <th>C</th>
-                <th>D</th>
-            </tr>
-                {% if questions_pool %}  
-                    {% for question in questions_pool -%}
-                        <tr><span style="float:right;"><td><label>
-                        <input type="checkbox" name="question" value="{{question[0]}}" 
-                        />{{ question[1] }}</label></td></span>
-                        {%- for answer in question[2] -%}
-                            <span style="float:right;"><td>{{ answer }}</td></span>
-                        {%- endfor -%}
-                    {%- endfor %}
-                {% endif %}
-            </tr>
-        </table>
-    </div> 
-</Form>
+                                <tr>
+                                    <th>Question</th>
+                                    <th>A</th>
+                                    <th>B</th>
+                                    <th>C</th>
+                                    <th>D</th>
+                                </tr>
+                                {% if questions_pool %}  
+                                    {% for question in questions_pool -%}
+                                        <tr>
+                                            <span style="float:right;">
+                                                <td>
+                                                    <label>
+                                                        <input type="checkbox" name="question" value="{{question[0]}}"/>{{ question[1] }}
+                                                    </label>
+                                                </td>
+                                            </span>
+                                            {%- for answer in question[2] -%}
+                                                <span style="float:right;">
+                                                    <td>
+                                                        {{ answer }}
+                                                    </td>
+                                                </span>
+                                            {%- endfor -%}
+                                    {%- endfor %}
+                                {% endif %}
+                                    </tr>
+                                </table>
+                            </div> 
+                        </form>
+                    </div>
+                </div>
+            </div>
 
    </body>
    

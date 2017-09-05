@@ -164,7 +164,7 @@ def complete_survey(sID):
 	else:
 		#append answers to answer sheet
 		questionList = get.questionList(sID)
-		answersList = [];
+		answersList = []
 		for qID in questionList:
 			answer = request.form[qID[0]]
 			filename = str(sID)+".csv"

@@ -8,22 +8,28 @@
  <title>Answer Survey</title>
  </head>
 	<body>
-		<h1 align="center">Answer Survey page</h1>
-			 <div><br><br>
-			{% if questionList %}  
-				<form method="POST">
-					{% for question in questionList -%}
-						<br>
-						{{ question[1] }}
-							<br><br>
-						{%- for answer in question[2:] -%}
- 							<input type="radio" name="{{ question[0] }}" value="{{ loop.index0 }}"><label for="{{ loop.index0 }}"> {{ answer }}</label><br>
-						{%- endfor -%}
-						<br><br>
-					{%- endfor %}
-         			<button type="submit" name="bt">Submit</button></br>
-				</form>
-			{% endif %}
+		<div class="container">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h1 align="center">Answer Survey page</h1>
+				</div>
+				<div class="panel-body">
+					{% if questionList %}  
+						<form method="POST">
+							{% for question in questionList -%}
+								<br>
+								{{ question[1] }}
+									<br><br>
+								{%- for answer in question[2:] -%}
+									<input type="radio" name="{{ question[0] }}" value="{{ loop.index0 }}"><label for="{{ loop.index0 }}"> {{ answer }}</label><br>
+								{%- endfor -%}
+								<br><br>
+							{%- endfor %}
+							<button type="submit" name="bt">Submit</button></br>
+						</form>
+					{% endif %}
+				</div>
+			</div>
 		</div>
 	</body>
 </html>
