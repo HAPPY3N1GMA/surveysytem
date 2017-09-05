@@ -4,60 +4,6 @@ from functions import append
 from server import errorMSG
 
 #####################################################
-# 			append.master_question()				#
-#####################################################
-
-def master_question(qID, question, answers):
-
-	if(qID==""):
-		errorMSG("append.master_question","No qID Provided")
-		return
-	if (question==""):
-		errorMSG("append.master_question","No Question Provided")
-		return
-
-	#answerStr = ""
-	#for ans in answers:
-	#	if(ans!=""):
-	#		if(answerStr==""):
-	#			answerStr = answerStr+ans
-	#		else:
-	#			answerStr = answerStr+","+ans
-	#
-	#if(answerStr==""):
-	#	errorMSG("append.master_question","No Answers Provided")
-	#	return
-
-	# write new row in order of qID, question, answers (in form id, question, ans1, ans2, ans3 etc.)
-	with open('question_temp.csv','w+', newline = '') as csv_out:
-			writer = csv.writer(csv_out)
-			writer.writerow([qID, question, answers])
-
-	# overwrite master with changes and get rid of "" symbols
-	try:
-		with open('question_temp.csv') as csv_in, open('master_question.csv', 'a') as csv_out:
-			for line in csv_in:
-				line = line.replace(',[',',"[')
-				line = line.replace(']\n',']"\n')
-				#print(line.replace('\"','\"'))
-				csv_out.write(line)
-		os.remove('question_temp.csv')
-
-		#write to answers master class
-
-		answers = str(answers).replace(']', "")
-		answers = str(answers).replace('[', "")
-		#print(answers)
-		fileclasses.question.create(qID, question, answers)
-
-
-	except IOError:
-		errorMSG("append.master_question","Error overwriting master with changes")
-		return	
-
-
-
-#####################################################
 # 				append.master_survey()				#
 #####################################################
 

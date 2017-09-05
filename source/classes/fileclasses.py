@@ -190,3 +190,30 @@ class csvfile(IDfile):
 			#result = str(output).replace('"', "")
 			#print(result)
 			return output
+
+
+	def master_question(self, qID, question_string, answers):
+		print("made it into master_question", self._name)
+		# write new row in order of qID, question, answers (in form id, question, ans1, ans2, ans3 etc.)
+		with open('question_temp.csv','w+', newline = '') as csv_out:
+			writer = csv.writer(csv_out)
+			writer.writerow([qID, question_string, answers])
+
+		# overwrite master with changes and get rid of "" symbols
+		try:
+			with open('question_temp.csv') as csv_in, open(self._name, 'a') as csv_out:
+				for line in csv_in:
+					line = line.replace(',[',',"[')
+					line = line.replace(']\n',']"\n')
+					csv_out.write(line)
+			os.remove('question_temp.csv')
+
+			#write to answers master class
+
+			answers = str(answers).replace(']', "")
+			answers = str(answers).replace('[', "")
+			question.create(qID, question_string, answers)
+
+		except IOError:
+			print("error")
+			return	
