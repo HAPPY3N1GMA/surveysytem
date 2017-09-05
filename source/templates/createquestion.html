@@ -1,57 +1,83 @@
 <!doctype html>
 <html>
 
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+	<link rel="stylesheet" type= "text/css" href="static/styles/bootstrap.min.css">
+	<link rel="stylesheet" type= "text/css" href="static/styles/font-awesome.min.css">
+	<link rel="stylesheet" type= "text/css" href="static/styles/ionicons.min.css">
+	<script src="static/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" type= "text/css" href="static/styles/styles.css">
+	
 
  <head>
+				
  <title>Create Question</title>
  </head>
+ <header>
+	 <!-- Header Start -->
+	 <div class="container row full-width">
+			<!--<div class="bg">-->
+			<!--<div class="row">-->
+				<!-- header Nav Start -->
+				<nav class="navbar navbar-default col-sm-10">
+						<ul class="nav navbar-nav navbar-right">
+						  <li><a href="/admin">Admin Home</a></li>
+						  <li><a href="/createsurvey">Create Survery</a></li>
+						  <li><a href="/createquestion">Create Question</a></li>
+						  <li><a href="/">Answer Survey</a></li>
+						</ul>
+				  </nav> 
+	 </div>
+ </header>
 	<body>
-		 <div class="container col-md-6">
-			<h1 align="center">Create question page</h1>
-			<a href="/admin">Home</a>
-			<p align="center">Create New Question</p>
-			<form method="POST">
-					<p>Question: <input type="text"  name="question"> </p>
-					<p>Option One: <input type="text"  name="option_one" > </p>
-					<p>Option Two: <input type="text"  name="option_two" > </p>
-					<p>Option Three: <input type="text"  name="option_three" > </p>
-					<p>Option Four: <input type="text" name="option_four"> </p>
-					<button type="submit">Submit</button>
-			</form>
-			<br><br>
-			<h3>Question Pool</h3>
-			<br><br>
+		<div class="container">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h1 align="center">Create New Question</h1>
+				</div>
+				<div class="panel-body">
+					<form method="POST">
+							<p>Question: <input type="text"  name="question"> </p>
+							<p>Option One: <input type="text"  name="option_one" > </p>
+							<p>Option Two: <input type="text"  name="option_two" > </p>
+							<p>Option Three: <input type="text"  name="option_three" > </p>
+							<p>Option Four: <input type="text" name="option_four"> </p>
+							<button type="submit">Submit</button>
+					</form>
+				</div>
+			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 align="center">Question Pool</h3>
+				</div>
+				<div class="panel-body">
+					<div class="questionPool">
+						<table cellpadding="" cellspacing="20">
+							<colgroup>
+								<col span="5" style="">
+							</colgroup>
+							<tr>
+								<th>Question</th>
+								<th>A</th>
+								<th>B</th>
+								<th>C</th>
+								<th>D</th>
+							</tr>
+								{% if questions_pool %}  
+									{% for question in questions_pool -%}
+									<div class="contianer row">
+										<tr>
+										<span style="float:right;"><td>{{ question[1] }}</td></span>
 
-		<!-- Will take in list of questions from MasterQuestions.csv -->
-		<div>
-			<div class="questionPool">
-				<table cellpadding="5" cellspacing="20">
-
-					<colgroup>
-						<col span="5" style="">
-					</colgroup>
-					<tr>
-						<th>Question</th>
-						<th>A</th>
-						<th>B</th>
-						<th>C</th>
-						<th>D</th>
-					</tr>
-						{% if questions_pool %}  
-							{% for question in questions_pool -%}
-								<tr>
-								<span style="float:right;"><td>{{ question[1] }}</td></span>
-
-								{%- for answer in question[2]: -%}
-									<span style="float:right;"><td>{{ answer }}</td></span>
-								{%- endfor -%}
-							{%- endfor %}
-						{% endif %}
-					</tr>
-				</table>
-			</div>  
-		</div>
+										{%- for answer in question[2]: -%}
+											<span style="float:right;"><td>{{ answer }}</td></span>
+										{%- endfor -%}
+									</div>
+									{%- endfor %}
+								{% endif %}
+							</tr>
+						</table>
+					</div>  
+				</div>
+			</div>
 	</body>
 </html>
