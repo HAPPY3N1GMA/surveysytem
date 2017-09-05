@@ -94,7 +94,7 @@ def createsurvey():
 			answercsv = fileclasses.csvfile(str(survey_ID)+".csv")
 			answercsv.buildanswer(survey_questions)
 
-	questions_pool = fileclasses.question.readall()
+	questions_pool = fileclasses.question.list()
 	course_list = fileclasses.course.readall()
 
 	return render_template("createsurvey.html",questions_pool=questions_pool,course_list = course_list)
@@ -114,7 +114,7 @@ def createquestion():
 
 		#TODO: Display Error to user adding question if they forget fields
 
-		questions_pool = fileclasses.question.readall()
+		questions_pool = fileclasses.question.list()
 
 		question = request.form["question"]
 		answer_one = request.form["option_one"]
@@ -133,12 +133,12 @@ def createquestion():
 
 		append.question(survey, question, str(answers))
 
-		questions_pool = fileclasses.question.readall()
+		questions_pool = fileclasses.question.list()
 
 		return render_template("createquestion.html",questions_pool=questions_pool)
 
 	else:
-		questions_pool = fileclasses.question.readall()
+		questions_pool = fileclasses.question.list()
 		return render_template("createquestion.html",questions_pool=questions_pool)
 
 
