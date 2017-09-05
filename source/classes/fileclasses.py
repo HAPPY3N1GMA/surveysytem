@@ -19,7 +19,6 @@ class course(object):
 	def create(courseName,offering):
 		global _masterCourses
 		newcourse = course(courseName,offering)
-		#print(newquestion.answers)
 		_masterCourses.append(newcourse)
 		return newcourse
 
