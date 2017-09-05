@@ -1,29 +1,54 @@
 <!doctype html>
 <html>
 
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+	<link rel="stylesheet" type= "text/css" href="static/styles/bootstrap.min.css">
+	<link rel="stylesheet" type= "text/css" href="static/styles/font-awesome.min.css">
+	<link rel="stylesheet" type= "text/css" href="static/styles/ionicons.min.css">
+	<script src="static/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" type= "text/css" href="static/styles/styles.css">
 
  <head>
  <title>Answer Survey</title>
  </head>
+ <header>
+		<!-- Header Start -->
+		<div class="container row full-width">
+			   <!--<div class="bg">-->
+			   <!--<div class="row">-->
+				   <!-- header Nav Start -->
+				   <nav class="navbar navbar-default col-sm-10">
+						   <ul class="nav navbar-nav navbar-right">
+							 <li><a href="/admin">Admin Home</a></li>
+							 <li><a href="/createsurvey">Create Survery</a></li>
+							 <li><a href="/createquestion">Create Question</a></li>
+							 <li><a href="/">Answer Survey</a></li>
+						   </ul>
+					 </nav> 
+		</div>
+	</header>
 	<body>
-		<h1 align="center">Answer Survey page</h1>
-			 <div><br><br>
-			{% if questionList %}  
-				<form method="POST">
-					{% for question in questionList -%}
-						<br>
-						{{ question[1] }}
-							<br><br>
-						{%- for answer in question[2:] -%}
- 							<input type="radio" name="{{ question[0] }}" value="{{ loop.index0 }}"><label for="{{ loop.index0 }}"> {{ answer }}</label><br>
-						{%- endfor -%}
-						<br><br>
-					{%- endfor %}
-         			<button type="submit" name="bt">Submit</button></br>
-				</form>
-			{% endif %}
+		<div class="container">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h1 align="center">Answer Survey page</h1>
+				</div>
+				<div class="panel-body">
+					{% if questionList %}  
+						<form method="POST" class="form-horizontal">
+							{% for question in questionList -%}
+								<br>
+								{{ question[1] }}
+									<br><br>
+								{%- for answer in question[2:] -%}
+									<input type="radio" name="{{ question[0] }}" value="{{ loop.index0 }}"><label for="{{ loop.index0 }}"> {{ answer }}</label><br>
+								{%- endfor -%}
+								<br><br>
+							{%- endfor %}
+							<button type="submit" class="btn-primary" name="bt">Submit</button></br>
+						</form>
+					{% endif %}
+				</div>
+			</div>
 		</div>
 	</body>
 </html>

@@ -1,0 +1,16 @@
+header .navbar {
+    color:black;
+    min-width: 100%;
+    padding-right:150px;
+}
+
+.full-width {
+    width: 105vw;
+    overflow: hidden;
+}
+.panel .panel-body {
+    margin:auto;
+}
+input {
+    width: 100%;
+}
