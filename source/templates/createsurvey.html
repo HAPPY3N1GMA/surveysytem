@@ -28,7 +28,7 @@
       <Form method="POST">
          <input name="svyname" placeholder="Enter survey name"style="width: 200px;height: 25px"/>
          {%if course_list%}
-             <select style="width: 200px;height: 25px">
+             <select name = "svycourse"style="width: 200px;height: 25px">
              {%for course in course_list%}
                  <option value="{{course}}">{{course}}</option>
              {%endfor%}
