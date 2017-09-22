@@ -15,6 +15,6 @@ def init_db():
     # they will be registered properly on the metadata.  Otherwise
     # you will have to import them first before calling init_db()
     #  Delete old tables then re-create - while we work out table format
-    # Base.metadata.drop_all(bind=engine)
+    Base.metadata.drop_all(bind=engine)
     import models
     Base.metadata.create_all(bind=engine)

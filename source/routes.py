@@ -1,9 +1,11 @@
-import csv, ast, os, time, copy
+import csv, ast, os, time, copy, datetime
 from flask import Flask, redirect, render_template, request, url_for,flash
 from server import app, users, authenticated,errorMSG
 from functions import append, get
 from classes import fileclasses
 from defines import masterSurveys, masterQuestions
+from models import GeneralQuestion, Survey, Course, Offering
+from database import db_session, Base
 
 _authenticated = authenticated
 
@@ -98,6 +100,40 @@ def createsurvey():
 
 	return render_template("createsurvey.html",questions_pool=questions_pool,course_list = course_list)
 
+
+@app.route("/dbtest")
+def db_test():
+	u = GeneralQuestion('How high are you?')
+	db_session.add(u)
+	db_session.commit()
+
+	g = GeneralQuestion.query.all()
+	print(g)
+
+	of = Offering(2, 2017)
+	db_session.add(of)
+	db_session.commit()
+	oq = Offering.query.all()
+	print(oq)
+
+	c = Course('comp1531', of)
+	db_session.add(c)
+	db_session.commit()
+	cq = Course.query.all()
+	print(cq)
+
+	GenQs = [] 
+	MCQs = [] 
+	s = Survey('Survey Title', datetime.date(2017, 11, 6), c, GenQs, MCQs)
+	db_session.add(s)
+	db_session.commit()
+	sq = Survey.query.all()
+	print(sq)
+
+	l = Base.metadata.tables.keys()
+	print(l)
+
+	return render_template("home.html")
 
 
 @app.route("/createquestion", methods=["GET", "POST"])

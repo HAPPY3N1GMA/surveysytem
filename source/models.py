@@ -3,12 +3,31 @@ from sqlalchemy.orm import relationship
 from database import Base
 
 
-class UniUser(Base):
-    __tablename__ = 'uniuser'
+class Staff(Base):
+    __tablename__ = 'staff'
     id = Column(Integer,  primary_key=True)
     name = Column(String)
     password = Column(String)
-    role = Column(String)
+    courses = relationship("Course", uselist=True)
+    surveys = relationship("Survey", uselist=True)
+
+    def __init__(self, name=None, password=None, role=None, courses=None,
+                 surveys=None):
+        self.name = name
+        self.password = password
+        self.role = role
+        self.courses = courses
+        self.surveys = surveys
+
+    def __repr__(self):
+        return '<User %r>' % (self.name)
+
+
+class Student(Base):
+    __tablename__ = 'student'
+    id = Column(Integer,  primary_key=True)
+    name = Column(String)
+    password = Column(String)
     courses = relationship("Course", uselist=True)
 
     def __init__(self, name=None, password=None, role=None, courses=None):
@@ -40,6 +59,8 @@ class Course(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     offering_id = Column(Integer, ForeignKey('offering.id'))
+    student_id = Column(Integer, ForeignKey('student.id'))
+    staff_id = Column(Integer, ForeignKey('staff.id'))
 
     def __init__(self, name=None, password=None, offeringid=None):
         self.name = name
@@ -74,6 +95,8 @@ class MCQuestion(Base):
     answerThree = Column(String)
     answerFour = Column(String)
 
+    survey_id = Column(Integer, ForeignKey('survey.id'))
+
     def __init__(self, question=None, answerOne=None, answerTwo=None, 
                  answerThree=None, answerFour=None):
         self.question = question
@@ -92,6 +115,8 @@ class GeneralQuestion(Base):
     id = Column(Integer, primary_key=True)
     question = Column(String)
 
+    survey_id = Column(Integer, ForeignKey('survey.id'))
+
     def __init__(self, question=None):
         self.question = question
 
@@ -105,9 +130,12 @@ class Survey(Base):
     title = Column(String)
     date = Column(Date)
     course_id = Column(Integer, ForeignKey('course.id'))
+    staff_id = Column(Integer, ForeignKey('staff.id'))
 
     mc_questions = relationship("MCQuestion", uselist=True)
     gen_questions = relationship("GeneralQuestion", uselist=True)
+
+
 
     def __init__(self, title=None, date=None, course_id=None, 
                  mc_questions=None, gen_questions=None):
@@ -116,6 +144,8 @@ class Survey(Base):
         self.course_id = course_id
         self.mc_questions = mc_questions
         self.gen_questions = gen_questions
+        self.course_id = None
+        self.staff_id = None
 
     def __repr__(self):
         return '<Survey %r>' % (self.title)  
