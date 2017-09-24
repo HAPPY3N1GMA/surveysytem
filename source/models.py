@@ -3,6 +3,26 @@ from sqlalchemy.orm import relationship
 from database import Base
 
 
+class UniUser(Base):
+    __tablename__ = 'uniuser'
+    id = Column(Integer,  primary_key=True)
+    password = Column(String)
+    role = Column(String)
+    courses = relationship("Course", uselist=True)
+    surveys = relationship("Survey", uselist=True)
+
+    def __init__(self, id=None, password=None, role=None, courses=None,
+                 surveys=None):
+        self.id = id
+        self.password = password
+        self.role = role
+        self.courses = courses
+        self.surveys = surveys
+
+    def __repr__(self):
+        return '<UniUser %r>' % (self.name)
+
+
 class Staff(Base):
     __tablename__ = 'staff'
     id = Column(Integer,  primary_key=True)
@@ -58,9 +78,10 @@ class Course(Base):
     __tablename__ = 'course'
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    offering_id = Column(Integer, ForeignKey('offering.id'))
+    offering = Column(String)
     student_id = Column(Integer, ForeignKey('student.id'))
     staff_id = Column(Integer, ForeignKey('staff.id'))
+    uniuser_id = Column(Integer, ForeignKey('uniuser.id'))
 
     def __init__(self, name=None, password=None, offeringid=None):
         self.name = name
@@ -70,20 +91,20 @@ class Course(Base):
         return '<CourseName %r>' % (self.name)
 
 
-class Offering(Base):
-    __tablename__ = 'offering'
-    id = Column(Integer, primary_key=True)
-    semester = Column(Integer)
-    year = Column(Integer)
+# class Offering(Base):
+#     __tablename__ = 'offering'
+#     id = Column(Integer, primary_key=True)
+#     semester = Column(Integer)
+#     year = Column(Integer)
 
-    courses = relationship("Course", backref='offering', uselist=True)
+#     courses = relationship("Course", backref='offering', uselist=True)
 
-    def __init__(self, semester=None, year=None):
-        self.semester = semester
-        self.year = year
+#     def __init__(self, semester=None, year=None):
+#         self.semester = semester
+#         self.year = year
 
-    def __repr__(self):
-        return '<Offering Semester %r %r>' % (self.semester, self.year)
+#     def __repr__(self):
+#         return '<Offering Semester %r %r>' % (self.semester, self.year)
 
 
 class MCQuestion(Base):
@@ -131,6 +152,7 @@ class Survey(Base):
     date = Column(Date)
     course_id = Column(Integer, ForeignKey('course.id'))
     staff_id = Column(Integer, ForeignKey('staff.id'))
+    uniuser_id = Column(Integer, ForeignKey('uniuser.id'))
 
     mc_questions = relationship("MCQuestion", uselist=True)
     gen_questions = relationship("GeneralQuestion", uselist=True)
