@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, ForeignKey, String, Column, Date
+from sqlalchemy import Integer, ForeignKey, String, Column, Date, Table
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -8,11 +8,14 @@ class UniUser(Base):
     id = Column(Integer,  primary_key=True)
     password = Column(String)
     role = Column(String)
-    courses = relationship("Course", uselist=True)
-    surveys = relationship("Survey", uselist=True)
+    courses = relationship("Course",
+                           secondary="ucassociation",
+                           backref='uniuser')
 
-    def __init__(self, id=None, password=None, role=None, courses=None,
-                 surveys=None):
+    surveys = relationship("Survey", backref='uniuser')
+
+    def __init__(self, id, password, role, courses=[],
+                 surveys=[]):
         self.id = id
         self.password = password
         self.role = role
@@ -20,58 +23,66 @@ class UniUser(Base):
         self.surveys = surveys
 
     def __repr__(self):
-        return '<UniUser %r>' % (self.name)
+        return '<UniUser Id: %r, Courses: %r>' % (self.id, self.courses)
 
 
-class Staff(Base):
-    __tablename__ = 'staff'
-    id = Column(Integer,  primary_key=True)
-    name = Column(String)
-    password = Column(String)
-    courses = relationship("Course", uselist=True)
-    surveys = relationship("Survey", uselist=True)
-
-    def __init__(self, name=None, password=None, role=None, courses=None,
-                 surveys=None):
-        self.name = name
-        self.password = password
-        self.role = role
-        self.courses = courses
-        self.surveys = surveys
-
-    def __repr__(self):
-        return '<User %r>' % (self.name)
+ucassociation_table = Table('ucassociation', Base.metadata,
+                            Column('uniuser_id', Integer,
+                                   ForeignKey('uniuser.id')),
+                            Column('course_id', Integer,
+                                   ForeignKey('course.id'))
+                            )
 
 
-class Student(Base):
-    __tablename__ = 'student'
-    id = Column(Integer,  primary_key=True)
-    name = Column(String)
-    password = Column(String)
-    courses = relationship("Course", uselist=True)
+# class Staff(Base):
+#     __tablename__ = 'staff'
+#     id = Column(Integer,  primary_key=True)
+#     name = Column(String)
+#     password = Column(String)
+#     courses = relationship("Course", uselist=True)
+#     surveys = relationship("Survey", uselist=True)
 
-    def __init__(self, name=None, password=None, role=None, courses=None):
-        self.name = name
-        self.password = password
-        self.role = role
-        self.courses = courses
+#     def __init__(self, name=None, password=None, role=None, courses=None,
+#                  surveys=None):
+#         self.name = name
+#         self.password = password
+#         self.role = role
+#         self.courses = courses
+#         self.surveys = surveys
 
-    def __repr__(self):
-        return '<User %r>' % (self.name)
+#     def __repr__(self):
+#         return '<User %r>' % (self.name)
 
 
-class Admin(Base):
-    __tablename__ = 'admin'
-    id = Column(Integer,  primary_key=True)
-    name = Column(String)
-    password = Column(String)
+# class Student(Base):
+#     __tablename__ = 'student'
+#     id = Column(Integer,  primary_key=True)
+#     name = Column(String)
+#     password = Column(String)
+#     courses = relationship("Course", uselist=True)
 
-    def __init__(self, name=None, password=None, role=None, courses=None):
-        self.name = name
-        self.password = password
+#     def __init__(self, name=None, password=None, role=None, courses=None):
+#         self.name = name
+#         self.password = password
+#         self.role = role
+#         self.courses = courses
 
-    def __repr__(self):
-        return '<Admin %r>' % (self.name)
+#     def __repr__(self):
+#         return '<User %r>' % (self.name)
+
+
+# class Admin(Base):
+#     __tablename__ = 'admin'
+#     id = Column(Integer,  primary_key=True)
+#     name = Column(String)
+#     password = Column(String)
+
+#     def __init__(self, name=None, password=None):
+#         self.name = name
+#         self.password = password
+
+#     def __repr__(self):
+#         return '<Admin %r>' % (self.name)
 
 
 class Course(Base):
@@ -79,32 +90,22 @@ class Course(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     offering = Column(String)
-    student_id = Column(Integer, ForeignKey('student.id'))
-    staff_id = Column(Integer, ForeignKey('staff.id'))
-    uniuser_id = Column(Integer, ForeignKey('uniuser.id'))
+    # student_id = Column(Integer, ForeignKey('student.id'))
+    # staff_id = Column(Integer, ForeignKey('staff.id'))
+    uniusers = relationship("UniUser",
+                            secondary="ucassociation",
+                            backref="course")
 
-    def __init__(self, name=None, password=None, offeringid=None):
+    def __init__(self, name=None, offeringid=None, uniuserid=None,
+                 staffid=None, studentid=None):
         self.name = name
-        self.offering_id = offeringid
+        self.offering = offeringid
+        self.uniuser_id = uniuserid
+        self.student_id = studentid
+        self.staff_id = staffid
 
     def __repr__(self):
         return '<CourseName %r>' % (self.name)
-
-
-# class Offering(Base):
-#     __tablename__ = 'offering'
-#     id = Column(Integer, primary_key=True)
-#     semester = Column(Integer)
-#     year = Column(Integer)
-
-#     courses = relationship("Course", backref='offering', uselist=True)
-
-#     def __init__(self, semester=None, year=None):
-#         self.semester = semester
-#         self.year = year
-
-#     def __repr__(self):
-#         return '<Offering Semester %r %r>' % (self.semester, self.year)
 
 
 class MCQuestion(Base):
@@ -116,7 +117,9 @@ class MCQuestion(Base):
     answerThree = Column(String)
     answerFour = Column(String)
 
-    survey_id = Column(Integer, ForeignKey('survey.id'))
+    surveys = relationship("Survey",
+                           secondary="mcassociation",
+                           backref="mcquestion")
 
     def __init__(self, question=None, answerOne=None, answerTwo=None, 
                  answerThree=None, answerFour=None):
@@ -127,7 +130,43 @@ class MCQuestion(Base):
         self.answerFour = answerFour
 
     def __repr__(self):
-        return '<MCQuestion %r>' % (self.question)    
+        return '<MCQuestion %r>' % (self.question)
+
+
+class SurveyResponse(Base):
+    __tablename__ = 'surveyresponse'
+    id = Column(Integer, primary_key=True)
+    survey_id = Column(Integer, ForeignKey('survey.id'))
+    responses = relationship("QuestionResponse",
+                             backref="surveyresponse")
+
+    def __init__(self, surveyid=None, _responses=None):
+        self.survey_id = surveyid
+        self.responses = _responses
+
+    def __repr__(self):
+        return '<Response to %r>' % (self.survey_id)    
+
+
+class QuestionResponse(Base):
+    __tablename__ = 'questionresponse'
+    id = Column(Integer, primary_key=True)
+    response_id = Column(Integer, ForeignKey('surveyresponse.id'))
+    mcquestion_id = Column(Integer, ForeignKey('mcquestion.id'))
+    genquestion_id = Column(Integer, ForeignKey('generalquestion.id'))
+    response = Column(String)
+
+    def __init__(self, responseid=None, mcquestionid=None, genquestionid=None,
+                 _response=None):
+        self.response_id = responseid
+        self.mcquestion_id = mcquestionid
+        self.genquestion_id = genquestionid
+        self.response = _response
+
+    def __repr__(self):
+        return '<Response to %r or %r for %r>' % (self.question_id,
+                                                  self.genquestion_id,
+                                                  self.response_id)
 
 
 #  Can be used for free text and yes/no q's
@@ -136,7 +175,9 @@ class GeneralQuestion(Base):
     id = Column(Integer, primary_key=True)
     question = Column(String)
 
-    survey_id = Column(Integer, ForeignKey('survey.id'))
+    surveys = relationship("Survey",
+                           secondary="genassociation",
+                           backref="generalquestion")
 
     def __init__(self, question=None):
         self.question = question
@@ -151,26 +192,52 @@ class Survey(Base):
     title = Column(String)
     date = Column(Date)
     course_id = Column(Integer, ForeignKey('course.id'))
-    staff_id = Column(Integer, ForeignKey('staff.id'))
+    # staff_id = Column(Integer, ForeignKey('staff.id'))
     uniuser_id = Column(Integer, ForeignKey('uniuser.id'))
 
-    mc_questions = relationship("MCQuestion", uselist=True)
-    gen_questions = relationship("GeneralQuestion", uselist=True)
+    mc_questions = relationship("MCQuestion",
+                                secondary="mcassociation",
+                                backref='survey')
+    gen_questions = relationship("GeneralQuestion",
+                                 secondary="genassociation",
+                                 backref='survey')
 
+    staff = relationship("UniUser", secondary="usassociation",
+                         backref="survey")
 
-
-    def __init__(self, title=None, date=None, course_id=None, 
+    def __init__(self, title=None, date=None, course_id=None,
                  mc_questions=None, gen_questions=None):
         self.title = title
         self.date = date
         self.course_id = course_id
         self.mc_questions = mc_questions
         self.gen_questions = gen_questions
-        self.course_id = None
-        self.staff_id = None
 
     def __repr__(self):
         return '<Survey %r>' % (self.title)  
+
+
+usassociation_table = Table('usassociation', Base.metadata,
+                            Column('uniuser_id', Integer,
+                                   ForeignKey('uniuser.id')),
+                            Column('survey_id', Integer,
+                                   ForeignKey('survey.id'))
+                            )
+
+
+mcassociation_table = Table('mcassociation', Base.metadata,
+                            Column('mcquestion_id', Integer,
+                                   ForeignKey('mcquestion.id')),
+                            Column('survey_id', Integer,
+                                   ForeignKey('survey.id'))
+                            )
+
+genassociation_table = Table('genassociation', Base.metadata,
+                             Column('generalquestion_id', Integer,
+                                    ForeignKey('generalquestion.id')),
+                             Column('survey_id', Integer,
+                                    ForeignKey('survey.id'))
+                             )
 
 
 # # How to store reponses in db?

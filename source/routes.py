@@ -4,9 +4,9 @@ from server import app, users, authenticated,errorMSG
 from functions import append, get
 from classes import fileclasses
 from defines import masterSurveys, masterQuestions
-from models import GeneralQuestion, Survey, Course
+from models import GeneralQuestion, Survey, Course, UniUser
 from database import db_session, Base
-from database_loader import user_load
+
 
 _authenticated = authenticated
 
@@ -104,38 +104,7 @@ def createsurvey():
 
 @app.route("/dbtest")
 def db_test():
-	# u = GeneralQuestion('How high are you?')
-	# db_session.add(u)
-	# db_session.commit()
-
-	# g = GeneralQuestion.query.all()
-	# print(g)
-
-	# of = Offering(2, 2017)
-	# db_session.add(of)
-	# db_session.commit()
-	# oq = Offering.query.all()
-	# print(oq)
-
-	# c = Course('comp1531', of)
-	# db_session.add(c)
-	# db_session.commit()
-	# cq = Course.query.all()
-	# print(cq)
-	
-
-	# GenQs = [] 
-	# MCQs = [] 
-	# s = Survey('Survey Title', datetime.date(2017, 11, 6), c, GenQs, MCQs)
-	# db_session.add(s)
-	# db_session.commit()
-	# sq = Survey.query.all()
-	# print(sq)
-
-	# l = Base.metadata.tables.keys()
-	# print(l)
-
-	user_load()
+	#  DB Testing page
 
 	return render_template("home.html")
 

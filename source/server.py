@@ -10,8 +10,6 @@ app.config["SECRET_KEY"] = "Highly secret key"
 users = {"admin": "password"}
 authenticated = 0
 
-
-
 #build list of courses from the master course list on server start
 mastercoursecsv = fileclasses.csvfile("master_course.csv")
 for row in mastercoursecsv.readfrom():
