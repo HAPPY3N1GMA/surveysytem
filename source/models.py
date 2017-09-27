@@ -34,64 +34,11 @@ ucassociation_table = Table('ucassociation', Base.metadata,
                             )
 
 
-# class Staff(Base):
-#     __tablename__ = 'staff'
-#     id = Column(Integer,  primary_key=True)
-#     name = Column(String)
-#     password = Column(String)
-#     courses = relationship("Course", uselist=True)
-#     surveys = relationship("Survey", uselist=True)
-
-#     def __init__(self, name=None, password=None, role=None, courses=None,
-#                  surveys=None):
-#         self.name = name
-#         self.password = password
-#         self.role = role
-#         self.courses = courses
-#         self.surveys = surveys
-
-#     def __repr__(self):
-#         return '<User %r>' % (self.name)
-
-
-# class Student(Base):
-#     __tablename__ = 'student'
-#     id = Column(Integer,  primary_key=True)
-#     name = Column(String)
-#     password = Column(String)
-#     courses = relationship("Course", uselist=True)
-
-#     def __init__(self, name=None, password=None, role=None, courses=None):
-#         self.name = name
-#         self.password = password
-#         self.role = role
-#         self.courses = courses
-
-#     def __repr__(self):
-#         return '<User %r>' % (self.name)
-
-
-# class Admin(Base):
-#     __tablename__ = 'admin'
-#     id = Column(Integer,  primary_key=True)
-#     name = Column(String)
-#     password = Column(String)
-
-#     def __init__(self, name=None, password=None):
-#         self.name = name
-#         self.password = password
-
-#     def __repr__(self):
-#         return '<Admin %r>' % (self.name)
-
-
 class Course(Base):
     __tablename__ = 'course'
     id = Column(Integer, primary_key=True)
     name = Column(String)
     offering = Column(String)
-    # student_id = Column(Integer, ForeignKey('student.id'))
-    # staff_id = Column(Integer, ForeignKey('staff.id'))
     uniusers = relationship("UniUser",
                             secondary="ucassociation",
                             backref="course")
@@ -238,10 +185,4 @@ genassociation_table = Table('genassociation', Base.metadata,
                              Column('survey_id', Integer,
                                     ForeignKey('survey.id'))
                              )
-
-
-# # How to store reponses in db?
-# class Response(Base):
-#     __tablename__ = 'response'
-#     id = Column(Integer, primary_key=True)
 
