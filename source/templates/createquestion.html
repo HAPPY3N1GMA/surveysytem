@@ -44,7 +44,7 @@
 				</fieldset>
 			
 				<div class="panel-body">
-					
+
 						<form method="POST" class="form-horizontal">
 							<div class="form-group row">
 								<label for="question" class="col-sm-2 col-form-label">Question</label>
@@ -53,38 +53,35 @@
 								</div>
 							</div>
 
-			<!-- Below will only show if Multiple Choice Questions selected -->	
-					<div class="multiChoice">
-
-							<div class="form-group row">
-									<label for="option_one" class="col-sm-2 col-form-label">Option One:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="option_one" >
-									</div>
+							<!-- Below will only show if Multiple Choice Questions selected -->	
+							<div class="multiChoice">
+								<div class="form-group row">
+										<label for="option_one" class="col-sm-2 col-form-label">Option One:</label>
+										<div class="col-sm-10">
+											<input type="text" class="form-control" name="option_one" >
+										</div>
+								</div>
+								<div class="form-group row">
+										<label for="option_one" class="col-sm-2 col-form-label">Option Two:</label>
+										<div class="col-sm-10">
+											<input type="text" class="form-control" name="option_two" >
+										</div>
+								</div>
+								<div class="form-group row">
+										<label for="option_one" class="col-sm-2 col-form-label">Option Three:</label>
+										<div class="col-sm-10">
+											<input type="text" class="form-control" name="option_three" > 
+										</div>
+								</div>
+								<div class="form-group row">
+										<label for="option_one" class="col-sm-2 col-form-label">Option Four:</label>
+										<div class="col-sm-10">
+											<input type="text" class="form-control" name="option_four">
+										</div>
+								</div>
+							<!-- Above will only show if Multiple Choice Questions selected -->
 							</div>
-							<div class="form-group row">
-									<label for="option_one" class="col-sm-2 col-form-label">Option Two:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="option_two" >
-									</div>
-							</div>
-							<div class="form-group row">
-									<label for="option_one" class="col-sm-2 col-form-label">Option Three:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="option_three" > 
-									</div>
-							</div>
-							<div class="form-group row">
-									<label for="option_one" class="col-sm-2 col-form-label">Option Four:</label>
-									<div class="col-sm-10">
-										<input type="text" class="form-control" name="option_four">
-									</div>
-							</div>
-
-			<!-- Above will only show if Multiple Choice Questions selected -->
-					</div>
-
-								<button type="submit" class="btn-primary">Submit</button>
+							<button type="submit" class="btn-primary">Submit</button>
 						</form>
 
 					</div>
@@ -164,7 +161,7 @@
 									</tr>
 									</thead>
 										{% for question in multi -%}
-											<tr>
+											<td>
 												{{ question[0] }}
 											{%- for answer in question[1] -%}
 													<span style="float:right;">
@@ -198,7 +195,7 @@
 											<span style="float:right;">
 												<td>
 													{{ question }}
-												</td>
+												</tr>
 											</span>
 											{%- endfor %}
 										{% else %}
