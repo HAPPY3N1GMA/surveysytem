@@ -176,15 +176,13 @@ def createquestion():
 		answers = [answer_one,answer_two,answer_three,answer_four]
 		answers = list(filter(None, answers))
 
-		#if only one answer provided then return with error msg (this is not a valid question)
-		if(len(answers)<2):
-			questions_pool = fileclasses.question.list()
-			return render_template("createquestion.html",questions_pool=questions_pool)
-
+		#no question supplied
 		if(question==""):
-			questions_pool = fileclasses.question.list()
+			general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
+			multi = ast.literal_eval(str(MCQuestion.query.all()))
 			errorMSG("append.question","No Question Provided")
-			return render_template("createquestion.html",questions_pool=questions_pool)
+			return render_template("createquestion.html",multi=multi,general=general)
+
 
 		#check for invalid characters
 
@@ -193,10 +191,29 @@ def createquestion():
 
 		for text in validStrings:
 			if (get.cleanString(str(text))==False):
-				questions_pool = fileclasses.question.list()
+				general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
+				multi = ast.literal_eval(str(MCQuestion.query.all()))
 				errorMSG("routes.createsurvey","Invalid input in fields")
-				questions_pool = fileclasses.question.list()
-				return render_template("createquestion.html",questions_pool=questions_pool)
+				return render_template("createquestion.html",multi=multi,general=general)
+
+
+
+		#if no answers given then its a generic question
+		if(len(answers)==0):
+			new = GeneralQuestion(question)
+			db_session.add(new)
+			db_session.commit()
+
+			general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
+			multi = ast.literal_eval(str(MCQuestion.query.all()))
+
+			return render_template("createquestion.html",multi=multi,general=general)
+
+
+		#if only one answer provided then return with error msg (this is not a valid question)
+		if(len(answers)<2):
+			questions_pool = fileclasses.question.list()
+			return render_template("createquestion.html",multi=multi,general=general)
 
 
 		#ID = fileclasses.textfile("questionID.txt")
@@ -228,22 +245,22 @@ def createquestion():
 
 
 
+		new = MCQuestion(question,answer_one,answer_two,answer_three,answer_four)
+		db_session.add(new)
+		db_session.commit()
 
-
-
-		return render_template("createquestion.html",questions_pool=questions_pool)
-
-	else:
-
-		#list of questions
+		#need to make it that we dont bother reading from db again?
 		general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
 		multi = ast.literal_eval(str(MCQuestion.query.all()))
 
+		return render_template("createquestion.html",multi=multi,general=general)
 
-		#print("general:" ,general) 
-		#print("multiChoic: ",str(multi))
+	else:
 
-		#questions_pool = fileclasses.question.list()
+		#read in list of questions from db
+		general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
+		multi = ast.literal_eval(str(MCQuestion.query.all()))
+
 		return render_template("createquestion.html",multi=multi,general=general)
 
 
