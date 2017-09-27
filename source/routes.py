@@ -3,12 +3,17 @@ from flask import Flask, redirect, render_template, request, url_for, flash
 from server import app, users, authenticated,errorMSG
 from functions import append, get
 from classes import fileclasses
-from defines import masterSurveys, masterQuestions
-from models import GeneralQuestion, Survey, Course, UniUser
+from defines import masterSurveys, masterQuestions, debug
+from models import GeneralQuestion, MCQuestion, SurveyResponse, QuestionResponse
+from models import Survey, Course, UniUser
 from database import db_session, Base
 
+#got tired of logging in password each time
+if(debug):
+	_authenticated = authenticated
+else:
+	_authenticated = True
 
-_authenticated = authenticated
 
 @app.route("/")
 def index():
@@ -171,15 +176,13 @@ def createquestion():
 		answers = [answer_one,answer_two,answer_three,answer_four]
 		answers = list(filter(None, answers))
 
-		#if only one answer provided then return with error msg (this is not a valid question)
-		if(len(answers)<2):
-			questions_pool = fileclasses.question.list()
-			return render_template("createquestion.html",questions_pool=questions_pool)
-
+		#no question supplied
 		if(question==""):
-			questions_pool = fileclasses.question.list()
+			general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
+			multi = ast.literal_eval(str(MCQuestion.query.all()))
 			errorMSG("append.question","No Question Provided")
-			return render_template("createquestion.html",questions_pool=questions_pool)
+			return render_template("createquestion.html",multi=multi,general=general)
+
 
 		#check for invalid characters
 
@@ -188,33 +191,77 @@ def createquestion():
 
 		for text in validStrings:
 			if (get.cleanString(str(text))==False):
-				questions_pool = fileclasses.question.list()
+				general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
+				multi = ast.literal_eval(str(MCQuestion.query.all()))
 				errorMSG("routes.createsurvey","Invalid input in fields")
-				questions_pool = fileclasses.question.list()
-				return render_template("createquestion.html",questions_pool=questions_pool)
+				return render_template("createquestion.html",multi=multi,general=general)
 
 
-		ID = fileclasses.textfile("questionID.txt")
-		qID = ID.updateID()
 
-		if(qID==""):
+		#if no answers given then its a generic question
+		if(len(answers)==0):
+			new = GeneralQuestion(question)
+			db_session.add(new)
+			db_session.commit()
+
+			general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
+			multi = ast.literal_eval(str(MCQuestion.query.all()))
+
+			return render_template("createquestion.html",multi=multi,general=general)
+
+
+		#if only one answer provided then return with error msg (this is not a valid question)
+		if(len(answers)<2):
 			questions_pool = fileclasses.question.list()
-			errorMSG("append.question","No qID Issued")
-			return render_template("createquestion.html",questions_pool=questions_pool)
+			return render_template("createquestion.html",multi=multi,general=general)
+
+
+		#ID = fileclasses.textfile("questionID.txt")
+		#qID = ID.updateID()
+
+		#if(qID==""):
+		#	questions_pool = fileclasses.question.list()
+		#	errorMSG("append.question","No qID Issued")
+		#	return render_template("createquestion.html",questions_pool=questions_pool)
+
+
+
+
+
+		#################old csv method####################
 
 		#update master csv file & survey class
-		answercsv = fileclasses.csvfile("master_question.csv")
-		answercsv.master_question(qID, question, str(answers))
 
-		#Update Question Pool
-		questions_pool = fileclasses.question.list()
+		#answercsv = fileclasses.csvfile("master_question.csv")
+		#answercsv.master_question(qID, question, str(answers))
 
-		return render_template("createquestion.html",questions_pool=questions_pool)
+		#Reload in the Question Pool
+
+		#questions_pool = fileclasses.question.list()
+
+		#################new db method######################
+
+		#add question to the general questions only atm just to test
+
+
+
+		new = MCQuestion(question,answer_one,answer_two,answer_three,answer_four)
+		db_session.add(new)
+		db_session.commit()
+
+		#need to make it that we dont bother reading from db again?
+		general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
+		multi = ast.literal_eval(str(MCQuestion.query.all()))
+
+		return render_template("createquestion.html",multi=multi,general=general)
 
 	else:
 
-		questions_pool = fileclasses.question.list()
-		return render_template("createquestion.html",questions_pool=questions_pool)
+		#read in list of questions from db
+		general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
+		multi = ast.literal_eval(str(MCQuestion.query.all()))
+
+		return render_template("createquestion.html",multi=multi,general=general)
 
 
 @app.route('/<int:sID>',methods=["GET", "POST"])
