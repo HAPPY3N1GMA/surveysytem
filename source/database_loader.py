@@ -14,6 +14,7 @@ def admin_load():
     admin = UniUser(1111111, 'password', 'admin', [], [])
     db_session.add(admin)
     db_session.commit()
+    print('Admin loaded...')
 
 
 def user_load():
@@ -23,6 +24,7 @@ def user_load():
         new = UniUser(row[0], row[1], row[2], [], [])
         db_session.add(new)
     db_session.commit()
+    print('Users loaded...')
     # users = UniUser.query.all()
     # for user in users:
     #     print (user)
@@ -35,6 +37,7 @@ def course_load():
             new = Course(row[0], row[1])
             db_session.add(new)
     db_session.commit()
+    print ('Courses loaded...')
 
 
 def enrolment_load():
