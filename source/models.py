@@ -43,13 +43,10 @@ class Course(Base):
                             secondary="ucassociation",
                             backref="course")
 
-    def __init__(self, name=None, offeringid=None, uniuserid=None,
-                 staffid=None, studentid=None):
+    def __init__(self, name=None, offeringid=None, uniuserid=None):
         self.name = name
         self.offering = offeringid
         self.uniuser_id = uniuserid
-        self.student_id = studentid
-        self.staff_id = staffid
 
     def __repr__(self):
         return '<CourseName %r>' % (self.name)
@@ -139,7 +136,6 @@ class Survey(Base):
     title = Column(String)
     date = Column(Date)
     course_id = Column(Integer, ForeignKey('course.id'))
-    # staff_id = Column(Integer, ForeignKey('staff.id'))
     uniuser_id = Column(Integer, ForeignKey('uniuser.id'))
 
     mc_questions = relationship("MCQuestion",
@@ -152,13 +148,14 @@ class Survey(Base):
     staff = relationship("UniUser", secondary="usassociation",
                          backref="survey")
 
-    def __init__(self, title=None, date=None, course_id=None,
-                 mc_questions=None, gen_questions=None):
+    def __init__(self, title=None, date=None, courseid=None,
+                 mcquestions=None, genquestions=None, _staff=None):
         self.title = title
         self.date = date
-        self.course_id = course_id
-        self.mc_questions = mc_questions
-        self.gen_questions = gen_questions
+        self.course_id = courseid
+        self.mc_questions = mcquestions
+        self.gen_questions = genquestions
+        self.staff = _staff
 
     def __repr__(self):
         return '<Survey %r>' % (self.title)  
