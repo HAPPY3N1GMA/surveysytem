@@ -3,12 +3,17 @@ from flask import Flask, redirect, render_template, request, url_for, flash
 from server import app, users, authenticated,errorMSG
 from functions import append, get
 from classes import fileclasses
-from defines import masterSurveys, masterQuestions
-from models import GeneralQuestion, Survey, Course, UniUser
+from defines import masterSurveys, masterQuestions, debug
+from models import GeneralQuestion, MCQuestion, SurveyResponse, QuestionResponse
+from models import Survey, Course, UniUser
 from database import db_session, Base
 
+#got tired of logging in password each time
+if(debug):
+	_authenticated = authenticated
+else:
+	_authenticated = True
 
-_authenticated = authenticated
 
 @app.route("/")
 def index():
@@ -194,27 +199,52 @@ def createquestion():
 				return render_template("createquestion.html",questions_pool=questions_pool)
 
 
-		ID = fileclasses.textfile("questionID.txt")
-		qID = ID.updateID()
+		#ID = fileclasses.textfile("questionID.txt")
+		#qID = ID.updateID()
 
-		if(qID==""):
-			questions_pool = fileclasses.question.list()
-			errorMSG("append.question","No qID Issued")
-			return render_template("createquestion.html",questions_pool=questions_pool)
+		#if(qID==""):
+		#	questions_pool = fileclasses.question.list()
+		#	errorMSG("append.question","No qID Issued")
+		#	return render_template("createquestion.html",questions_pool=questions_pool)
+
+
+
+
+
+		#################old csv method####################
 
 		#update master csv file & survey class
-		answercsv = fileclasses.csvfile("master_question.csv")
-		answercsv.master_question(qID, question, str(answers))
 
-		#Update Question Pool
-		questions_pool = fileclasses.question.list()
+		#answercsv = fileclasses.csvfile("master_question.csv")
+		#answercsv.master_question(qID, question, str(answers))
+
+		#Reload in the Question Pool
+
+		#questions_pool = fileclasses.question.list()
+
+		#################new db method######################
+
+		#add question to the general questions only atm just to test
+
+
+
+
+
 
 		return render_template("createquestion.html",questions_pool=questions_pool)
 
 	else:
 
-		questions_pool = fileclasses.question.list()
-		return render_template("createquestion.html",questions_pool=questions_pool)
+		#list of questions
+		general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
+		multi = ast.literal_eval(str(MCQuestion.query.all()))
+
+
+		#print("general:" ,general) 
+		#print("multiChoic: ",str(multi))
+
+		#questions_pool = fileclasses.question.list()
+		return render_template("createquestion.html",multi=multi,general=general)
 
 
 @app.route('/<int:sID>',methods=["GET", "POST"])

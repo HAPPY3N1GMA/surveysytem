@@ -1,6 +1,7 @@
 from sqlalchemy import Integer, ForeignKey, String, Column, Date, Table
 from sqlalchemy.orm import relationship
 from database import Base
+import ast
 
 
 class UniUser(Base):
@@ -74,7 +75,23 @@ class MCQuestion(Base):
         self.answerFour = answerFour
 
     def __repr__(self):
-        return '<MCQuestion %r>' % (self.question)
+        questionAnswers = str([self.answerOne, self.answerTwo, 
+                              self.answerThree, self.answerFour])
+        questionAnswers = ast.literal_eval(str(questionAnswers))
+        return str([self.question,questionAnswers])
+
+
+      #  return ('[%r, "[%r, %r, %r, %r]"]' % (self.question,
+      #                 self.answerOne,
+      #                 self.answerTwo,
+      #                 self.answerThree,
+      #                 self.answerFour))
+
+      #original
+      #def __repr__(self):
+      #  return '<MCQuestion %r>' % (self.question)
+
+
 
 
 class SurveyResponse(Base):
@@ -126,8 +143,12 @@ class GeneralQuestion(Base):
     def __init__(self, question=None):
         self.question = question
 
+    #def __repr__(self):
+    #    return '<General Question %r>' % (self.question)    
+
     def __repr__(self):
-        return '<General Question %r>' % (self.question)    
+        return '%r' % (self.question)
+
 
 
 class Survey(Base):
