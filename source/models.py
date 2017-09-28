@@ -7,7 +7,7 @@ import ast
 class UniUser(Base):
     __tablename__ = 'uniuser'
     id = Column(Integer,  primary_key=True)
-    password = Column(String)
+    password = Column(String)1
     role = Column(String)
     courses = relationship("Course",
                            secondary="ucassociation",
@@ -22,6 +22,24 @@ class UniUser(Base):
         self.role = role
         self.courses = courses
         self.surveys = surveys
+
+    @property
+    def is_authenticated(self):
+        return True
+
+    @property
+    def is_active(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        try:
+            return unicode(self.id)  # python 2
+        except NameError:
+            return str(self.id)  # python 3
 
     def __repr__(self):
         return '<UniUser Id: %r, Courses: %r>' % (self.id, self.courses)
@@ -62,6 +80,11 @@ class MCQuestion(Base):
     answerThree = Column(String)
     answerFour = Column(String)
 
+    # If false, question is mandatory
+    # Boolean in SQLite are not True/False
+    # Stored as 1 for True, 0 False
+    optional = Column(Boolean)
+
     surveys = relationship("Survey",
                            secondary="mcassociation",
                            backref="mcquestion")
@@ -90,8 +113,6 @@ class MCQuestion(Base):
       #original
       #def __repr__(self):
       #  return '<MCQuestion %r>' % (self.question)
-
-
 
 
 class SurveyResponse(Base):
@@ -130,11 +151,15 @@ class QuestionResponse(Base):
                                                   self.response_id)
 
 
-#  Can be used for free text and yes/no q's
+#  Can be used for free text 
 class GeneralQuestion(Base):
     __tablename__ = 'generalquestion'
     id = Column(Integer, primary_key=True)
     question = Column(String)
+    # If false, question is mandatory
+    # Boolean in SQLite are not True/False
+    # Stored as 1 for True, 0 False
+    optional = Column(Boolean)
 
     surveys = relationship("Survey",
                            secondary="genassociation",
@@ -149,6 +174,28 @@ class GeneralQuestion(Base):
     def __repr__(self):
         return '%r' % (self.question)
 
+
+class YNQuestion(Base):
+    __tablename__ = 'ynquestion'
+    id = Column(Integer, primary_key=True)
+    question = Column(String)
+    # If false, question is mandatory
+    # Boolean in SQLite are not True/False
+    # Stored as 1 for True, 0 False
+    optional = Column(Boolean)
+
+    surveys = relationship("Survey",
+                           secondary="genassociation",
+                           backref="generalquestion")
+
+    def __init__(self, question=None):
+        self.question = question
+
+    #def __repr__(self):
+    #    return '<General Question %r>' % (self.question)    
+
+    def __repr__(self):
+        return '%r - Yes/No' % (self.question)
 
 
 class Survey(Base):
