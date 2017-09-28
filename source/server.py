@@ -4,7 +4,6 @@ from flask_login import LoginManager
 from models import UniUser
 
 
-
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "Highly secret key"
 
