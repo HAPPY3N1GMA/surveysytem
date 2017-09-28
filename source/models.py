@@ -1,4 +1,5 @@
-from sqlalchemy import Integer, ForeignKey, String, Column, Date, Table
+from sqlalchemy import Integer, ForeignKey, String, Column, Date,\
+ Table, Boolean
 from sqlalchemy.orm import relationship
 from database import Base
 import ast
@@ -7,7 +8,7 @@ import ast
 class UniUser(Base):
     __tablename__ = 'uniuser'
     id = Column(Integer,  primary_key=True)
-    password = Column(String)1
+    password = Column(String)
     role = Column(String)
     courses = relationship("Course",
                            secondary="ucassociation",
@@ -185,7 +186,7 @@ class YNQuestion(Base):
     optional = Column(Boolean)
 
     surveys = relationship("Survey",
-                           secondary="genassociation",
+                           secondary="ynassociation",
                            backref="generalquestion")
 
     def __init__(self, question=None):
@@ -212,6 +213,9 @@ class Survey(Base):
     gen_questions = relationship("GeneralQuestion",
                                  secondary="genassociation",
                                  backref='survey')
+    gen_questions = relationship("YNQuestion",
+                                 secondary="ynassociation",
+                                 backref='survey')                             
 
     staff = relationship("UniUser", secondary="usassociation",
                          backref="survey")
@@ -251,3 +255,9 @@ genassociation_table = Table('genassociation', Base.metadata,
                                     ForeignKey('survey.id'))
                              )
 
+ynassociation_table = Table('ynassociation', Base.metadata,
+                            Column('ynquestion_id', Integer,
+                                   ForeignKey('ynquestion.id')),
+                            Column('survey_id', Integer,
+                                   ForeignKey('survey.id'))
+                            )
