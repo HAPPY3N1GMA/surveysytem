@@ -187,7 +187,7 @@ class YNQuestion(Base):
 
     surveys = relationship("Survey",
                            secondary="ynassociation",
-                           backref="generalquestion")
+                           backref="ynquestion")
 
     def __init__(self, question=None):
         self.question = question
