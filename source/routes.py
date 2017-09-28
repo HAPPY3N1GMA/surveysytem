@@ -168,10 +168,29 @@ def createquestion():
 		#TODO: Display Error to user adding question if they forget fields
 
 		question = request.form["question"]
+
+
+
 		answer_one = request.form["option_one"]
 		answer_two = request.form["option_two"]
 		answer_three = request.form["option_three"]
 		answer_four = request.form["option_four"]
+		#answer_five = request.form["option_four"]
+		#answer_six = request.form["option_four"]
+		#answer_seven = request.form["option_four"]
+		#answer_eight = request.form["option_four"]
+		#answer_nine = request.form["option_four"]
+		#answer_ten = request.form["option_four"]
+
+		optional = request.form.getlist("optional")
+		#by default a question is mandatory unless optional is checked
+		if(optional==[]):
+			optional = False
+		else:
+			optional = True
+			print("Temporary --- Question is requested to be optional: ",optional)
+
+
 
 		answers = [answer_one,answer_two,answer_three,answer_four]
 		answers = list(filter(None, answers))
@@ -195,6 +214,15 @@ def createquestion():
 				multi = ast.literal_eval(str(MCQuestion.query.all()))
 				errorMSG("routes.createsurvey","Invalid input in fields")
 				return render_template("createquestion.html",multi=multi,general=general)
+
+
+
+
+
+				#NOTE TO SELF, ATM, YOU CAN MAKE A GENERIC QUESTION, BUT IF IT HAS ANY ANSWERS
+				#IT WILL SAVE AS MULTICHOICE!
+
+
 
 
 
