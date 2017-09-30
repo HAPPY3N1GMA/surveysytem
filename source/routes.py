@@ -78,33 +78,85 @@ def createsurvey():
 		return redirect(url_for("login"))
 
 	if request.method == "POST":
+
+		#we need to know what kind of user you are, staff, admin
+
+
 		survey_name = request.form["svyname"]
 		survey_name = str(survey_name)
 		survey_course = request.form["svycourse"]
 		survey_date = time.strftime("%d/%m/%Y,%I:%M:%S")
 		survey_questions = request.form.getlist('question')
 
-		if (get.cleanString(str(survey_name))):
-			if (survey_name == "" or survey_course == "" or survey_date == "" or survey_questions == []):
-				errorMSG("routes.createsurvey","Invalid input in fields")
-			else:
-				ID = fileclasses.textfile("surveyID.txt")
-				survey_ID = ID.updateID()
-				mastercsv = fileclasses.csvfile("master_survey.csv")
-				mastercsv.writeto(survey_ID, survey_name, survey_course, survey_date,list(survey_questions))
-				flash("{}".format(survey_ID))
 
-				#create survey answers page template
-				answercsv = fileclasses.csvfile(str(survey_ID)+".csv")
-				answercsv.buildanswer(survey_questions)
-		else:
-			errorMSG("routes.createsurvey","Invalid characters in Survey Name")
+		#["'(1", "0)'", "'(1", "1)'"]
+
+
+		general_question = []
+		multi_question = []
+
+		for question in survey_questions:
+			print("test",question[1:2],"has", question[4:5])
+
+			if (question[1:2]=='0'):
+				multi_question.append(int(question[4:5]))
+			elif (question[1:2]=='1'):
+				general_question.append(int(question[4:5]))
+
+		#the index numbers of the questions we want added to the survey
+
+
+
+		print("general_question: ",general_question)
+
+		print("multi_question: ",multi_question)
+
+		if(True == False):
+
+			if (get.cleanString(str(survey_name))):
+				if (survey_name == "" or survey_course == "" or survey_date == "" or survey_questions == []):
+					errorMSG("routes.createsurvey","Invalid input in fields")
+				else:
+
+
+					survey_questions = list(survey_questions)
+
+					general_question = []
+					multi_question = []
+
+					for question in survey_questions:
+						if (question[0]=='general'):
+							general_question.append(question[1])
+						elif (question[0]=='multi'):
+							multi_question.append(question[1])
+
+
+
+					ID = fileclasses.textfile("surveyID.txt")
+					survey_ID = ID.updateID()
+					mastercsv = fileclasses.csvfile("master_survey.csv")
+					mastercsv.writeto(survey_ID, survey_name, survey_course, survey_date,list(survey_questions))
+					flash("{}".format(survey_ID))
+
+					#create survey answers page template
+					answercsv = fileclasses.csvfile(str(survey_ID)+".csv")
+					answercsv.buildanswer(survey_questions)
+			else:
+				errorMSG("routes.createsurvey","Invalid characters in Survey Name")
+
+
+	#we need to know what kind of user you are, staff, admin
+
+	#to determine what kind of questions you even get served
 
 	#Populate Question and Course lists
-	questions_pool = fileclasses.question.list()
+	#questions_pool = fileclasses.question.list()
 	course_list = fileclasses.course.readall()
 
-	return render_template("createsurvey.html",questions_pool=questions_pool,course_list = course_list)
+
+	general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
+	multi = ast.literal_eval(str(MCQuestion.query.all()))
+	return render_template("createsurvey.html",multi=multi,general=general,course_list = course_list)
 
 
 @app.route("/dbtest")
@@ -154,142 +206,91 @@ def db_test():
 
 @app.route("/createquestion", methods=["GET", "POST"])
 def createquestion():
-
 	global _authenticated
 	if not _authenticated:
 		return redirect(url_for("login"))
 
 	if request.method == "POST":
-
-		#TODO:	implement method to add any number of answers to a question
-		# 		possibly use a dict, and add answer button that polls server
-		# 		storing each answer, until final submission submitted
-
-		#TODO: Display Error to user adding question if they forget fields
-
-		question = request.form["question"]
+		return createquestionresponse()
+	else:
+		return createquestionload()
 
 
+def createquestionresponse():
 
-		answer_one = request.form["option_one"]
-		answer_two = request.form["option_two"]
-		answer_three = request.form["option_three"]
-		answer_four = request.form["option_four"]
-		#answer_five = request.form["option_four"]
-		#answer_six = request.form["option_four"]
-		#answer_seven = request.form["option_four"]
-		#answer_eight = request.form["option_four"]
-		#answer_nine = request.form["option_four"]
-		#answer_ten = request.form["option_four"]
+	#TODO:	implement method to add any number of answers to a question
+	# 		possibly use a dict, and add answer button that polls server
+	# 		storing each answer, until final submission submitted
 
-		optional = request.form.getlist("optional")
-		#by default a question is mandatory unless optional is checked
-		if(optional==[]):
-			optional = False
-		else:
-			optional = True
-			print("Temporary --- Question is requested to be optional: ",optional)
+	#TODO: Display Error to user adding question if they forget fields
+
+	question = request.form["question"]
+	optional = False
+
+	#by default a question is mandatory unless optional is checked
+	if(request.form.getlist("optional")!=[]):
+		optional = True
+		print("Temporary --- Question is requested to be optional: ",optional)
 
 
 
-		answers = [answer_one,answer_two,answer_three,answer_four]
-		answers = list(filter(None, answers))
-
-		#no question supplied
-		if(question==""):
-			general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
-			multi = ast.literal_eval(str(MCQuestion.query.all()))
-			errorMSG("append.question","No Question Provided")
-			return render_template("createquestion.html",multi=multi,general=general)
+	#todo:
+	#create class to add general question, and mc questions
+	#class to clean a string passed to it and return 1/0 clean or unclean
+	#make this function use these new classes
+	#we need to add to db, that a question is set as optional/mandatory
+	#as per the specsheet
 
 
-		#check for invalid characters
+	if(question==""):
+		errorMSG("append.question","No Question Provided")
+		return createquestionload()
 
-		validStrings = copy.copy(answers)
-		validStrings.append(question)
+	for text in question:
+		if (get.cleanString(str(text))==False):
+			errorMSG("routes.createsurvey","Invalid input in fields")
+			return createquestionload()
 
-		for text in validStrings:
-			if (get.cleanString(str(text))==False):
-				general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
-				multi = ast.literal_eval(str(MCQuestion.query.all()))
-				errorMSG("routes.createsurvey","Invalid input in fields")
-				return render_template("createquestion.html",multi=multi,general=general)
-
-
-
-
-
-				#NOTE TO SELF, ATM, YOU CAN MAKE A GENERIC QUESTION, BUT IF IT HAS ANY ANSWERS
-				#IT WILL SAVE AS MULTICHOICE!
-
-
-
-
-
-		#if no answers given then its a generic question
-		if(len(answers)==0):
-			new = GeneralQuestion(question)
-			db_session.add(new)
-			db_session.commit()
-
-			general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
-			multi = ast.literal_eval(str(MCQuestion.query.all()))
-
-			return render_template("createquestion.html",multi=multi,general=general)
-
-
-		#if only one answer provided then return with error msg (this is not a valid question)
-		if(len(answers)<2):
-			questions_pool = fileclasses.question.list()
-			return render_template("createquestion.html",multi=multi,general=general)
-
-
-		#ID = fileclasses.textfile("questionID.txt")
-		#qID = ID.updateID()
-
-		#if(qID==""):
-		#	questions_pool = fileclasses.question.list()
-		#	errorMSG("append.question","No qID Issued")
-		#	return render_template("createquestion.html",questions_pool=questions_pool)
-
-
-
-
-
-		#################old csv method####################
-
-		#update master csv file & survey class
-
-		#answercsv = fileclasses.csvfile("master_question.csv")
-		#answercsv.master_question(qID, question, str(answers))
-
-		#Reload in the Question Pool
-
-		#questions_pool = fileclasses.question.list()
-
-		#################new db method######################
-
-		#add question to the general questions only atm just to test
-
-
-
-		new = MCQuestion(question,answer_one,answer_two,answer_three,answer_four)
+	if(request.form["qtype"]=='0'):
+		new = GeneralQuestion(question)
 		db_session.add(new)
 		db_session.commit()
+		return createquestionload()
 
-		#need to make it that we dont bother reading from db again?
-		general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
-		multi = ast.literal_eval(str(MCQuestion.query.all()))
+	#multiple choice question
+	answer_one = request.form["option_one"]
+	answer_two = request.form["option_two"]
+	answer_three = request.form["option_three"]
+	answer_four = request.form["option_four"]
 
-		return render_template("createquestion.html",multi=multi,general=general)
+	#check for invalid characters
+	answers = [answer_one,answer_two,answer_three,answer_four]
+	answers = list(filter(None, answers))
+	validStrings = copy.copy(answers)
+	validStrings.append(question)
 
-	else:
+	for text in validStrings:
+		if (get.cleanString(str(text))==False):
+			errorMSG("routes.createsurvey","Invalid input in fields")
+			return createquestionload()
 
-		#read in list of questions from db
-		general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
-		multi = ast.literal_eval(str(MCQuestion.query.all()))
 
-		return render_template("createquestion.html",multi=multi,general=general)
+	#if only one answer provided then return with error msg (this is not a valid question)
+	if(len(answers)<2):
+		errorMSG("routes.createsurvey","Only one answer provided for a mc question")
+		return createquestionload()
+
+	new = MCQuestion(question,answer_one,answer_two,answer_three,answer_four)
+	db_session.add(new)
+	db_session.commit()
+	return createquestionload()
+
+def createquestionload():
+	#read in list of questions from db
+	general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
+	multi = ast.literal_eval(str(MCQuestion.query.all()))
+
+	return render_template("createquestion.html",multi=multi,general=general)
 
 
 @app.route('/<int:sID>',methods=["GET", "POST"])
