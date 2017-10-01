@@ -27,7 +27,6 @@ def index():
 def admin(): 
 	global _authenticated
 	if _authenticated:
-		# read csv data into a list
 		return render_template("admin.html")
 	else:
 		return redirect(url_for("login"))
@@ -244,6 +243,144 @@ def db_test():
 
 	return render_template("home.html")
 
+#@app.route("/createquestion/<int:qID>/<int:qType>", methods=["GET", "POST"])
+#def complete_survey(sID):
+
+#	if request.method == "GET":
+
+
+
+
+@app.route('/modifyquestion/<int:Questiontype>/<int:qID>', methods=["GET", "POST"])
+def modifyquestion(Questiontype=-1, qID=-1):
+
+	if not _authenticated:
+		return redirect(url_for("login"))
+
+
+	#if not admin then exit as well!
+
+
+	if request.method == "GET":
+		#check params set
+		if(Questiontype==-1 or qID==-1):
+			return redirect(url_for("createquestion"))
+
+		#get the qid info from the db
+		questionInfo = []
+		if(Questiontype==1):
+			#mc type question
+			questionInfo = db_session.query(MCQuestion).get(qID)
+
+		else:
+
+			questionInfo = db_session.query(GeneralQuestion).get(qID)
+
+		if(questionInfo==[]):
+			#error modifying question it oculdnt 
+			errorMSG("routes.modifyquestion","Unable to locate question in db -- ","Qtype:",qType,"qID",qID)
+			return redirect(url_for("createquestion"))
+
+		#return render_template("modifyquestion.html")
+		return render_template("modifyquestion.html",Questiontype=Questiontype,questionInfo=questionInfo)
+
+	else:
+
+		oldType = request.form["oldType"]
+		qID = request.form["qID"]
+		question = request.form["question"]
+
+		status = 0
+
+		if(request.form.getlist("optional")!=[]):
+			status = request.form["optional"]
+
+		if(question==""):
+			errorMSG("append.question","No Question Provided")
+			return redirect(url_for("createquestion"))
+
+		for text in question:
+			if (get.cleanString(str(text))==False):
+				errorMSG("routes.modifyquestion","Invalid input in fields")
+				return redirect(url_for("createquestion"))
+
+
+		#old question object being modified
+		if(request.form["qtype"]=='0'):
+			qObject=GeneralQuestion.query.filter_by(id=qID).first()
+		else:
+			qObject=MCQuestion.query.filter_by(id=qID).first()	
+
+
+		if(qObject==None):
+			errorMSG("routes.modifyquestion ","No object Found")
+			return redirect(url_for("createquestion"))
+
+		#is the question getting deleted?
+		if(status=='2'):
+			qObject.status = status
+			db_session.commit()
+			return redirect(url_for("createquestion"))
+
+		#extended response questions
+		if(request.form["qtype"]=='0'):
+			if(oldType=='2'):
+				#same general type of question, just changing fields
+				qObject.question = question
+				qObject.status = status
+
+			else:
+				#change of question type - delete old type, and make new type
+				qObject.status = status
+				new = GeneralQuestion(question,status)
+				db_session.add(new)
+				
+			db_session.commit()	
+			return redirect(url_for("createquestion"))	
+
+
+		#multiple choice question
+		answer_one = request.form["option_one"]
+		answer_two = request.form["option_two"]
+		answer_three = request.form["option_three"]
+		answer_four = request.form["option_four"]
+
+		#check for invalid characters
+		answers = [answer_one,answer_two,answer_three,answer_four]
+		answers = list(filter(None, answers))
+		validStrings = copy.copy(answers)
+		validStrings.append(question)
+
+
+		for text in validStrings:
+			if (get.cleanString(str(text))==False):
+				errorMSG("routes.createsurvey","Invalid input in fields")
+				return redirect(url_for("createquestion"))
+
+
+		#if only one answer provided then return with error msg (this is not a valid question)
+		if(len(answers)<2):
+			errorMSG("routes.createsurvey","Only one answer provided for a mc question")
+			return redirect(url_for("createquestion"))
+
+		if(oldType=='1'):
+			#same mc question, just update all the fields
+			qObject.question = question
+			qObject.status = status
+			qObject.answerOne = answer_one
+			qObject.answerTwo = answer_two
+			qObject.answerThree = answer_three
+			qObject.answerFour = answer_four	
+		else:
+			#new mc question, set old question to deleted, and make new question
+			qObject.status = status
+			new = MCQuestion(question,answer_one,answer_two,answer_three,answer_four,status)
+			db_session.add(new)
+		
+		db_session.commit()
+		return redirect(url_for("createquestion"))
+
+
 
 @app.route("/createquestion", methods=["GET", "POST"])
 def createquestion():
@@ -256,23 +393,12 @@ def createquestion():
 			#redirect to create question
 			return createquestionresponse()
 		else:
-			#this will redirect to modify question to be able to delete or modify them
-
-			#NOTE the spec says that deleted questions are not really "deleted"
-			#they just wont be able to be added to new surveys.... or visibile outside
-			#surveys they are already added to
-
-			#NEED A NEW FIELD FOR QUESTION STATUS
-
 			if request.form["qlisttype"]=='1':
 				#multiple choice type question
-				print("modify mc question")
+				return redirect(url_for("modifyquestion", Questiontype=1, qID=request.form["multiEdit"]))
 			else:
 				#general question type
-				print("modify general question")
-			
-			#request.form["multiEdit"]     request.form["generalEdit"]
-			return createquestionload()
+				return redirect(url_for("modifyquestion", Questiontype=2, qID=request.form["generalEdit"]))
 	else:
 		return createquestionload()
 
