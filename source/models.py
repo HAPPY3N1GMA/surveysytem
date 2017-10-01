@@ -188,6 +188,12 @@ class Survey(Base):
         return '<Survey %r>' % (self.title)  
 
 
+
+
+
+
+
+
 usassociation_table = Table('usassociation', Base.metadata,
                             Column('uniuser_id', Integer,
                                    ForeignKey('uniuser.id')),

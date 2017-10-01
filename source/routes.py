@@ -70,6 +70,47 @@ def home():
 		return redirect(url_for("index"))
 
 
+@app.route("/survey", methods=["GET", "POST"])
+def viewsurveys():
+	global _authenticated
+	if not _authenticated:
+		return redirect(url_for("login"))
+
+	#if user - redirect to list of surveys they can answer
+
+	#if staff - list of surveys they can modify
+
+	#if admin - all surveys
+
+	newList=[]
+
+	for row in db_session.query(Course).all():
+		newList.append([row.id,row.name,row.offering])
+		print(row.id,row.name,row.offering)
+
+
+	#now have list of all courses
+
+
+	#only pass in courses we have access too
+
+	#q_users = db_session.query(UniUser).all()
+		# for user in q_users:
+		# 	print (user)
+
+
+
+
+	course_list = fileclasses.course.readall()
+
+
+	general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
+	multi = ast.literal_eval(str(MCQuestion.query.all()))
+	return render_template("createsurvey.html",multi=multi,general=general,course_list = course_list)
+
+
+
+
 @app.route("/createsurvey", methods=["GET", "POST"])
 def createsurvey():
 
@@ -215,7 +256,14 @@ def createquestion():
 			#redirect to create question
 			return createquestionresponse()
 		else:
-			#this will redirect to modify question
+			#this will redirect to modify question to be able to delete or modify them
+
+			#NOTE the spec says that deleted questions are not really "deleted"
+			#they just wont be able to be added to new surveys.... or visibile outside
+			#surveys they are already added to
+
+			#NEED A NEW FIELD FOR QUESTION STATUS
+
 			if request.form["qlisttype"]=='1':
 				#multiple choice type question
 				print("modify mc question")
