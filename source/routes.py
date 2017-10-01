@@ -278,19 +278,15 @@ def createquestion():
 
 def createquestionresponse():
 
-	#TODO:	implement method to add any number of answers to a question
-	# 		possibly use a dict, and add answer button that polls server
-	# 		storing each answer, until final submission submitted
-
 	#TODO: Display Error to user adding question if they forget fields
 
 	question = request.form["question"]
-	optional = False
+	status = 0
 
 	#by default a question is mandatory unless optional is checked
 	if(request.form.getlist("optional")!=[]):
-		optional = True
-		print("Temporary --- Question is requested to be optional: ",optional)
+		status = 1
+		print("Temporary --- Question is requested to be optional: ",status)
 
 
 
@@ -311,8 +307,9 @@ def createquestionresponse():
 			errorMSG("routes.createsurvey","Invalid input in fields")
 			return createquestionload()
 
+
 	if(request.form["qtype"]=='0'):
-		new = GeneralQuestion(question)
+		new = GeneralQuestion(question,status)
 		db_session.add(new)
 		db_session.commit()
 		return createquestionload()
@@ -340,15 +337,16 @@ def createquestionresponse():
 		errorMSG("routes.createsurvey","Only one answer provided for a mc question")
 		return createquestionload()
 
-	new = MCQuestion(question,answer_one,answer_two,answer_three,answer_four)
+	new = MCQuestion(question,answer_one,answer_two,answer_three,answer_four,status)
 	db_session.add(new)
 	db_session.commit()
 	return createquestionload()
 
 def createquestionload():
-	#read in list of questions from db
-	general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
-	multi = ast.literal_eval(str(MCQuestion.query.all()))
+	#read in list of questions from db, ignoring any that are deleted
+	multi = [row for row in list(ast.literal_eval(str(MCQuestion.query.all()))) if row[3]!=2]
+	general = [row for row in list(ast.literal_eval(str(GeneralQuestion.query.all()))) if row[2]!=2]
+
 
 	return render_template("createquestion.html",multi=multi,general=general)
 
