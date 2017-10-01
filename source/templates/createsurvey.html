@@ -34,6 +34,8 @@
       </div>
     <div class="panel-body">
       <form method="POST">
+        <input type="hidden" name="formID" id="formID" value="">
+        <input type="hidden" name="qlisttype" id="qlisttype" value="">       
         <div class="container">
           <input name="svyname" placeholder="Enter survey name"style="width: 200px; height: 25px"/>
           {%if course_list%}
@@ -86,14 +88,14 @@
                       </thead>
                         <tr>
                           {% for question in multi -%}
-                          <td><input type="checkbox" name="question" value="{{0,loop.index0}}"/><td>
-                          {{ question[0] }}
-                          {%- for answer in question[1] -%}
-                              <span style="float:right;">
-                                <td>
-                                  {{ answer }}
-                                </td>
-                              </span>
+                          <td><input type="checkbox" name="question" value="{{0,question[0]}}"/><td>
+                          {{ question[1] }}
+                          {%- for answer in question[2] -%}
+                            <span style="float:right;">
+                              <td>
+                                {{ answer }}
+                              </td>
+                            </span>
                           {%- endfor %}
                         </tr> 
                         {%- endfor %}
@@ -120,10 +122,9 @@
                         </thead>
                       <tr>
                         {% for question in general -%}
-                        <td><input type="checkbox" name="question" value="{{1,loop.index0}}"/></td>
-        
+                        <td><input type="checkbox" name="question" value="{{1,question[0]}}"/></td>
                         <td>
-                          {{ question }}
+                          {{ question[1] }}
                         </td>
                       </tr>
                         {%- endfor %}

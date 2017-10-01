@@ -77,6 +77,10 @@ def createsurvey():
 	if not _authenticated:
 		return redirect(url_for("login"))
 
+
+
+	#only admins can access this page
+
 	if request.method == "POST":
 
 		#we need to know what kind of user you are, staff, admin
@@ -89,15 +93,11 @@ def createsurvey():
 		survey_questions = request.form.getlist('question')
 
 
-		#["'(1", "0)'", "'(1", "1)'"]
-
-
 		general_question = []
 		multi_question = []
 
+		#this sorst out the returned list of questions into 2 lists of qid's
 		for question in survey_questions:
-			print("test",question[1:2],"has", question[4:5])
-
 			if (question[1:2]=='0'):
 				multi_question.append(int(question[4:5]))
 			elif (question[1:2]=='1'):
