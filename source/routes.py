@@ -103,7 +103,7 @@ def createsurvey():
 			elif (question[1:2]=='1'):
 				general_question.append(int(question[4:5]))
 
-		#the index numbers of the questions we want added to the survey
+		#we now have the index numbers of the questions we want added to the survey
 
 
 
