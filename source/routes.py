@@ -211,10 +211,22 @@ def createquestion():
 		return redirect(url_for("login"))
 
 	if request.method == "POST":
-		return createquestionresponse()
+		if request.form["formID"]=='1':
+			#redirect to create question
+			return createquestionresponse()
+		else:
+			#this will redirect to modify question
+			if request.form["qlisttype"]=='1':
+				#multiple choice type question
+				print("modify mc question")
+			else:
+				#general question type
+				print("modify general question")
+			
+			#request.form["multiEdit"]     request.form["generalEdit"]
+			return createquestionload()
 	else:
 		return createquestionload()
-
 
 def createquestionresponse():
 
