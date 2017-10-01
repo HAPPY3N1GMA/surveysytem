@@ -1,12 +1,14 @@
 import csv, ast, os, time, copy, datetime
 from flask import Flask, redirect, render_template, request, url_for, flash
-from server import app, users, authenticated,errorMSG
+from server import app, users, authenticated, errorMSG
 from functions import append, get
 from classes import fileclasses
 from defines import masterSurveys, masterQuestions, debug
-from models import GeneralQuestion, MCQuestion, SurveyResponse, QuestionResponse
+from models import GeneralQuestion, MCQuestion, SurveyResponse,\
+					QuestionResponse
 from models import Survey, Course, UniUser
 from database import db_session, Base
+from flask_login import login_user, login_required
 
 #got tired of logging in password each time
 if(debug):
@@ -38,19 +40,15 @@ def submit():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-	global _authenticated
-	if request.method == "POST":
-
-		user = request.form["username"]
-		pwd = request.form["password"]
-
-		# Check Password
-		if check_password(user, pwd):
-			
-			print("Valid password")
-			_authenticated = 1
-			return redirect(url_for("admin"))
-
+	if request.method == 'POST':
+		id = request.form['username']
+		password = request.form['password']
+		user = UniUser.query.get(id)
+		if password == user.password:
+			login_user(user)
+			flash('Logged in successfully.')
+			next = request.args.get('next')
+			return redirect(next or url_for('index'))
 		else:
 			return render_template("login.html", invalid=True)
 
@@ -62,6 +60,12 @@ def check_password(user, pwd):
 		return True
 	else:
 		return False
+
+
+@app.route("/logintest")
+@login_required
+def test():
+		return redirect(url_for("login"))
 
 
 @app.route("/home")
