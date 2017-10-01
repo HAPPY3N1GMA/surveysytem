@@ -44,7 +44,8 @@ class Course(Base):
                             secondary="ucassociation",
                             backref="course")
 
-    def __init__(self, name=None, offeringid=None, uniuserid=None):
+    def __init__(self, id, name=None, offeringid=None, uniuserid=None):
+        self.id = id
         self.name = name
         self.offering = offeringid
         self.uniuser_id = uniuserid
@@ -66,8 +67,9 @@ class MCQuestion(Base):
                            secondary="mcassociation",
                            backref="mcquestion")
 
-    def __init__(self, question=None, answerOne=None, answerTwo=None, 
+    def __init__(self, id, question=None, answerOne=None, answerTwo=None, 
                  answerThree=None, answerFour=None):
+        self.id = id
         self.question = question
         self.answerOne = answerOne
         self.answerTwo = answerTwo
@@ -78,7 +80,7 @@ class MCQuestion(Base):
         questionAnswers = str([self.answerOne, self.answerTwo, 
                               self.answerThree, self.answerFour])
         questionAnswers = ast.literal_eval(str(questionAnswers))
-        return str([self.question,questionAnswers])
+        return str([self.id,self.question,questionAnswers])
 
 
       #  return ('[%r, "[%r, %r, %r, %r]"]' % (self.question,
@@ -101,7 +103,8 @@ class SurveyResponse(Base):
     responses = relationship("QuestionResponse",
                              backref="surveyresponse")
 
-    def __init__(self, surveyid=None, _responses=None):
+    def __init__(self, id, surveyid=None, _responses=None):
+        self.id = id
         self.survey_id = surveyid
         self.responses = _responses
 
@@ -117,8 +120,9 @@ class QuestionResponse(Base):
     genquestion_id = Column(Integer, ForeignKey('generalquestion.id'))
     response = Column(String)
 
-    def __init__(self, responseid=None, mcquestionid=None, genquestionid=None,
+    def __init__(self, id, responseid=None, mcquestionid=None, genquestionid=None,
                  _response=None):
+        self.id = id
         self.response_id = responseid
         self.mcquestion_id = mcquestionid
         self.genquestion_id = genquestionid
@@ -140,14 +144,15 @@ class GeneralQuestion(Base):
                            secondary="genassociation",
                            backref="generalquestion")
 
-    def __init__(self, question=None):
+    def __init__(self, id, question=None):
+        self.id = id
         self.question = question
 
     #def __repr__(self):
     #    return '<General Question %r>' % (self.question)    
 
     def __repr__(self):
-        return '%r' % (self.question)
+        return  str([self.id,self.question])
 
 
 
@@ -169,8 +174,9 @@ class Survey(Base):
     staff = relationship("UniUser", secondary="usassociation",
                          backref="survey")
 
-    def __init__(self, title=None, date=None, courseid=None,
+    def __init__(self, id, title=None, date=None, courseid=None,
                  mcquestions=None, genquestions=None, _staff=None):
+        self.id = id
         self.title = title
         self.date = date
         self.course_id = courseid
