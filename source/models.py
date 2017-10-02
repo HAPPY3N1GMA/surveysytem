@@ -135,9 +135,23 @@ class QuestionResponse(Base):
                                                   self.genquestion_id,
                                                   self.response_id)
 
+
+
+
+
+
+
+
+
+#HOW TO LINK PEOPLE WHO CAN USE THIS SURVEY? it should be automatically
+#done based on the course - as only course staff can access it!
+
+
+
 class Survey(Base):
     __tablename__ = 'survey'
     id = Column(Integer, primary_key=True)
+    status = Column(Integer)
     title = Column(String)
     date = Column(Date)
     course_id = Column(Integer, ForeignKey('course.id'))
@@ -154,13 +168,14 @@ class Survey(Base):
                          backref="survey")
 
     def __init__(self, title=None, date=None, courseid=None,
-                 mcquestions=None, genquestions=None, _staff=None):
+                 mcquestions=[], genquestions=[], _staff=[], status=1):
         self.title = title
         self.date = date
         self.course_id = courseid
         self.mc_questions = mcquestions
         self.gen_questions = genquestions
         self.staff = _staff
+        self.status = status #1=open for edit, 2=open to answer, closed to edit, 3=closed
 
     def __repr__(self):
         return '<Survey %r>' % (self.title)  

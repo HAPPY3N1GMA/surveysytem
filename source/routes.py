@@ -1,4 +1,5 @@
-import csv, ast, os, time, copy, datetime
+import csv, ast, os, time, copy
+from datetime import datetime
 from flask import Flask, redirect, render_template, request, url_for, flash
 from server import app, users, authenticated, errorMSG
 from functions import append, get
@@ -73,46 +74,56 @@ def home():
 		return redirect(url_for("index"))
 
 
-@app.route("/survey", methods=["GET", "POST"])
-def viewsurveys():
+@app.route("/surveys", methods=["GET", "POST"])
+def surveys():
 	global _authenticated
 	if not _authenticated:
 		return redirect(url_for("login"))
 
-	#if user - redirect to list of surveys they can answer
+	#filter this by what they are allowed to see
+	course_list = Course.query.all()
+	survey_list = Survey.query.all()
 
-	#if staff - list of surveys they can modify
-
-	#if admin - all surveys
-
-	newList=[]
-
-	for row in db_session.query(Course).all():
-		newList.append([row.id,row.name,row.offering])
-		print(row.id,row.name,row.offering)
+	if request.method == "GET":
+		print("get main surveys page")
 
 
-	#now have list of all courses
+	
 
-
-	#only pass in courses we have access too
-
-	#q_users = db_session.query(UniUser).all()
-		# for user in q_users:
-		# 	print (user)
+		return render_template("surveys.html",admin=True,course_list=course_list,survey_list=survey_list)	
 
 
 
 
-	course_list = fileclasses.course.readall()
 
+	else:
 
-	general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
-	multi = ast.literal_eval(str(MCQuestion.query.all()))
-	return render_template("createsurvey.html",multi=multi,general=general,course_list = course_list)
+		#check if an admin and if so, they are permitted to make new surveys!
+		admin = True
+		if admin==True:
+			if request.form["newsurvey"]:
+				survey_name = request.form["svyname"]
+				courseID = request.form["svycourse"]
 
+				#qObject=Course.query.filter_by(id=courseID).first()
 
+				if (get.cleanString(str(survey_name))==False):
+					errorMSG("routes.newsurvey","Invalid Characters in survey name")
+					return render_template("surveys.html",admin=True,course_list=course_list,survey_list=survey_list)
 
+				if (str(courseID) == ''):
+					errorMSG("routes.newsurvey","No course selected")
+					return render_template("surveys.html",admin=True,course_list=course_list,survey_list=survey_list)
+
+				#new survey created then redirect to the modify survey page to add questions etc
+				survey = Survey(survey_name,datetime.now(),courseID)
+				db_session.add(survey)
+				db_session.commit()
+
+				#change this to redirect to add questions to this survey!
+				return render_template("surveys.html",admin=True,course_list=course_list,survey_list=survey_list)
+
+		return render_template("surveys.html",admin=True,course_list=course_list,survey_list=survey_list)	
 
 @app.route("/createsurvey", methods=["GET", "POST"])
 def createsurvey():
@@ -246,13 +257,6 @@ def db_test():
 	# 	print (user)
 
 	return render_template("home.html")
-
-#@app.route("/createquestion/<int:qID>/<int:qType>", methods=["GET", "POST"])
-#def complete_survey(sID):
-
-#	if request.method == "GET":
-
-
 
 
 @app.route('/modifyquestion/<int:Questiontype>/<int:qID>', methods=["GET", "POST"])
