@@ -36,7 +36,7 @@
       {% if admin %}
        <br></br>
       <form method="POST">
-        <input type="hidden" name="newsurvey" id="newsurvey" value="0">       
+        <input type="hidden" name="surveyformid" id="surveyformid" value="1">       
         <div class="container">
           <input name="svyname" placeholder="Enter survey name"style="width: 400px; height: 25px"/>
           {%if course_list%}
@@ -47,14 +47,14 @@
             </select>
 
           {%endif%}
-          <button type="submit" class="btn-primary" onclick="document.getElementById('newsurvey').value = '1';" name="bt">Create New Survey</button>
+          <button type="submit" class="btn-primary" name="bt">Create New Survey</button>
         </div>
       </form>
       {% endif %}
 
       <br></br>
           <form method="POST" class="form-horizontal">
-            <input type="hidden" name="opensurvey" id="opensurvey" value="0"> 
+            <input type="hidden" name="surveyformid" id="surveyformid" value="2"> 
               <div class="panel panel-default">
                 <div class="multiChoiceList">
                   <div class="panel-body">
@@ -98,7 +98,7 @@
                   </div> 
                 </div>
               </div>
-              <button type="submit" class="btn-primary" id="open" ="btn-primary" onclick="document.getElementById('opensurvey').value = '1';" name="open">Open Survey</button>
+              <button type="submit" class="btn-primary" id="open" ="btn-primary" name="open">Open Survey</button>
             </div>
           </form>  
         </div>

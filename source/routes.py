@@ -89,13 +89,17 @@ def surveys():
 		admin = True
 		student = False
 
-		if request.form["opensurvey"]=='1':
-			return opensurvey()
-
-		if admin==True:
-			if request.form["newsurvey"]=='1':
+		if(student==False):
+			surveyform = request.form["surveyformid"]
+			if surveyform=='1':
 				return newsurvey()
-				
+			if surveyform=='2':
+				return opensurvey()
+			if surveyform=='3':
+				return removeqsurvey()
+			if surveyform=='4':
+				return addqsurvey()
+
 		return surveyinfo()
 
 
@@ -136,7 +140,7 @@ def opensurvey():
 		#sort these based on who you are!
 		general = GeneralQuestion.query.all()
 		multi = MCQuestion.query.all()
-		return render_template("modifysurvey.html",admin=True,survey=survey,course=course,general=general,multi=multi)
+		return render_template("modifysurvey.html",admin=False,surveygen=general,surveymc=multi,survey=survey,course=course,general=general,multi=multi)
 
 
 def newsurvey():
@@ -165,7 +169,23 @@ def newsurvey():
 	return surveyinfo()
 
 
+def addqsurvey():
+	print("add question")
 
+	#check they are staff first
+
+
+	#get list of questions to add
+
+
+
+
+
+	return surveyinfo()
+
+def removeqsurvey():
+	print("remove question")
+	return surveyinfo()
 
 
 
