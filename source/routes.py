@@ -75,56 +75,103 @@ def home():
 
 
 @app.route("/surveys", methods=["GET", "POST"])
+
 def surveys():
 	global _authenticated
 	if not _authenticated:
 		return redirect(url_for("login"))
 
-	#filter this by what they are allowed to see
-	course_list = Course.query.all()
-	survey_list = Survey.query.all()
-
 	if request.method == "GET":
-		print("get main surveys page")
-
-
-	
-
-		return render_template("surveys.html",admin=True,course_list=course_list,survey_list=survey_list)	
-
-
-
-
-
+		return surveyinfo()
 	else:
 
 		#check if an admin and if so, they are permitted to make new surveys!
 		admin = True
+		student = False
+
+		if request.form["opensurvey"]=='1':
+			return opensurvey()
+
 		if admin==True:
-			if request.form["newsurvey"]:
-				survey_name = request.form["svyname"]
-				courseID = request.form["svycourse"]
+			if request.form["newsurvey"]=='1':
+				return newsurvey()
+				
+		return surveyinfo()
 
-				#qObject=Course.query.filter_by(id=courseID).first()
 
-				if (get.cleanString(str(survey_name))==False):
-					errorMSG("routes.newsurvey","Invalid Characters in survey name")
-					return render_template("surveys.html",admin=True,course_list=course_list,survey_list=survey_list)
+def surveyinfo():
+	admin = True
+	student = False
+	course_list = Course.query.all()
+	survey_list = Survey.query.all()
+	return render_template("surveys.html",admin=True,course_list=course_list,survey_list=survey_list)
 
-				if (str(courseID) == ''):
-					errorMSG("routes.newsurvey","No course selected")
-					return render_template("surveys.html",admin=True,course_list=course_list,survey_list=survey_list)
+def opensurvey():
+	admin = True
+	student = False
 
-				#new survey created then redirect to the modify survey page to add questions etc
-				survey = Survey(survey_name,datetime.now(),courseID)
-				db_session.add(survey)
-				db_session.commit()
+	if (request.form.getlist("surveyid")==[]):
+		errorMSG("routes.opensurvey","surveyid not selected")
+		return surveyinfo()
+	
+	surveyID = request.form["surveyid"]
 
-				#change this to redirect to add questions to this survey!
-				return render_template("surveys.html",admin=True,course_list=course_list,survey_list=survey_list)
+	survey = Survey.query.filter_by(id=surveyID).first()	
+	if(survey==None):
+		errorMSG("routes.opensurvey","survey object is empty")
+		return surveyinfo()	
 
-		return render_template("surveys.html",admin=True,course_list=course_list,survey_list=survey_list)	
+	course = Course.query.filter_by(id=survey.course_id).first()	
+	if(course==None):
+		errorMSG("routes.opensurvey","course object is empty")
+		return surveyinfo()
 
+	if student:
+		print("student opening survey")
+		return surveyinfo()
+		return render_template("viewsurvey.html",admin=True,survey=survey,course=course)
+
+	else:
+		print("staff opening survey")
+		#sort these based on who you are!
+		general = GeneralQuestion.query.all()
+		multi = MCQuestion.query.all()
+		return render_template("modifysurvey.html",admin=True,survey=survey,course=course,general=general,multi=multi)
+
+
+def newsurvey():
+	admin = True
+	student = False
+
+	survey_name = request.form["svyname"]
+	courseID = request.form["svycourse"]
+
+	#qObject=Course.query.filter_by(id=courseID).first()
+
+	if (get.cleanString(str(survey_name))==False):
+		errorMSG("routes.newsurvey","Invalid Characters in survey name")
+		return surveyinfo()
+
+	if (str(courseID) == ''):
+		errorMSG("routes.newsurvey","No course selected")
+		return surveyinfo()
+
+	#new survey created then redirect to the modify survey page to add questions etc
+	survey = Survey(survey_name,datetime.now(),courseID)
+	db_session.add(survey)
+	db_session.commit()
+
+	#change this to redirect to add questions to this survey!
+	return surveyinfo()
+
+
+
+
+
+
+
+
+#old method
 @app.route("/createsurvey", methods=["GET", "POST"])
 def createsurvey():
 
