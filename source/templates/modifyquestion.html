@@ -46,7 +46,11 @@
 			<div class="panel-body">
 					<form method="POST" class="form-horizontal">
 						<input type="hidden" name="oldType" id="oldType" value="{{Questiontype}}">
+
+						<p>Question Type: {{Questiontype}}</p>
+
 						<input type="hidden" name="qID" id="qID" value="{{questionInfo.id}}">
+						<input type="hidden" name="delete" id="delete" value="0">
 						<input type="hidden" name="qtype" id="qtype" value="">
 						<div class="form-group row">
 							<label for="question" class="col-sm-2 col-form-label">Question</label>
@@ -98,7 +102,7 @@
 						   ></label></span>
 
 						<button type="submit" class="btn-primary" >Submit</button>
-						<button type="submit" class="btn-primary" onclick="document.getElementById('optional').value = '2';" >Delete Question</button>
+						<button type="submit" class="btn-primary" id="delete" name="delete" onclick="document.getElementById('delete').value='1';" >Delete Question</button>
 					</form>
 				</div>
 			</div>
@@ -111,23 +115,17 @@
 
 
 <script type="text/javascript">
-
-
-document.onload
-
-
 $(document).ready(function()
 {
-
-if({{Questiontype}}==1){
-	document.getElementById('TypeOfQuestion').value= "Multiple Choice"
-	document.getElementById('qtype').value='1';
-	$(".multiChoice").slideDown(0);
-}else{
-	document.getElementById('TypeOfQuestion').value= "Extended Response"
-	document.getElementById('qtype').value='0';	
-	$(".multiChoice").slideUp(0);
-}
+	if({{Questiontype}}==1){
+		document.getElementById('TypeOfQuestion').value= "Multiple Choice"
+		document.getElementById('qtype').value='1';
+		$(".multiChoice").slideDown(0);
+	}else{
+		document.getElementById('TypeOfQuestion').value= "Extended Response"
+		document.getElementById('qtype').value='0';	
+		$(".multiChoice").slideUp(0);
+	}
 
 
 	$("#TypeOfQuestion").on('change',function()

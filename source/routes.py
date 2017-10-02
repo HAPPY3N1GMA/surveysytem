@@ -297,7 +297,10 @@ def modifyquestion(Questiontype=-1, qID=-1):
 		status = 0
 
 		if(request.form.getlist("optional")!=[]):
-			status = request.form["optional"]
+			status = 1
+
+		if(request.form["delete"]=='1'):
+			status = 2
 
 		if(question==""):
 			errorMSG("append.question","No Question Provided")
@@ -308,23 +311,23 @@ def modifyquestion(Questiontype=-1, qID=-1):
 				errorMSG("routes.modifyquestion","Invalid input in fields")
 				return redirect(url_for("createquestion"))
 
-
 		#old question object being modified
-		if(request.form["qtype"]=='0'):
+		if(oldType=='2'):
 			qObject=GeneralQuestion.query.filter_by(id=qID).first()
 		else:
 			qObject=MCQuestion.query.filter_by(id=qID).first()	
 
 
 		if(qObject==None):
-			errorMSG("routes.modifyquestion ","No object Found")
+			errorMSG("routes.modifyquestion ","No question object Found")
 			return redirect(url_for("createquestion"))
 
 		#is the question getting deleted?
-		if(status=='2'):
+		if(status==2):
 			qObject.status = status
 			db_session.commit()
 			return redirect(url_for("createquestion"))
+
 
 		#extended response questions
 		if(request.form["qtype"]=='0'):
@@ -335,7 +338,7 @@ def modifyquestion(Questiontype=-1, qID=-1):
 
 			else:
 				#change of question type - delete old type, and make new type
-				qObject.status = status
+				qObject.status = 2
 				new = GeneralQuestion(question,status)
 				db_session.add(new)
 				
@@ -377,7 +380,7 @@ def modifyquestion(Questiontype=-1, qID=-1):
 			qObject.answerFour = answer_four	
 		else:
 			#new mc question, set old question to deleted, and make new question
-			qObject.status = status
+			qObject.status = 2
 			new = MCQuestion(question,answer_one,answer_two,answer_three,answer_four,status)
 			db_session.add(new)
 		
@@ -393,18 +396,17 @@ def createquestion():
 		return redirect(url_for("login"))
 
 	if request.method == "POST":
-		if request.form["formID"]=='1':
+		if request.form.getlist("formID")==['1']:
 			#redirect to create question
 			return createquestionresponse()
-		else:
-			if request.form["qlisttype"]=='1':
-				#multiple choice type question
-				return redirect(url_for("modifyquestion", Questiontype=1, qID=request.form["multiEdit"]))
-			else:
-				#general question type
-				return redirect(url_for("modifyquestion", Questiontype=2, qID=request.form["generalEdit"]))
-	else:
-		return createquestionload()
+		elif (request.form.getlist("multiEdit")!=[]):
+			#multiple choice type question
+			return redirect(url_for("modifyquestion", Questiontype=1, qID=request.form["multiEdit"]))
+		elif (request.form.getlist("generalEdit")!=[]):
+			#general question type
+			return redirect(url_for("modifyquestion", Questiontype=2, qID=request.form["generalEdit"]))
+	
+	return createquestionload()
 
 def createquestionresponse():
 
@@ -416,8 +418,6 @@ def createquestionresponse():
 	#by default a question is mandatory unless optional is checked
 	if(request.form.getlist("optional")!=[]):
 		status = 1
-		print("Temporary --- Question is requested to be optional: ",status)
-
 
 
 	#todo:
