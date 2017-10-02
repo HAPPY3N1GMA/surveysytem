@@ -133,14 +133,18 @@ def opensurvey():
 	if student:
 		print("student opening survey")
 		return surveyinfo()
-		return render_template("viewsurvey.html",admin=True,survey=survey,course=course)
+		return render_template("viewsurvey.html",admin=admin,survey=survey,course=course)
 
 	else:
 		print("staff opening survey")
 		#sort these based on who you are!
 		general = GeneralQuestion.query.all()
 		multi = MCQuestion.query.all()
-		return render_template("modifysurvey.html",admin=False,surveygen=general,surveymc=multi,survey=survey,course=course,general=general,multi=multi)
+
+		surveygen = survey.gen_questions
+		surveymc = survey.mc_questions
+
+		return render_template("modifysurvey.html",admin=admin,surveygen=surveygen,surveymc=surveymc,survey=survey,course=course,general=general,multi=multi)
 
 
 def newsurvey():
@@ -165,27 +169,82 @@ def newsurvey():
 	db_session.add(survey)
 	db_session.commit()
 
-	#change this to redirect to add questions to this survey!
 	return surveyinfo()
 
 
 def addqsurvey():
-	print("add question")
+	print("add question to survey")
 
 	#check they are staff first
 
 
 	#get list of questions to add
+	survey_questions = request.form.getlist('question')
+
+	if survey_questions==[]:
+		errorMSG("routes.addqsurvey","no questions selected")
+		return opensurvey()
 
 
+	if (request.form.getlist("surveyid")==[]):
+		errorMSG("routes.opensurvey","surveyid not selected")
+		return surveyinfo()
+	
+	surveyID = request.form["surveyid"]
 
+	survey = Survey.query.filter_by(id=surveyID).first()	
+	if(survey==None):
+		errorMSG("routes.opensurvey","survey object is empty")
+		return surveyinfo()	
 
+	#this sorts and stores the questions into the survey
+	for question in survey_questions:
+		if (question[1:2]=='0'):	
+			question = MCQuestion.query.filter_by(id=int(question[4:5])).first()
+			survey.mc_questions.append(question)
+		elif (question[1:2]=='1'):
+			question = GeneralQuestion.query.filter_by(id=int(question[4:5])).first()
+			survey.gen_questions.append(question)
 
-	return surveyinfo()
+	db_session.commit()
+
+	#reload page
+	return opensurvey()
 
 def removeqsurvey():
-	print("remove question")
-	return surveyinfo()
+	#get question to remove
+	print("remove question from survey")
+
+	
+	if request.form.getlist('question')==[]:
+		errorMSG("routes.addqsurvey","no questions selected")
+		return opensurvey()
+
+	survey_question = request.form['question']
+
+	if (request.form.getlist("surveyid")==[]):
+		errorMSG("routes.opensurvey","surveyid not selected")
+		return surveyinfo()
+	
+	surveyID = request.form["surveyid"]
+	survey = Survey.query.filter_by(id=surveyID).first()	
+	if(survey==None):
+		errorMSG("routes.opensurvey","survey object is empty")
+		return surveyinfo()	
+
+	#remove question from the survey
+	if (survey_question[1:2]=='0'):	
+		question = MCQuestion.query.filter_by(id=int(survey_question[4:5])).first()
+		survey.mc_questions.remove(question)
+	elif (survey_question[1:2]=='1'):
+		question = GeneralQuestion.query.filter_by(id=int(survey_question[4:5])).first()
+		survey.gen_questions.remove(question)
+
+	db_session.commit()
+
+
+
+	return opensurvey()
 
 
 

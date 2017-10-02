@@ -20,7 +20,7 @@
    <nav class="navbar navbar-default col-sm-10">
     <ul class="nav navbar-nav navbar-right">
      <li><a href="/admin">Home</a></li>
-     <li><a href="/createsurvey">Surveys</a></li>
+     <li><a href="/surveys">Surveys</a></li>
      <li><a href="/createquestion">Questions</a></li>
    </ul>
  </nav>
@@ -37,6 +37,7 @@
           <div class="panel-heading">
             <form method="POST">
             <input type="hidden" name="surveyformid" id="surveyformid" value="3">
+            <input type="hidden" name="surveyid" id="surveyid" value="{{survey.id}}">
               <div class="panel panel-default">
                 <div class="surveygen">
                   <div class="panel-body">
@@ -61,11 +62,13 @@
                         </td>
                         {% if admin %}
                         <td>
-                          {% if question.status == 1 %}
-                            <p>X<p>
-                          {% else %}
-                            <p>-<p>
-                          {% endif %}
+                        {% if question.status == 1 %}
+                          <p>Yes<p>
+                        {% elif question.status == 2 %}
+                          <p>Del<p>
+                        {% else %}    
+                          <p>-<p>
+                        {% endif %}
                         </td>
                         {% endif %}
                         <td>
@@ -109,8 +112,10 @@
                               {% if admin %}
                               <td>
                                 {% if question.status == 1 %}
-                                  <p>X<p>
-                                {% else %}
+                                  <p>Yes<p>
+                                {% elif question.status == 2 %}
+                                  <p>Del<p>
+                                {% else %}    
                                   <p>-<p>
                                 {% endif %}
                               </td> 
@@ -144,7 +149,8 @@
 
       <form method="POST">
         <input type="hidden" name="surveyformid" id="surveyformid" value="4">
-       
+        <input type="hidden" name="surveyid" id="surveyid" value="{{survey.id}}">       
+
       {% if multi or general %}  
 
         <div class="panel panel-default">
@@ -178,17 +184,19 @@
                       </thead>
                         {% for question in multi -%}
                           <tr>
-                            {% if question.status==0 or admin %}
+                            {% if question.status==1 or admin %}
                               <td>
                                 <input type="checkbox" name="question" value="{{0,question.id}}"/>
                               </td>
                                 {% if admin %}
                                   <td>
-                                    {% if question.status == 1 %}
-                                      <p>X<p>
-                                    {% else %}
-                                      <p>-<p>
-                                    {% endif %}
+                                {% if question.status == 1 %}
+                                  <p>Yes<p>
+                                {% elif question.status == 2 %}
+                                  <p>Del<p>
+                                {% else %}    
+                                  <p>-<p>
+                                {% endif %}
                                   </td>
                                 {% endif %}
                               <td>
@@ -227,7 +235,7 @@
                         </thead>
                       <tr/>
                         {% for question in general -%}
-                        {% if question.status==0 or admin %}
+                        {% if question.status==1 or admin %}
                         <tr>
                           <td>
                           <input type="checkbox" name="question" value="{{1,question.id}}"/>
@@ -235,7 +243,7 @@
                           {% if admin %}
                             <td>
                               {% if question.status == 1 %}
-                                <p>X<p>
+                                <p>Yes<p>
                               {% else %}
                                 <p>-<p>
                               {% endif %}
