@@ -1,5 +1,7 @@
 from flask import Flask
 from classes import fileclasses
+from flask_login import LoginManager
+from models import UniUser
 
 
 
@@ -10,7 +12,15 @@ app.config["SECRET_KEY"] = "Highly secret key"
 users = {"admin": "password"}
 authenticated = 0
 
+#  flask login config - to be moved to login-cfg.py later
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
 
+
+@login_manager.user_loader
+def load_user(userid):
+	return UniUser.query.get(userid)
 
 #build list of courses from the master course list on server start
 mastercoursecsv = fileclasses.csvfile("master_course.csv")
