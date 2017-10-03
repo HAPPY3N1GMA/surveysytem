@@ -195,7 +195,27 @@ class SurveyResponse(Base):
     def __repr__(self):
         return '<Response to %r>' % (self.survey_id)       
 
+class YNQuestion(Base):
+    __tablename__ = 'ynquestion'
+    id = Column(Integer, primary_key=True)
+    question = Column(String)
+    # If false, question is mandatory
+    # Boolean in SQLite are not True/False
+    # Stored as 1 for True, 0 False
+    optional = Column(Boolean)
 
+    surveys = relationship("Survey",
+                           secondary="ynassociation",
+                           backref="ynquestion")
+
+    def __init__(self, question=None):
+        self.question = question
+
+    #def __repr__(self):
+    #    return '<General Question %r>' % (self.question)    
+
+    def __repr__(self):
+        return '%r - Yes/No' % (self.question)
 
 
 
@@ -212,6 +232,13 @@ usassociation_table = Table('usassociation', Base.metadata,
 mcassociation_table = Table('mcassociation', Base.metadata,
                             Column('mcquestion_id', Integer,
                                    ForeignKey('mcquestion.id')),
+                            Column('survey_id', Integer,
+                                   ForeignKey('survey.id'))
+                            )
+
+ynassociation_table = Table('ynassociation', Base.metadata,
+                            Column('ynquestion_id', Integer,
+                                   ForeignKey('ynquestion.id')),
                             Column('survey_id', Integer,
                                    ForeignKey('survey.id'))
                             )
