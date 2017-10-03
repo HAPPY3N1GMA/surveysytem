@@ -3,6 +3,7 @@ from datetime import datetime
 from flask import Flask, redirect, render_template, request, url_for, flash
 from server import app, users, authenticated, errorMSG
 from defines import debug
+from functions import get
 from models import GeneralQuestion, MCQuestion, SurveyResponse,\
 					GeneralResponse, MCResponse
 from models import Survey, Course, UniUser
