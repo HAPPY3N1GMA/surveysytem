@@ -22,7 +22,7 @@
 				<ul class="nav navbar-nav navbar-right">
      <li><a href="/admin">Home</a></li>
      <li><a href="/surveys">Surveys</a></li>
-     <li><a href="/createquestion">Questions</a></li>
+     <li><a href="/questions">Questions</a></li>
 				</ul>
 		</nav> 
 	 </div>
@@ -129,7 +129,7 @@
                       </thead>
                         {% for question in multi -%}
                           <tr>
-                            {% if question.status==1 or admin %}
+                            {% if question.status==1 or admin and question.status!=2%}
                               <td>
                                 <input type="radio" name="question" onclick="$('.genChoiceList').prop('checked', false);" value="{{0,question.id}}"/>
                               </td>
@@ -138,8 +138,8 @@
                                 {% if question.status == 1 %}
                                   <p>Yes<p>
                                 {% elif question.status == 2 %}
-                                  <p>Del<p>
-                                {% else %}    
+                                  <p>DONOT SHOW<p>
+                                {% else %}      
                                   <p>-<p>
                                 {% endif %}
                                   </td>
@@ -180,18 +180,20 @@
                         </thead>
                       <tr/>
                         {% for question in general -%}
-                        {% if question.status==1 or admin %}
+                        {% if question.status==1 or admin and question.status!=2 %}
                         <tr>
                           <td>
                           <input type="radio" name="question" onclick="$('.multiChoiceList').prop('checked', false);" value="{{1,question.id}}"/>
                           </td>
                           {% if admin %}
                             <td>
-                              {% if question.status == 1 %}
-                                <p>Yes<p>
-                              {% else %}
-                                <p>-<p>
-                              {% endif %}
+                          {% if question.status == 1 %}
+                            <p>Yes<p>
+                          {% elif question.status == 2 %}
+                            <p>DONOT SHOW<p>
+                          {% else %}      
+                            <p>-<p>
+                          {% endif %}
                             </td>
                           {% endif %}
                           <td>

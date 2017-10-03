@@ -21,7 +21,7 @@
     <ul class="nav navbar-nav navbar-right">
      <li><a href="/admin">Home</a></li>
      <li><a href="/surveys">Surveys</a></li>
-     <li><a href="/createquestion">Questions</a></li>
+     <li><a href="/questions">Questions</a></li>
    </ul>
  </nav>
 </div>
@@ -56,7 +56,7 @@
           {% endwith %}
           <br>
           {% if multi or general %}  
-          <p>Please check which questions you would like to include in survey, or add new questions <a href="/createquestion">here</a></p>
+          <p>Please check which questions you would like to include in survey, or add new questions <a href="/questions">here</a></p>
         </div>
         <div class="panel panel-default">
           <div class="panel-heading">
@@ -139,7 +139,7 @@
               <!-- Above will only show if General Questions selected -->
             <button type="submit" class="btn-primary" name="bt">Submit</button>
           {% else %}
-            <p>You must have questions before you can create a new survey. <a href="/createquestion">Create Questions</a></p>
+            <p>You must have questions before you can create a new survey. <a href="/questions">Create Questions</a></p>
           {% endif %}
         </div>
       </form>

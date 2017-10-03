@@ -21,7 +21,7 @@
     <ul class="nav navbar-nav navbar-right">
      <li><a href="/admin">Home</a></li>
      <li><a href="/surveys">Surveys</a></li>
-     <li><a href="/createquestion">Questions</a></li>
+     <li><a href="/questions">Questions</a></li>
    </ul>
  </nav>
 </div>
@@ -185,7 +185,7 @@
                       </thead>
                         {% for question in multi -%}
                           <tr>
-                            {% if question.status==1 or admin %}
+                            {% if question.status==1 or admin and question.status!=2 %}
                               <td>
                                 <input type="checkbox" name="question" value="{{0,question.id}}"/>
                               </td>
@@ -194,7 +194,7 @@
                                 {% if question.status == 1 %}
                                   <p>Yes<p>
                                 {% elif question.status == 2 %}
-                                  <p>Del<p>
+                                  <p>DONOT SHOW<p>
                                 {% else %}    
                                   <p>-<p>
                                 {% endif %}
@@ -236,7 +236,7 @@
                         </thead>
                       <tr/>
                         {% for question in general -%}
-                        {% if question.status==1 or admin %}
+                        {% if question.status==1 or admin and question.status!=2 %}
                         <tr>
                           <td>
                           <input type="checkbox" name="question" value="{{1,question.id}}"/>
@@ -245,7 +245,9 @@
                             <td>
                               {% if question.status == 1 %}
                                 <p>Yes<p>
-                              {% else %}
+                                {% elif question.status == 2 %}
+                                  <p>DONOT SHOW<p>
+                                {% else %}   
                                 <p>-<p>
                               {% endif %}
                             </td>

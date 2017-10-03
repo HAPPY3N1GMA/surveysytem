@@ -17,7 +17,7 @@
                            <ul class="nav navbar-nav navbar-right">
      <li><a href="/admin">Home</a></li>
      <li><a href="/surveys">Surveys</a></li>
-     <li><a href="/createquestion">Questions</a></li>
+     <li><a href="/questions">Questions</a></li>
                            </ul>
                      </nav> 
         </div>
@@ -26,12 +26,14 @@
         <div class="container">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <p>Welcome to the Admin Panel</p>
+                    <p>Welcome USERNAME</p>
                 </div>
                 <div class="panel-body">
-                    <a href="/surveys"><button type="button" class="btn btn-primary btn-lg btn-block">Create Survey</button></a>
+                    <a href="/surveys"><button type="button" class="btn btn-primary btn-lg btn-block">Surveys</button></a>
                     <br>
-                    <a href="/createquestion"><button type="button" class="btn btn-secondary btn-lg btn-block">Create Questions</button></a>
+                    {% if admin %}
+                    <a href="/questions"><button type="button" class="btn btn-secondary btn-lg btn-block">Questions</button></a>
+                    (% endif %)
                 </div>
             </div>
         </div>
