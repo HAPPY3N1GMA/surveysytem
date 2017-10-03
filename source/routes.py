@@ -5,7 +5,7 @@ from server import app, users, authenticated, errorMSG
 from defines import debug
 from functions import get
 from models import GeneralQuestion, MCQuestion, SurveyResponse,\
-					QuestionResponse
+					GeneralResponse, MCResponse
 from models import Survey, Course, UniUser
 from database import db_session, Base
 from flask_login import login_user, login_required
@@ -30,7 +30,7 @@ def admin():
 	global _authenticated
 	if _authenticated:
 		#send the type of user so that we only display what we want them to see!
-		admin = True #TEMP hardcoded
+		admin = False #TEMP hardcoded
 		return render_template("admin.html", admin=admin)
 	else:
 		return redirect(url_for("login"))
@@ -100,34 +100,37 @@ def surveys():
 	else:
 
 		#check if an admin and if so, they are permitted to make new surveys!
-		admin = True
-		student = False
+		admin = False
 
-		if(student==False):
-			surveyform = request.form["surveyformid"]
+		surveyform = request.form["surveyformid"]
+		if surveyform=='2':
+			return opensurvey()		
+
+		if(admin):
 			if surveyform=='1':
 				return newsurvey()
-			if surveyform=='2':
-				return opensurvey()
 			if surveyform=='3':
 				return removeqsurvey()
 			if surveyform=='4':
 				return addqsurvey()
 			if surveyform=='5':
 				return statussurvey()
+		else:	
+			if surveyform=='6':
+				return answersurvey()
+
 		return surveyinfo()
 
 
 def surveyinfo():
-	admin = True
-	student = False
+	admin = False
+	student = True
 	course_list = Course.query.all()
 	survey_list = Survey.query.all()
-	return render_template("surveys.html",admin=True,course_list=course_list,survey_list=survey_list)
+	return render_template("surveys.html",admin=admin,student=student,course_list=course_list,survey_list=survey_list)
 
 def opensurvey():
-	admin = True
-	student = False
+	admin = False
 
 	if (request.form.getlist("surveyid")==[]):
 		errorMSG("routes.opensurvey","surveyid not selected")
@@ -145,10 +148,15 @@ def opensurvey():
 		errorMSG("routes.opensurvey","course object is empty")
 		return surveyinfo()
 
-	if student:
+	if not admin:
 		print("student opening survey")
-		return surveyinfo()
-		return render_template("viewsurvey.html",admin=admin,survey=survey,course=course)
+
+		#TODO: check if student answered survey already here!
+		if survey.status==1:
+			return surveyinfo()
+
+		if survey.status==2:
+			return render_template("answersurvey.html",survey=survey,course=course)
 
 	else:
 		print("staff opening survey")
@@ -163,8 +171,7 @@ def opensurvey():
 
 
 def newsurvey():
-	admin = True
-	student = False
+	admin = False
 
 	survey_name = request.form["svyname"]
 	courseID = request.form["svycourse"]
@@ -259,9 +266,6 @@ def removeqsurvey():
 
 	return opensurvey()
 
-
-
-
 def statussurvey():
 	print("changing survey status")
 
@@ -284,14 +288,115 @@ def statussurvey():
 
 	return opensurvey()
 
-
-
-
 def viewsurvey():
 	print("view survey results now")
 
 	#temp
 	return opensurvey()
+
+
+def answersurvey():
+	print("answering survey")
+
+	#check student answered all fields
+	surveyID = request.form["surveyid"]
+
+	survey = Survey.query.filter_by(id=surveyID).first()	
+	if(survey==None):
+		errorMSG("routes.answersurvey","survey object is empty")
+		return surveyinfo()	
+
+	course = Course.query.filter_by(id=survey.course_id).first()	
+	if(course==None):
+		errorMSG("routes.answersurvey","course object is empty")
+		return surveyinfo()
+
+	print("length:",len(survey.gen_questions))
+
+	genResponseList = []
+	if len(survey.gen_questions)>0:
+
+		genResponseList = request.form.getlist('genResponse')
+		genResponseList = list(filter(None, genResponseList))
+
+		if len(survey.gen_questions)!=len(genResponseList):
+			errorMSG("routes.answersurvey","Extended Response Questions not completed")
+			return opensurvey()
+
+	for text in genResponseList:
+		if (get.cleanString(str(text))==False):
+			errorMSG("routes.answersurvey","Invalid input in extended response")
+			return opensurvey()
+
+
+	mcResponseList = []
+	if len(survey.mc_questions)>0:
+		for question in survey.mc_questions:
+			if (request.form.getlist(str(question.id))==[]):
+				errorMSG("routes.answersurvey","MultiChoice Questions not completed")
+				return opensurvey()
+			mcResponseList.append(request.form[str(question.id)])
+
+	mcResponseList = list(filter(None, mcResponseList))
+
+	if len(survey.mc_questions)!=len(mcResponseList):
+		errorMSG("routes.answersurvey","MultiChoice Questions not completed")
+		return opensurvey()
+
+	print("mcResponseList:",mcResponseList)
+
+
+		#TODOcheck that the responses have valid characters
+
+
+
+	#see if there is already a survey response 
+
+	surveyResponse = SurveyResponse(survey.id)
+	db_session.add(surveyResponse)
+
+
+	#QuestionResponse(surveyResponse.id, mcquestionid, genquestionid,
+    #             answer)
+
+
+	#surveyResponse.id
+
+	#this sorts and stores the questions into the survey
+	for question,response in zip(survey.gen_questions,genResponseList):
+		print(response)
+
+
+	for question,response in zip(survey.mc_questions,mcResponseList):
+		print(response)
+		response = MCResponse(surveyResponse.id,question.id,response)
+		surveyResponse.mc_responses.append(response)
+
+
+	db_session.commit()
+
+
+
+	#save all fields
+
+
+	#set survey to completed by this student to prevent resubmission
+
+
+
+
+
+
+
+
+
+	#temp
+	return surveyinfo()
+
+
+
+
+
 
 #######################################################################
 ########################## 	 DB TEST 	###############################
@@ -357,10 +462,9 @@ def questions():
 	else:
 
 		#check if an admin and if so, they are permitted to make new questions!
-		admin = True
-		student = False
+		admin = False
 
-		if(student==False):
+		if(admin):
 			questionform = request.form["questionformid"]
 			if questionform=='1':
 				return openquestion()
@@ -375,7 +479,7 @@ def questions():
 
 def questioninfo():
 	print("questioninfo")
-	admin = True
+	admin = False
 
 	#read in list of questions from db, filter out any not available to user or deleted
 	general = GeneralQuestion.query.all()
@@ -409,7 +513,7 @@ def openquestion():
 def addquestion():
 
 	#check user is admin
-	admin = True
+	admin = False
 
 	if not admin:
 		errorMSG("routes.addquestion","Unknown user attempted to add question")
