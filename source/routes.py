@@ -32,7 +32,7 @@ def admin():
 	if _authenticated:
 		#send the type of user so that we only display what we want them to see!
 		admin = True #TEMP hardcoded
-		return render_template("admin.html",admin=admin)
+		return render_template("admin.html", admin=admin)
 	else:
 		return redirect(url_for("login"))
 
@@ -114,7 +114,8 @@ def surveys():
 				return removeqsurvey()
 			if surveyform=='4':
 				return addqsurvey()
-
+			if surveyform=='5':
+				return statussurvey()
 		return surveyinfo()
 
 
@@ -261,6 +262,37 @@ def removeqsurvey():
 
 
 
+
+def statussurvey():
+	print("changing survey status")
+
+	#check if they have authority to do this!
+
+	surveyID = request.form["surveyid"]
+
+	survey = Survey.query.filter_by(id=surveyID).first()	
+	if(survey==None):
+		errorMSG("routes.opensurvey","survey object is empty")
+		return surveyinfo()	
+
+	if survey.status == 0:
+		survey.status = 1
+	elif survey.status == 1:
+		survey.status = 2
+	else:
+		return viewsurvey()
+	db_session.commit()
+
+	return opensurvey()
+
+
+
+
+def viewsurvey():
+	print("view survey results now")
+
+	#temp
+	return opensurvey()
 
 #######################################################################
 ########################## 	 DB TEST 	###############################

@@ -74,7 +74,13 @@
                           {% for survey in survey_list -%}
                           <td><input type="radio" name="surveyid" value="{{survey.id}}"/></td>
                           <td>
-                          {{ survey.status }}
+                            {% if survey.status==1 %}
+                            <p>Draft</p>
+                            {% elif survey.status==2 %}
+                            <p>Active</p>
+                            {% else %}
+                            <p>Closed</p>
+                            {% endif %}
                           </td>
                           <td>
                           {{ survey.title }}
