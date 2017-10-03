@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+
+	<link rel="stylesheet" type= "text/css" href="static/styles/bootstrap.min.css">
+	<link rel="stylesheet" type= "text/css" href="static/styles/font-awesome.min.css">
+	<link rel="stylesheet" type= "text/css" href="static/styles/ionicons.min.css">
+	<script src="static/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" type= "text/css" href="static/styles/styles.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
+ <head>
+				
+ <title>Modify Question</title>
+ </head>
+ <header>
+	 <!-- Header Start -->
+	 <div class="container row full-width">
+		<!--<div class="bg">-->
+		<!--<div class="row">-->
+		<!-- header Nav Start -->
+		<nav class="navbar navbar-default col-sm-10">
+				<ul class="nav navbar-nav navbar-right">
+     <li><a href="/admin">Home</a></li>
+     <li><a href="/surveys">Surveys</a></li>
+     <li><a href="/questions">Questions</a></li>
+				</ul>
+		</nav> 
+	 </div>
+</header>
+<body>
+	<div class="container">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h1 align="center">Modify Question</h1>
+			</div>		
+		<div class="panel-heading">		
+
+			<fieldset class="form-group">
+				<label for="questionType">Question Type</label>
+				<select class="form-control" id="TypeOfQuestion">
+					<option>Extended Response</option>
+					<option>Multiple Choice</option>
+				</select>
+			</fieldset>
+			
+			<div class="panel-body">
+					<form method="POST" class="form-horizontal">
+						<input type="hidden" name="oldType" id="oldType" value="{{questionType}}">
+						<input type="hidden" name="questionformid" id="questionformid" value="4">
+						<input type="hidden" name="qID" id="qID" value="{{questionObject.id}}">
+						<input type="hidden" name="delete" id="delete" value="0">
+						<input type="hidden" name="qtype" id="qtype" value="">
+						<div class="form-group row">
+							<label for="question" class="col-sm-2 col-form-label">Question</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="questiontitle" name="questiontitle" value="{{ questionObject.question }}">
+							</div>
+						</div>
+
+						<!-- Below will only show if Multiple Choice Questions selected -->	
+						<div class="multiChoice">
+							<div class="form-group row">
+									<label for="option_one" class="col-sm-2 col-form-label">Option One:</label>
+									<div class="col-sm-10">
+										<input type="text" class="form-control" name="option_one" {% if questionType==1 %} value="{{ questionObject.answerOne }}" {% endif %}
+										t>
+									</div>
+							</div>
+							<div class="form-group row">
+									<label for="option_two" class="col-sm-2 col-form-label">Option Two:</label>
+									<div class="col-sm-10">
+										<input type="text" class="form-control" name="option_two" {% if questionType==1 %} value="{{ questionObject.answerTwo }}" {% endif %}
+										>
+									</div>
+							</div>
+							<div class="form-group row">
+									<label for="option_three" class="col-sm-2 col-form-label">Option Three:</label>
+									<div class="col-sm-10">
+										<input type="text" class="form-control" name="option_three" {% if questionType==1 %} value="{{ questionObject.answerThree }}" {% endif %}
+										>
+									</div>
+							</div>
+							<div class="form-group row">
+									<label for="option_four" class="col-sm-2 col-form-label">Option Four:</label>
+									<div class="col-sm-10">
+										<input type="text" class="form-control" name="option_four" {% if questionType==1 %} value="{{ questionObject.answerFour }}" {% endif %}
+										>
+									</div>
+							</div>
+
+
+						<!-- Above will only show if Multiple Choice Questions selected -->
+						</div>
+
+						<!-- When Selected this will define this question as Optional in db -->
+
+						   <span style="float:right;"> <label>Optional<input 
+						   	type="checkbox" id = "optional" name="optional" onclick="document.getElementById('optional').value = '1';"
+						   	{% if questionObject.status == 1 %} value="1" checked {% else %} value="0" {% endif %} 
+						   ></label></span>
+
+						<button type="submit" class="btn-primary" >Submit</button>
+						<button type="submit" class="btn-primary" id="delete" name="delete" onclick="document.getElementById('delete').value='1';" >Delete Question</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- https://stackoverflow.com/questions/36057813/show-hide-areas-of-form-im-using-bootstrap-->
+
+
+
+<script type="text/javascript">
+$(document).ready(function()
+{
+	if({{questionType}}==1){
+		document.getElementById('TypeOfQuestion').value= "Multiple Choice"
+		document.getElementById('qtype').value='1';
+		$(".multiChoice").slideDown(0);
+	}else{
+		document.getElementById('TypeOfQuestion').value= "Extended Response"
+		document.getElementById('qtype').value='0';	
+		$(".multiChoice").slideUp(0);
+	}
+
+
+	$("#TypeOfQuestion").on('change',function()
+	{
+		var selectedBalue = $("#TypeOfQuestion").val();
+		if (selectedBalue == "Multiple Choice") 
+		{
+			$(".multiChoice").slideDown(500);
+			document.getElementById('qtype').value='1';
+		}else{
+			$(".multiChoice").slideUp(500);
+			document.getElementById('qtype').value='0';
+		}
+	}); 
+});
+</script> 
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js" integrity="sha384-vZ2WRJMwsjRMW/8U7i6PWi6AlO1L79snBrmgiDpgIWJ82z8eA5lenwvxbMV1PAh7" crossorigin="anonymous"></script>
+
+	</body>
+</html>

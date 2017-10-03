@@ -1,0 +1,174 @@
+<!doctype html>
+<html>
+<head>
+  <title>Create a Survey </title>
+  <!-- CSS Style Sheet -->
+  <link rel="stylesheet" type= "text/css" href="static/styles/bootstrap.min.css">
+  <link rel="stylesheet" type= "text/css" href="static/styles/font-awesome.min.css">
+  <link rel="stylesheet" type= "text/css" href="static/styles/ionicons.min.css">
+  <script src="static/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" type= "text/css" href="static/styles/styles.css">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="keywords" content="" />
+  <!--Gives access to Google Fonts-->
+  <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+</head>
+<header>
+  <div class="container row full-width">
+   <nav class="navbar navbar-default col-sm-10">
+    <ul class="nav navbar-nav navbar-right">
+     <li><a href="/admin">Home</a></li>
+     <li><a href="/surveys">Surveys</a></li>
+     <li><a href="/questions">Questions</a></li>
+   </ul>
+ </nav>
+</div>
+</header>
+<body>
+  <div class="container">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h1 align="center"> Create New Survey</h1>
+      </div>
+    <div class="panel-body">
+      <form method="POST">
+        <input type="hidden" name="formID" id="formID" value="">
+        <input type="hidden" name="qlisttype" id="qlisttype" value="">       
+        <div class="container">
+          <input name="svyname" placeholder="Enter survey name"style="width: 200px; height: 25px"/>
+          {%if course_list%}
+            <select name = "svycourse"style="width: 200px;height: 25px">
+           {%for course in course_list%}
+              <option value="{{course[0]}}">{{course[0]}} - ({{course[1]}} )</option>
+           {%endfor%}
+            </select>
+          {%endif%}
+          </br>
+          {% with messages = get_flashed_messages() %}
+            {% if messages %}
+              <br>
+              <input type="text" class="container" value="http://127.0.0.1:5000/{{ messages[0] }}" placeholder="" style="width: 200px;height:25px"/ readonly>
+              <input type="button" onclick="location.href='http://127.0.0.1:5000/{{ messages[0] }}';" style="width: 100px;height:25px" value="View Survey" />
+              <br>
+            {% endif %}
+          {% endwith %}
+          <br>
+          {% if multi or general %}  
+          <p>Please check which questions you would like to include in survey, or add new questions <a href="/questions">here</a></p>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 align="center">Question Pool</h3>
+            <fieldset class="form-group">
+              <label for="questionTypeList"></label>
+              <select class="form-control" id="TypeOfQuestionList">
+                <option>Extended Response</option>
+                <option>Multiple Choice</option>
+              </select>
+            </fieldset>
+            <!-- Below will only show if Multiple Choice Questions selected --> 
+            {% if multi or general%}  
+              <div class="panel panel-default">
+                <div class="multiChoiceList">
+                  <div class="panel-body">
+                    <table class="table table-hover">
+                      <col width="10">
+                      {% if multi %}  
+                      <thead>
+                      <tr>
+                        <th>Select</th> 
+                        <th>Question</th>
+                        <th>A</th>
+                        <th>B</th>
+                        <th>C</th>
+                        <th>D</th>
+                      </tr>
+                      </thead>
+                        <tr>
+                          {% for question in multi -%}
+                          <td><input type="checkbox" name="question" value="{{0,question[0]}}"/><td>
+                          {{ question[1] }}
+                          {%- for answer in question[2] -%}
+                            <span style="float:right;">
+                              <td>
+                                {{ answer }}
+                              </td>
+                            </span>
+                          {%- endfor %}
+                        </tr> 
+                        {%- endfor %}
+                      {% else %}
+                      <p> No Multiple Choice Questions Created <p>
+                      {% endif %}
+                    </table>
+                  </div> 
+                </div>
+              </div>
+              <!-- Above will only show if Multiple Choice Questions selected -->
+              <!-- Below will only show if General Questions selected --> 
+              <div class="panel panel-default">
+                <div class="genChoiceList">
+                  <div class="panel-body">
+                    <table class="table table-hover">
+                      <col width="10">
+                      {% if general %}  
+                        <thead>
+                        <tr>
+                          <th>Select</th> 
+                          <th>Question</th>
+                        </tr>
+                        </thead>
+                      <tr>
+                        {% for question in general -%}
+                        <td><input type="checkbox" name="question" value="{{1,question[0]}}"/></td>
+                        <td>
+                          {{ question[1] }}
+                        </td>
+                      </tr>
+                        {%- endfor %}
+                      {% else %}
+                        <p> No Extended Response Questions Created <p>
+                      {% endif %}
+                    </table>
+                  </div> 
+                </div>
+              </div>  
+            {% endif %}
+              <!-- Above will only show if General Questions selected -->
+            <button type="submit" class="btn-primary" name="bt">Submit</button>
+          {% else %}
+            <p>You must have questions before you can create a new survey. <a href="/questions">Create Questions</a></p>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js" integrity="sha384-vZ2WRJMwsjRMW/8U7i6PWi6AlO1L79snBrmgiDpgIWJ82z8eA5lenwvxbMV1PAh7" crossorigin="anonymous"></script>
+
+  <script type="text/javascript">
+   $(document).ready(function()
+   {
+     $(".multiChoiceList").slideUp(0);
+     $("#TypeOfQuestionList").on('change',function()
+     {
+       var selectedBalue = $("#TypeOfQuestionList").val();
+       if (selectedBalue == "Multiple Choice") 
+       {
+         $(".multiChoiceList").slideDown(500);
+         $(".genChoiceList").slideUp(500);
+       }else{
+         $(".multiChoiceList").slideUp(500);
+         $(".genChoiceList").slideDown(500);
+       }
+     }); 
+   });
+  </script> 
+
+</body>
+
+
+ </html>

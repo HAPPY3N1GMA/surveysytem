@@ -1,9 +1,9 @@
-import csv, ast, os, time, copy, datetime
+import csv, ast, os, time, copy
+from datetime import datetime
 from flask import Flask, redirect, render_template, request, url_for, flash
 from server import app, users, authenticated, errorMSG
-from functions import append, get
-from classes import fileclasses
-from defines import masterSurveys, masterQuestions, debug
+from defines import debug
+from functions import get
 from models import GeneralQuestion, MCQuestion, SurveyResponse,\
 					QuestionResponse
 from models import Survey, Course, UniUser
@@ -20,17 +20,18 @@ else:
 @app.route("/")
 def index():
 	global _authenticated
-	survey_pool = fileclasses.survey.read_all()
+	#survey_pool = fileclasses.survey.read_all()
 
-	return render_template("home.html", survey_pool=survey_pool, authenticated=_authenticated)
-
+	#return render_template("home.html", survey_pool=survey_pool, authenticated=_authenticated)
+	return redirect(url_for("admin"))
 
 @app.route("/admin")
 def admin(): 
 	global _authenticated
 	if _authenticated:
-		# read csv data into a list
-		return render_template("admin.html")
+		#send the type of user so that we only display what we want them to see!
+		admin = True #TEMP hardcoded
+		return render_template("admin.html", admin=admin)
 	else:
 		return redirect(url_for("login"))
 
@@ -38,6 +39,12 @@ def admin():
 @app.route("/submitted")
 def submit(): 
 	return render_template("completed.html")
+
+
+#######################################################################
+########################## 		LOGIN 	 ##############################
+#######################################################################
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -49,7 +56,7 @@ def login():
 			login_user(user)
 			flash('Logged in successfully.')
 			next = request.args.get('next')
-			return redirect(next or url_for('index'))
+			return redirect(next or url_for('admin'))
 		else:
 			return render_template("login.html", invalid=True)
 
@@ -74,42 +81,221 @@ def home():
 		return redirect(url_for("index"))
 
 
-@app.route("/createsurvey", methods=["GET", "POST"])
-def createsurvey():
 
+#######################################################################
+########################## 	SURVEYS 	###############################
+#######################################################################
+
+
+
+@app.route("/surveys", methods=["GET", "POST"])
+
+def surveys():
 	global _authenticated
 	if not _authenticated:
 		return redirect(url_for("login"))
 
-	if request.method == "POST":
-		survey_name = request.form["svyname"]
-		survey_name = str(survey_name)
-		survey_course = request.form["svycourse"]
-		survey_date = time.strftime("%d/%m/%Y,%I:%M:%S")
-		survey_questions = request.form.getlist('question')
+	if request.method == "GET":
+		return surveyinfo()
+	else:
 
-		if (get.cleanString(str(survey_name))):
-			if (survey_name == "" or survey_course == "" or survey_date == "" or survey_questions == []):
-				errorMSG("routes.createsurvey","Invalid input in fields")
-			else:
-				ID = fileclasses.textfile("surveyID.txt")
-				survey_ID = ID.updateID()
-				mastercsv = fileclasses.csvfile("master_survey.csv")
-				mastercsv.writeto(survey_ID, survey_name, survey_course, survey_date,list(survey_questions))
-				flash("{}".format(survey_ID))
+		#check if an admin and if so, they are permitted to make new surveys!
+		admin = True
+		student = False
 
-				#create survey answers page template
-				answercsv = fileclasses.csvfile(str(survey_ID)+".csv")
-				answercsv.buildanswer(survey_questions)
-		else:
-			errorMSG("routes.createsurvey","Invalid characters in Survey Name")
+		if(student==False):
+			surveyform = request.form["surveyformid"]
+			if surveyform=='1':
+				return newsurvey()
+			if surveyform=='2':
+				return opensurvey()
+			if surveyform=='3':
+				return removeqsurvey()
+			if surveyform=='4':
+				return addqsurvey()
+			if surveyform=='5':
+				return statussurvey()
+		return surveyinfo()
 
-	#Populate Question and Course lists
-	questions_pool = fileclasses.question.list()
-	course_list = fileclasses.course.readall()
 
-	return render_template("createsurvey.html",questions_pool=questions_pool,course_list = course_list)
+def surveyinfo():
+	admin = True
+	student = False
+	course_list = Course.query.all()
+	survey_list = Survey.query.all()
+	return render_template("surveys.html",admin=True,course_list=course_list,survey_list=survey_list)
 
+def opensurvey():
+	admin = True
+	student = False
+
+	if (request.form.getlist("surveyid")==[]):
+		errorMSG("routes.opensurvey","surveyid not selected")
+		return surveyinfo()
+	
+	surveyID = request.form["surveyid"]
+
+	survey = Survey.query.filter_by(id=surveyID).first()	
+	if(survey==None):
+		errorMSG("routes.opensurvey","survey object is empty")
+		return surveyinfo()	
+
+	course = Course.query.filter_by(id=survey.course_id).first()	
+	if(course==None):
+		errorMSG("routes.opensurvey","course object is empty")
+		return surveyinfo()
+
+	if student:
+		print("student opening survey")
+		return surveyinfo()
+		return render_template("viewsurvey.html",admin=admin,survey=survey,course=course)
+
+	else:
+		print("staff opening survey")
+		#sort these based on who you are!
+		general = GeneralQuestion.query.all()
+		multi = MCQuestion.query.all()
+
+		surveygen = survey.gen_questions
+		surveymc = survey.mc_questions
+
+		return render_template("modifysurvey.html",admin=admin,surveygen=surveygen,surveymc=surveymc,survey=survey,course=course,general=general,multi=multi)
+
+
+def newsurvey():
+	admin = True
+	student = False
+
+	survey_name = request.form["svyname"]
+	courseID = request.form["svycourse"]
+
+	#qObject=Course.query.filter_by(id=courseID).first()
+
+	if (get.cleanString(str(survey_name))==False):
+		errorMSG("routes.newsurvey","Invalid Characters in survey name")
+		return surveyinfo()
+
+	if (str(courseID) == ''):
+		errorMSG("routes.newsurvey","No course selected")
+		return surveyinfo()
+
+	#new survey created then redirect to the modify survey page to add questions etc
+	survey = Survey(survey_name,datetime.now(),courseID)
+	db_session.add(survey)
+	db_session.commit()
+
+	return surveyinfo()
+
+
+def addqsurvey():
+	print("add question to survey")
+
+	#check they are staff first
+
+
+	#get list of questions to add
+	survey_questions = request.form.getlist('question')
+
+	if survey_questions==[]:
+		errorMSG("routes.addqsurvey","no questions selected")
+		return opensurvey()
+
+
+	if (request.form.getlist("surveyid")==[]):
+		errorMSG("routes.opensurvey","surveyid not selected")
+		return surveyinfo()
+	
+	surveyID = request.form["surveyid"]
+
+	survey = Survey.query.filter_by(id=surveyID).first()	
+	if(survey==None):
+		errorMSG("routes.opensurvey","survey object is empty")
+		return surveyinfo()	
+
+	#this sorts and stores the questions into the survey
+	for question in survey_questions:
+		if (question[1:2]=='0'):	
+			question = MCQuestion.query.filter_by(id=int(question[4:5])).first()
+			survey.mc_questions.append(question)
+		elif (question[1:2]=='1'):
+			question = GeneralQuestion.query.filter_by(id=int(question[4:5])).first()
+			survey.gen_questions.append(question)
+
+	db_session.commit()
+
+	#reload page
+	return opensurvey()
+
+def removeqsurvey():
+	#get question to remove
+	print("remove question from survey")
+
+	
+	if request.form.getlist('question')==[]:
+		errorMSG("routes.addqsurvey","no questions selected")
+		return opensurvey()
+
+	survey_question = request.form['question']
+
+	if (request.form.getlist("surveyid")==[]):
+		errorMSG("routes.opensurvey","surveyid not selected")
+		return surveyinfo()
+	
+	surveyID = request.form["surveyid"]
+	survey = Survey.query.filter_by(id=surveyID).first()	
+	if(survey==None):
+		errorMSG("routes.opensurvey","survey object is empty")
+		return surveyinfo()	
+
+	#remove question from the survey
+	if (survey_question[1:2]=='0'):	
+		question = MCQuestion.query.filter_by(id=int(survey_question[4:5])).first()
+		survey.mc_questions.remove(question)
+	elif (survey_question[1:2]=='1'):
+		question = GeneralQuestion.query.filter_by(id=int(survey_question[4:5])).first()
+		survey.gen_questions.remove(question)
+
+	db_session.commit()
+
+	return opensurvey()
+
+
+
+
+def statussurvey():
+	print("changing survey status")
+
+	#check if they have authority to do this!
+
+	surveyID = request.form["surveyid"]
+
+	survey = Survey.query.filter_by(id=surveyID).first()	
+	if(survey==None):
+		errorMSG("routes.opensurvey","survey object is empty")
+		return surveyinfo()	
+
+	if survey.status == 0:
+		survey.status = 1
+	elif survey.status == 1:
+		survey.status = 2
+	else:
+		return viewsurvey()
+	db_session.commit()
+
+	return opensurvey()
+
+
+
+
+def viewsurvey():
+	print("view survey results now")
+
+	#temp
+	return opensurvey()
+
+#######################################################################
+########################## 	 DB TEST 	###############################
+#######################################################################
 
 @app.route("/dbtest")
 def db_test():
@@ -156,147 +342,301 @@ def db_test():
 	return render_template("home.html")
 
 
-@app.route("/createquestion", methods=["GET", "POST"])
-def createquestion():
+#######################################################################
+########################## 	 QUESTIONS 	###############################
+#######################################################################
 
+@app.route('/questions', methods=["GET", "POST"])
+def questions():
 	global _authenticated
 	if not _authenticated:
 		return redirect(url_for("login"))
 
-	if request.method == "POST":
+	if request.method == "GET":
+		return questioninfo()
+	else:
 
-		#TODO:	implement method to add any number of answers to a question
-		# 		possibly use a dict, and add answer button that polls server
-		# 		storing each answer, until final submission submitted
+		#check if an admin and if so, they are permitted to make new questions!
+		admin = True
+		student = False
 
-		#TODO: Display Error to user adding question if they forget fields
+		if(student==False):
+			questionform = request.form["questionformid"]
+			if questionform=='1':
+				return openquestion()
+			if questionform=='2':
+				return addquestion()
+			if questionform=='3':
+				return removequestion()
+			if questionform=='4':
+				return modifyquestion()
 
-		question = request.form["question"]
-		answer_one = request.form["option_one"]
-		answer_two = request.form["option_two"]
-		answer_three = request.form["option_three"]
-		answer_four = request.form["option_four"]
+		return questioninfo()
 
-		answers = [answer_one,answer_two,answer_three,answer_four]
-		answers = list(filter(None, answers))
+def questioninfo():
+	print("questioninfo")
+	admin = True
 
-		#no question supplied
-		if(question==""):
-			general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
-			multi = ast.literal_eval(str(MCQuestion.query.all()))
-			errorMSG("append.question","No Question Provided")
-			return render_template("createquestion.html",multi=multi,general=general)
-
-
-		#check for invalid characters
-
-		validStrings = copy.copy(answers)
-		validStrings.append(question)
-
-		for text in validStrings:
-			if (get.cleanString(str(text))==False):
-				general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
-				multi = ast.literal_eval(str(MCQuestion.query.all()))
-				errorMSG("routes.createsurvey","Invalid input in fields")
-				return render_template("createquestion.html",multi=multi,general=general)
+	#read in list of questions from db, filter out any not available to user or deleted
+	general = GeneralQuestion.query.all()
+	multi = MCQuestion.query.all()
+	return render_template("questions.html",admin=admin,multi=multi,general=general)
 
 
+def openquestion():
+	print("open question")
 
-		#if no answers given then its a generic question
-		if(len(answers)==0):
-			new = GeneralQuestion(question)
-			db_session.add(new)
-			db_session.commit()
+	if (request.form.getlist('question')==[]):
+		errorMSG("routes.openquestion","question not selected")
+		return questioninfo()		
 
-			general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
-			multi = ast.literal_eval(str(MCQuestion.query.all()))
+	qID = request.form['question']
+	questionType = 1
 
-			return render_template("createquestion.html",multi=multi,general=general)
+	#load up the question from db
+	if (qID[1:2]=='0'):	
+		questionObject = MCQuestion.query.filter_by(id=int(qID[4:5])).first()
+	elif (qID[1:2]=='1'):
+		questionObject = GeneralQuestion.query.filter_by(id=int(qID[4:5])).first()
+		questionType = 2 #so we know if question type was modified in form
+	if (questionObject==None):
+		errorMSG("routes.openquestion","This question does not exist")
+		return questioninfo()
 
-
-		#if only one answer provided then return with error msg (this is not a valid question)
-		if(len(answers)<2):
-			questions_pool = fileclasses.question.list()
-			return render_template("createquestion.html",multi=multi,general=general)
-
-
-		#ID = fileclasses.textfile("questionID.txt")
-		#qID = ID.updateID()
-
-		#if(qID==""):
-		#	questions_pool = fileclasses.question.list()
-		#	errorMSG("append.question","No qID Issued")
-		#	return render_template("createquestion.html",questions_pool=questions_pool)
+	return render_template("modifyquestion.html",questionObject=questionObject,questionType=questionType)
 
 
+def addquestion():
+
+	#check user is admin
+	admin = True
+
+	if not admin:
+		errorMSG("routes.addquestion","Unknown user attempted to add question")
+		return questioninfo()
+
+	question = request.form["question"]
+	status = 0
+
+	#by default a question is mandatory unless optional is checked
+	if(request.form.getlist("optional")!=[]):
+		status = 1
 
 
-
-		#################old csv method####################
-
-		#update master csv file & survey class
-
-		#answercsv = fileclasses.csvfile("master_question.csv")
-		#answercsv.master_question(qID, question, str(answers))
-
-		#Reload in the Question Pool
-
-		#questions_pool = fileclasses.question.list()
-
-		#################new db method######################
-
-		#add question to the general questions only atm just to test
+	#todo:
+	#create class to add general question, and mc questions
+	#class to clean a string passed to it and return 1/0 clean or unclean
+	#make this function use these new classes
+	#we need to add to db, that a question is set as optional/mandatory
+	#as per the specsheet
 
 
+	if(question==""):
+		errorMSG("append.question","No Question Provided")
+		return questioninfo()
 
-		new = MCQuestion(question,answer_one,answer_two,answer_three,answer_four)
+	for text in question:
+		if (get.cleanString(str(text))==False):
+			errorMSG("routes.createsurvey","Invalid input in fields")
+			return questioninfo()
+
+
+	if(request.form["qtype"]=='0'):
+		new = GeneralQuestion(question,status)
 		db_session.add(new)
 		db_session.commit()
+		return questioninfo()
 
-		#need to make it that we dont bother reading from db again?
-		general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
-		multi = ast.literal_eval(str(MCQuestion.query.all()))
+	#multiple choice question
+	answer_one = request.form["option_one"]
+	answer_two = request.form["option_two"]
+	answer_three = request.form["option_three"]
+	answer_four = request.form["option_four"]
 
-		return render_template("createquestion.html",multi=multi,general=general)
+	#check for invalid characters
+	answers = [answer_one,answer_two,answer_three,answer_four]
+	answers = list(filter(None, answers))
+	validStrings = copy.copy(answers)
+	validStrings.append(question)
 
+	for text in validStrings:
+		if (get.cleanString(str(text))==False):
+			errorMSG("routes.createsurvey","Invalid input in fields")
+			return questioninfo()
+
+
+	#if only one answer provided then return with error msg (this is not a valid question)
+	if(len(answers)<2):
+		errorMSG("routes.createsurvey","Only one answer provided for a mc question")
+		return questioninfo()
+
+	new = MCQuestion(question,answer_one,answer_two,answer_three,answer_four,status)
+	db_session.add(new)
+	db_session.commit()
+
+	return questioninfo()
+
+
+def modifyquestion():
+
+	print("modify question")
+
+	oldType = request.form["oldType"]
+	qID = request.form["qID"]
+	question = request.form["questiontitle"]
+
+
+	print("oldType:",oldType, "qID:",qID )
+
+	status = 0
+
+	if(request.form.getlist("optional")!=[]):
+		status = 1
+
+	if(request.form["delete"]=='1'):
+		#im deleting this question
+		status = 2
 	else:
+		if(question==""):
+			errorMSG("append.question","No Question Provided")
+			return questioninfo()
 
-		#read in list of questions from db
-		general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
-		multi = ast.literal_eval(str(MCQuestion.query.all()))
+		for text in question:
+			if (get.cleanString(str(text))==False):
+				errorMSG("routes.modifyquestion","Invalid input in fields")
+				return openquestion()
 
-		return render_template("createquestion.html",multi=multi,general=general)
+	#old question object being modified
+	if(oldType=='2'):
+		print("im a general question modificiation")
+		qObject=GeneralQuestion.query.filter_by(id=qID).first()
+	else:
+		print("im a mc question modificiation")
+		qObject=MCQuestion.query.filter_by(id=qID).first()	
 
 
-@app.route('/<int:sID>',methods=["GET", "POST"])
-def complete_survey(sID):
+	if(qObject==None):
+		errorMSG("routes.modifyquestion ","No question object Found")
+		return questioninfo()
 
-	if request.method == "GET":
-		#see if it is a valid survey
-		#if not then return to homepage with error msg?
+	#is the question just getting deleted?
+	if(status==2):
+		print("Question ID:",qObject.id,"Title: ",qObject.question, "im getting deleted now")
+		qObject.status = status
+		db_session.commit()
+		return questioninfo()
 
-		#atm it goes to a bad request page if not all checkboxes filled out
 
-		questionList = get.questionList(sID)
-
-		#print("getrequest:",questionList)
-
-		if questionList != []:
-			return render_template('answersurvey.html',questionList=questionList, surveyID=sID)
+	#extended response questions
+	if(request.form["qtype"]=='0'):
+		if(oldType=='2'):
+			#same general type of question, just changing fields
+			qObject.question = question
+			qObject.status = status
 
 		else:
-			#not a valid survey link
-			return redirect(url_for("home"))
+			#change of question type - delete old type, and make new type
+			qObject.status = 2
+			new = GeneralQuestion(question,status)
+			db_session.add(new)
+			
+		db_session.commit()	
+		return questioninfo()	
+
+
+	#multiple choice question
+	answer_one = request.form["option_one"]
+	answer_two = request.form["option_two"]
+	answer_three = request.form["option_three"]
+	answer_four = request.form["option_four"]
+
+	#check for invalid characters
+	answers = [answer_one,answer_two,answer_three,answer_four]
+	answers = list(filter(None, answers))
+	validStrings = copy.copy(answers)
+	validStrings.append(question)
+
+
+	for text in validStrings:
+		if (get.cleanString(str(text))==False):
+			errorMSG("routes.createsurvey","Invalid input in fields")
+			return openquestion()
+
+
+	#if only one answer provided then return with error msg (this is not a valid question)
+	if(len(answers)<2):
+		errorMSG("routes.createsurvey","Only one answer provided for a mc question")
+		return openquestion()
+
+	if(oldType=='1'):
+		#same mc question, just update all the fields
+		qObject.question = question
+		qObject.status = status
+		qObject.answerOne = answer_one
+		qObject.answerTwo = answer_two
+		qObject.answerThree = answer_three
+		qObject.answerFour = answer_four	
 	else:
+		#new mc question, set old question to deleted, and make new question
+		qObject.status = 2
+		new = MCQuestion(question,answer_one,answer_two,answer_three,answer_four,status)
+		db_session.add(new)
+	
+	db_session.commit()
+	return questioninfo()
 
-		#append answers to answer sheet
-		questionList = get.questionList(sID)
-		answersList = []
 
-		for qID in questionList:
-			answer = request.form[qID[0]]
-			filename = str(sID)+".csv"
-			answercsv = fileclasses.csvfile(filename)
-			answercsv.appendfield(str(qID[0]),"answers",str(answer))
 
-		return redirect(url_for("submit"))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

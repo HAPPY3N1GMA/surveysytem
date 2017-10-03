@@ -1,0 +1,275 @@
+<!doctype html>
+<html>
+
+	<link rel="stylesheet" type= "text/css" href="static/styles/bootstrap.min.css">
+	<link rel="stylesheet" type= "text/css" href="static/styles/font-awesome.min.css">
+	<link rel="stylesheet" type= "text/css" href="static/styles/ionicons.min.css">
+	<script src="static/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" type= "text/css" href="static/styles/styles.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
+ <head>
+				
+ <title>Create Question</title>
+ </head>
+ <header>
+	 <!-- Header Start -->
+	 <div class="container row full-width">
+		<!--<div class="bg">-->
+		<!--<div class="row">-->
+		<!-- header Nav Start -->
+		<nav class="navbar navbar-default col-sm-10">
+				<ul class="nav navbar-nav navbar-right">
+     <li><a href="/admin">Home</a></li>
+     <li><a href="/surveys">Surveys</a></li>
+     <li><a href="/questions">Questions</a></li>
+				</ul>
+		</nav> 
+	 </div>
+</header>
+<body>
+	<div class="container">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h1 align="center">Create New Question</h1>
+			</div>		
+		<div class="panel-heading">		
+
+			<fieldset class="form-group">
+				<label for="questionType">Question Type</label>
+				<select class="form-control" id="TypeOfQuestion">
+					<option>Extended Response</option>
+					<option>Multiple Choice</option>
+				</select>
+			</fieldset>
+			
+			<div class="panel-body">
+					<form method="POST" class="form-horizontal">
+						<input type="hidden" name="questionformid" id="questionformid" value="2">
+						<input type="hidden" name="qtype" id="qtype" value="0">
+						<div class="form-group row">
+							<label for="question" class="col-sm-2 col-form-label">Question</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" name="question">
+							</div>
+						</div>
+
+						<!-- Below will only show if Multiple Choice Questions selected -->	
+						<div class="multiChoice">
+							<div class="form-group row">
+									<label for="option_one" class="col-sm-2 col-form-label">Option One:</label>
+									<div class="col-sm-10">
+										<input type="text" class="form-control" name="option_one" >
+									</div>
+							</div>
+							<div class="form-group row">
+									<label for="option_one" class="col-sm-2 col-form-label">Option Two:</label>
+									<div class="col-sm-10">
+										<input type="text" class="form-control" name="option_two" >
+									</div>
+							</div>
+							<div class="form-group row">
+									<label for="option_one" class="col-sm-2 col-form-label">Option Three:</label>
+									<div class="col-sm-10">
+										<input type="text" class="form-control" name="option_three" > 
+									</div>
+							</div>
+							<div class="form-group row">
+									<label for="option_one" class="col-sm-2 col-form-label">Option Four:</label>
+									<div class="col-sm-10">
+										<input type="text" class="form-control" name="option_four">
+									</div>
+							</div>
+						<!-- Above will only show if Multiple Choice Questions selected -->
+						</div>
+
+						<!-- When Selected this will define this question as Optional in db -->
+						   <span style="float:right;"> <label>Optional<input type="checkbox" name="optional" value="1"/></input></label></span>
+						<button type="submit" class="btn-primary">Submit</button>
+					</form>
+				</div>
+			</div>
+			</div>
+
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 align="center">Question Pool</h3>
+
+      <form method="POST">
+        <input type="hidden" name="questionformid" id="questionformid" value="1">   
+      {% if multi or general %}  
+
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <fieldset class="form-group">
+              <label for="questionTypeList"></label>
+              <select class="form-control" id="TypeOfQuestionList">
+                <option>Extended Response</option>
+                <option>Multiple Choice</option>
+              </select>
+            </fieldset>
+            <!-- Below will only show if Multiple Choice Questions selected --> 
+            {% if multi or general%}  
+              <div class="panel panel-default">
+                <div class="multiChoiceList">
+                  <div class="panel-body">
+                    <table class="table table-hover">
+                      <col width="10" align="center">{% if admin %}<col width="10" align="center">{% endif %}
+                      {% if multi %}  
+                      <thead>
+                      <tr>
+                        <th>Select</th> 
+                        {% if admin %}<th>Optional</th>{% endif %}
+                        <th>Question</th>                        
+                        <th>A</th>
+                        <th>B</th>
+                        <th>C</th>
+                        <th>D</th>
+                      </tr>
+                      </thead>
+                        {% for question in multi -%}
+                          <tr>
+                            {% if question.status==1 or admin and question.status!=2%}
+                              <td>
+                                <input type="radio" name="question" onclick="$('.genChoiceList').prop('checked', false);" value="{{0,question.id}}"/>
+                              </td>
+                                {% if admin %}
+                                  <td>
+                                {% if question.status == 1 %}
+                                  <p>Yes<p>
+                                {% elif question.status == 2 %}
+                                  <p>DONOT SHOW<p>
+                                {% else %}      
+                                  <p>-<p>
+                                {% endif %}
+                                  </td>
+                                {% endif %}
+                              <td>
+                                {{ question.question }}
+                              </td>
+
+                  <span style="float:right;"><td>{{question.answerOne}}</td></span>
+                  <span style="float:right;"><td>{{question.answerTwo}}</td></span></span>
+                  <span style="float:right;"><td>{{question.answerThree}}</td></span>
+                  <span style="float:right;"><td>{{question.answerFour}}</td></span>
+
+                            {% endif %}
+                          </tr> 
+                        {%- endfor %}
+                      {% else %}
+                      <p> No Multiple Choice Questions Available <p>
+                      {% endif %}
+                    </table>
+                  </div> 
+                </div>
+              </div>
+              <!-- Above will only show if Multiple Choice Questions selected -->
+              <!-- Below will only show if General Questions selected --> 
+              <div class="panel panel-default">
+                <div class="genChoiceList">
+                  <div class="panel-body">
+                    <table class="table table-hover">
+                      <col width="10" align="center">{% if admin %}<col width="10" align="center">{% endif %}
+                      {% if general %}  
+                        <thead>
+                        <tr>
+                          <th>Select</th> 
+                         {% if admin %}<th>Optional</th>{% endif %}
+                          <th>Question</th>      
+                        </tr>
+                        </thead>
+                      <tr/>
+                        {% for question in general -%}
+                        {% if question.status==1 or admin and question.status!=2 %}
+                        <tr>
+                          <td>
+                          <input type="radio" name="question" onclick="$('.multiChoiceList').prop('checked', false);" value="{{1,question.id}}"/>
+                          </td>
+                          {% if admin %}
+                            <td>
+                          {% if question.status == 1 %}
+                            <p>Yes<p>
+                          {% elif question.status == 2 %}
+                            <p>DONOT SHOW<p>
+                          {% else %}      
+                            <p>-<p>
+                          {% endif %}
+                            </td>
+                          {% endif %}
+                          <td>
+                            {{ question.question }}
+                          </td>
+                        </tr>
+                        {% endif %}
+                        {%- endfor %}
+
+                      {% else %}
+                        <p> No Extended Response Questions Created <p>
+                      {% endif %}
+                    </table>
+                  </div> 
+                </div>
+              </div>  
+            {% endif %}
+              <!-- Above will only show if General Questions selected -->
+            <button type="submit" class="btn-primary" name="add">Modify Question</button>
+          {% else %}
+            <p>There are no questions available to add to this survey</p>
+          {% endif %}
+        </div>
+      </form>
+						<!-- Above will only show if General Questions selected -->
+		</div>
+	</div>
+</div>
+
+<!-- https://stackoverflow.com/questions/36057813/show-hide-areas-of-form-im-using-bootstrap-->
+
+
+
+<script type="text/javascript">
+	$(document).ready(function()
+{
+	$(".multiChoice").slideUp(0);
+	$("#TypeOfQuestion").on('change',function()
+	{
+		var selectedBalue = $("#TypeOfQuestion").val();
+		if (selectedBalue == "Multiple Choice") 
+		{
+			$(".multiChoice").slideDown(500);
+			document.getElementById('qtype').value='1';
+		}else{
+			$(".multiChoice").slideUp(500);
+			document.getElementById('qtype').value='0';
+		}
+	}); 
+});
+</script> 
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js" integrity="sha384-vZ2WRJMwsjRMW/8U7i6PWi6AlO1L79snBrmgiDpgIWJ82z8eA5lenwvxbMV1PAh7" crossorigin="anonymous"></script>
+
+
+  <script type="text/javascript">
+   $(document).ready(function()
+   {
+     $(".multiChoiceList").slideUp(0);
+     $("#TypeOfQuestionList").on('change',function()
+     {
+       var selectedBalue = $("#TypeOfQuestionList").val();
+       if (selectedBalue == "Multiple Choice") 
+       {
+         $(".multiChoiceList").slideDown(500);
+         $(".genChoiceList").slideUp(500);
+       }else{
+         $(".multiChoiceList").slideUp(500);
+         $(".genChoiceList").slideDown(500);
+       }
+     }); 
+   });
+  </script> 
+
+
+
+	</body>
+</html>
