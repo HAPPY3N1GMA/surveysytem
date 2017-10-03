@@ -30,7 +30,7 @@ def admin():
 	global _authenticated
 	if _authenticated:
 		#send the type of user so that we only display what we want them to see!
-		admin = True #TEMP hardcoded
+		admin = False #TEMP hardcoded
 		return render_template("admin.html", admin=admin)
 	else:
 		return redirect(url_for("login"))
@@ -100,7 +100,7 @@ def surveys():
 	else:
 
 		#check if an admin and if so, they are permitted to make new surveys!
-		admin = True
+		admin = False
 
 		surveyform = request.form["surveyformid"]
 		if surveyform=='2':
@@ -123,14 +123,14 @@ def surveys():
 
 
 def surveyinfo():
-	admin = True
-	student = False
+	admin = False
+	student = True
 	course_list = Course.query.all()
 	survey_list = Survey.query.all()
 	return render_template("surveys.html",admin=admin,student=student,course_list=course_list,survey_list=survey_list)
 
 def opensurvey():
-	admin = True
+	admin = False
 
 	if (request.form.getlist("surveyid")==[]):
 		errorMSG("routes.opensurvey","surveyid not selected")
@@ -171,7 +171,7 @@ def opensurvey():
 
 
 def newsurvey():
-	admin = True
+	admin = False
 
 	survey_name = request.form["svyname"]
 	courseID = request.form["svycourse"]
@@ -441,7 +441,7 @@ def questions():
 	else:
 
 		#check if an admin and if so, they are permitted to make new questions!
-		admin = True
+		admin = False
 
 		if(admin):
 			questionform = request.form["questionformid"]
@@ -458,7 +458,7 @@ def questions():
 
 def questioninfo():
 	print("questioninfo")
-	admin = True
+	admin = False
 
 	#read in list of questions from db, filter out any not available to user or deleted
 	general = GeneralQuestion.query.all()
@@ -492,7 +492,7 @@ def openquestion():
 def addquestion():
 
 	#check user is admin
-	admin = True
+	admin = False
 
 	if not admin:
 		errorMSG("routes.addquestion","Unknown user attempted to add question")
