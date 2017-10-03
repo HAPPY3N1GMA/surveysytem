@@ -1,0 +1,304 @@
+<!doctype html>
+<html>
+<head>
+  <title>Modify Survey</title>
+  <!-- CSS Style Sheet -->
+  <link rel="stylesheet" type= "text/css" href="static/styles/bootstrap.min.css">
+  <link rel="stylesheet" type= "text/css" href="static/styles/font-awesome.min.css">
+  <link rel="stylesheet" type= "text/css" href="static/styles/ionicons.min.css">
+  <script src="static/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" type= "text/css" href="static/styles/styles.css">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="keywords" content="" />
+  <!--Gives access to Google Fonts-->
+  <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+</head>
+<header>
+  <div class="container row full-width">
+   <nav class="navbar navbar-default col-sm-10">
+    <ul class="nav navbar-nav navbar-right">
+     <li><a href="/admin">Home</a></li>
+     <li><a href="/surveys">Surveys</a></li>
+     <li><a href="/createquestion">Questions</a></li>
+   </ul>
+ </nav>
+</div>
+</header>
+<body> 
+  <div class="container">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h1 align="center"> {{survey.title}} </h1>
+        <h2 align="center"> {{course.name}} </h2>
+      </div>
+    <div class="panel-body">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <form method="POST">
+            <input type="hidden" name="surveyformid" id="surveyformid" value="3">
+            <input type="hidden" name="surveyid" id="surveyid" value="{{survey.id}}">
+              <div class="panel panel-default">
+                <div class="surveygen">
+                  <div class="panel-body">
+                    <h4 align="center">Extended Response</h4>
+                    <table class="table table-hover">
+                      <col width="10" align="center">{% if admin %}<col width="10" align="center">{% endif %}
+                        <thead>
+                        <tr>
+                          <th>Select</th> 
+                         {% if admin %}<th>Optional</th>{% endif %}
+                          <th>Question</th>      
+                        </tr>
+                        </thead>
+                      <tr>
+                        {% for question in surveygen -%}
+                        <td>
+                        {% if question.status==1 or admin %}
+                          <input type="radio" name="question" onclick="$('.surveymc').prop('checked', false);" value="{{1,question.id}}"/>
+                        {% else %}
+                          <input type="radio" name="question" onclick="$('.surveymc').prop('checked', false);" value="{{1,question.id}}" disabled="disabled"/>
+                        {% endif %}
+                        </td>
+                        {% if admin %}
+                        <td>
+                        {% if question.status == 1 %}
+                          <p>Yes<p>
+                        {% elif question.status == 2 %}
+                          <p>Del<p>
+                        {% else %}    
+                          <p>-<p>
+                        {% endif %}
+                        </td>
+                        {% endif %}
+                        <td>
+                          {{ question.question }}
+                        </td>
+                      </tr>
+                        
+                        {%- endfor %}
+
+                    </table>
+                  </div> 
+                </div>
+              </div>  
+                <div class="panel panel-default">
+                <div class="surveymc">
+                  <div class="panel-body">
+                    <table class="table table-hover">
+                      <col width="10" align="center">{% if admin %}<col width="10" align="center">{% endif %}
+                      <h4 align="center">Multiple Choice</h4>
+                      <thead>
+                      <tr>
+                        <th>Select</th> 
+                        {% if admin %}<th>Optional</th>{% endif %}
+                        <th>Question</th>                     
+                        <th>A</th>
+                        <th>B</th>
+                        <th>C</th>
+                        <th>D</th>
+                      </tr>
+                      </thead>
+                        <tr>
+                          {% for question in surveymc -%}
+                          <td>
+                            {% if question.status==1 or admin %}
+                              <input type="radio" name="question" onclick="$('.surveygen').prop('checked', false);" value="{{0,question.id}}"/>
+                            {% else %}
+                              <input type="radio" name="question" onclick="$('.surveygen').prop('checked', false);" value="{{0,question.id}}" disabled="disabled"/>
+                            {% endif %}
+                          </td>
+
+                              {% if admin %}
+                              <td>
+                                {% if question.status == 1 %}
+                                  <p>Yes<p>
+                                {% elif question.status == 2 %}
+                                  <p>Del<p>
+                                {% else %}    
+                                  <p>-<p>
+                                {% endif %}
+                              </td> 
+                              {% endif %}
+                              
+                              <td>
+                                {{ question.question }}
+                              </td>
+
+                  <span style="float:right;"><td>{{question.answerOne}}</td></span>
+                  <span style="float:right;"><td>{{question.answerTwo}}</td></span></span>
+                  <span style="float:right;"><td>{{question.answerThree}}</td></span>
+                  <span style="float:right;"><td>{{question.answerFour}}</td></span>
+
+                        </tr> 
+                          {%- endfor %}
+                    </table>
+                  </div> 
+                </div>
+              </div>
+                <button type="submit" class="btn-primary" name="remove" >Remove Question</button>
+            </form>
+          </div>
+        </div>
+
+          <br></br>
+              <input type="text" class="container" value="http://127.0.0.1:5000/{{ survey.id }}" placeholder="" style="width: 200px;height:25px"/ readonly>
+              <input type="button" onclick="location.href='http://127.0.0.1:5000/{{ survey.id }}';" style="width: 100px;height:25px" value="View Survey" />
+          <br></br>
+          <br></br>
+
+      <form method="POST">
+        <input type="hidden" name="surveyformid" id="surveyformid" value="4">
+        <input type="hidden" name="surveyid" id="surveyid" value="{{survey.id}}">       
+
+      {% if multi or general %}  
+
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 align="center">Add Questions</h3>
+            <fieldset class="form-group">
+              <label for="questionTypeList"></label>
+              <select class="form-control" id="TypeOfQuestionList">
+                <option>Extended Response</option>
+                <option>Multiple Choice</option>
+              </select>
+            </fieldset>
+            <!-- Below will only show if Multiple Choice Questions selected --> 
+            {% if multi or general%}  
+              <div class="panel panel-default">
+                <div class="multiChoiceList">
+                  <div class="panel-body">
+                    <table class="table table-hover">
+                      <col width="10" align="center">{% if admin %}<col width="10" align="center">{% endif %}
+                      {% if multi %}  
+                      <thead>
+                      <tr>
+                        <th>Select</th> 
+                        {% if admin %}<th>Optional</th>{% endif %}
+                        <th>Question</th>                        
+                        <th>A</th>
+                        <th>B</th>
+                        <th>C</th>
+                        <th>D</th>
+                      </tr>
+                      </thead>
+                        {% for question in multi -%}
+                          <tr>
+                            {% if question.status==1 or admin %}
+                              <td>
+                                <input type="checkbox" name="question" value="{{0,question.id}}"/>
+                              </td>
+                                {% if admin %}
+                                  <td>
+                                {% if question.status == 1 %}
+                                  <p>Yes<p>
+                                {% elif question.status == 2 %}
+                                  <p>Del<p>
+                                {% else %}    
+                                  <p>-<p>
+                                {% endif %}
+                                  </td>
+                                {% endif %}
+                              <td>
+                                {{ question.question }}
+                              </td>
+
+                  <span style="float:right;"><td>{{question.answerOne}}</td></span>
+                  <span style="float:right;"><td>{{question.answerTwo}}</td></span></span>
+                  <span style="float:right;"><td>{{question.answerThree}}</td></span>
+                  <span style="float:right;"><td>{{question.answerFour}}</td></span>
+
+                            {% endif %}
+                          </tr> 
+                        {%- endfor %}
+                      {% else %}
+                      <p> No Multiple Choice Questions Available <p>
+                      {% endif %}
+                    </table>
+                  </div> 
+                </div>
+              </div>
+              <!-- Above will only show if Multiple Choice Questions selected -->
+              <!-- Below will only show if General Questions selected --> 
+              <div class="panel panel-default">
+                <div class="genChoiceList">
+                  <div class="panel-body">
+                    <table class="table table-hover">
+                      <col width="10" align="center">{% if admin %}<col width="10" align="center">{% endif %}
+                      {% if general %}  
+                        <thead>
+                        <tr>
+                          <th>Select</th> 
+                         {% if admin %}<th>Optional</th>{% endif %}
+                          <th>Question</th>      
+                        </tr>
+                        </thead>
+                      <tr/>
+                        {% for question in general -%}
+                        {% if question.status==1 or admin %}
+                        <tr>
+                          <td>
+                          <input type="checkbox" name="question" value="{{1,question.id}}"/>
+                          </td>
+                          {% if admin %}
+                            <td>
+                              {% if question.status == 1 %}
+                                <p>Yes<p>
+                              {% else %}
+                                <p>-<p>
+                              {% endif %}
+                            </td>
+                          {% endif %}
+                          <td>
+                            {{ question.question }}
+                          </td>
+                        </tr>
+                        {% endif %}
+                        {%- endfor %}
+
+                      {% else %}
+                        <p> No Extended Response Questions Created <p>
+                      {% endif %}
+                    </table>
+                  </div> 
+                </div>
+              </div>  
+            {% endif %}
+              <!-- Above will only show if General Questions selected -->
+            <button type="submit" class="btn-primary" name="add">Add Questions</button>
+          {% else %}
+            <p>There are no questions available to add to this survey</p>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js" integrity="sha384-vZ2WRJMwsjRMW/8U7i6PWi6AlO1L79snBrmgiDpgIWJ82z8eA5lenwvxbMV1PAh7" crossorigin="anonymous"></script>
+
+
+  <script type="text/javascript">
+   $(document).ready(function()
+   {
+     $(".multiChoiceList").slideUp(0);
+     $("#TypeOfQuestionList").on('change',function()
+     {
+       var selectedBalue = $("#TypeOfQuestionList").val();
+       if (selectedBalue == "Multiple Choice") 
+       {
+         $(".multiChoiceList").slideDown(500);
+         $(".genChoiceList").slideUp(500);
+       }else{
+         $(".multiChoiceList").slideUp(500);
+         $(".genChoiceList").slideDown(500);
+       }
+     }); 
+   });
+  </script> 
+
+</body>
+
+
+ </html>

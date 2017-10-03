@@ -1,4 +1,5 @@
-import csv, ast, os, time, copy, datetime
+import csv, ast, os, time, copy
+from datetime import datetime
 from flask import Flask, redirect, render_template, request, url_for, flash
 from server import app, users, authenticated, errorMSG
 from functions import append, get
@@ -73,47 +74,183 @@ def home():
 		return redirect(url_for("index"))
 
 
-@app.route("/survey", methods=["GET", "POST"])
-def viewsurveys():
+@app.route("/surveys", methods=["GET", "POST"])
+
+def surveys():
 	global _authenticated
 	if not _authenticated:
 		return redirect(url_for("login"))
 
-	#if user - redirect to list of surveys they can answer
+	if request.method == "GET":
+		return surveyinfo()
+	else:
 
-	#if staff - list of surveys they can modify
+		#check if an admin and if so, they are permitted to make new surveys!
+		admin = True
+		student = False
 
-	#if admin - all surveys
+		if(student==False):
+			surveyform = request.form["surveyformid"]
+			if surveyform=='1':
+				return newsurvey()
+			if surveyform=='2':
+				return opensurvey()
+			if surveyform=='3':
+				return removeqsurvey()
+			if surveyform=='4':
+				return addqsurvey()
 
-	newList=[]
-
-	for row in db_session.query(Course).all():
-		newList.append([row.id,row.name,row.offering])
-		print(row.id,row.name,row.offering)
-
-
-	#now have list of all courses
-
-
-	#only pass in courses we have access too
-
-	#q_users = db_session.query(UniUser).all()
-		# for user in q_users:
-		# 	print (user)
-
+		return surveyinfo()
 
 
+def surveyinfo():
+	admin = True
+	student = False
+	course_list = Course.query.all()
+	survey_list = Survey.query.all()
+	return render_template("surveys.html",admin=True,course_list=course_list,survey_list=survey_list)
 
-	course_list = fileclasses.course.readall()
+def opensurvey():
+	admin = True
+	student = False
+
+	if (request.form.getlist("surveyid")==[]):
+		errorMSG("routes.opensurvey","surveyid not selected")
+		return surveyinfo()
+	
+	surveyID = request.form["surveyid"]
+
+	survey = Survey.query.filter_by(id=surveyID).first()	
+	if(survey==None):
+		errorMSG("routes.opensurvey","survey object is empty")
+		return surveyinfo()	
+
+	course = Course.query.filter_by(id=survey.course_id).first()	
+	if(course==None):
+		errorMSG("routes.opensurvey","course object is empty")
+		return surveyinfo()
+
+	if student:
+		print("student opening survey")
+		return surveyinfo()
+		return render_template("viewsurvey.html",admin=admin,survey=survey,course=course)
+
+	else:
+		print("staff opening survey")
+		#sort these based on who you are!
+		general = GeneralQuestion.query.all()
+		multi = MCQuestion.query.all()
+
+		surveygen = survey.gen_questions
+		surveymc = survey.mc_questions
+
+		return render_template("modifysurvey.html",admin=admin,surveygen=surveygen,surveymc=surveymc,survey=survey,course=course,general=general,multi=multi)
 
 
-	general = list(ast.literal_eval(str(GeneralQuestion.query.all())))
-	multi = ast.literal_eval(str(MCQuestion.query.all()))
-	return render_template("createsurvey.html",multi=multi,general=general,course_list = course_list)
+def newsurvey():
+	admin = True
+	student = False
+
+	survey_name = request.form["svyname"]
+	courseID = request.form["svycourse"]
+
+	#qObject=Course.query.filter_by(id=courseID).first()
+
+	if (get.cleanString(str(survey_name))==False):
+		errorMSG("routes.newsurvey","Invalid Characters in survey name")
+		return surveyinfo()
+
+	if (str(courseID) == ''):
+		errorMSG("routes.newsurvey","No course selected")
+		return surveyinfo()
+
+	#new survey created then redirect to the modify survey page to add questions etc
+	survey = Survey(survey_name,datetime.now(),courseID)
+	db_session.add(survey)
+	db_session.commit()
+
+	return surveyinfo()
+
+
+def addqsurvey():
+	print("add question to survey")
+
+	#check they are staff first
+
+
+	#get list of questions to add
+	survey_questions = request.form.getlist('question')
+
+	if survey_questions==[]:
+		errorMSG("routes.addqsurvey","no questions selected")
+		return opensurvey()
+
+
+	if (request.form.getlist("surveyid")==[]):
+		errorMSG("routes.opensurvey","surveyid not selected")
+		return surveyinfo()
+	
+	surveyID = request.form["surveyid"]
+
+	survey = Survey.query.filter_by(id=surveyID).first()	
+	if(survey==None):
+		errorMSG("routes.opensurvey","survey object is empty")
+		return surveyinfo()	
+
+	#this sorts and stores the questions into the survey
+	for question in survey_questions:
+		if (question[1:2]=='0'):	
+			question = MCQuestion.query.filter_by(id=int(question[4:5])).first()
+			survey.mc_questions.append(question)
+		elif (question[1:2]=='1'):
+			question = GeneralQuestion.query.filter_by(id=int(question[4:5])).first()
+			survey.gen_questions.append(question)
+
+	db_session.commit()
+
+	#reload page
+	return opensurvey()
+
+def removeqsurvey():
+	#get question to remove
+	print("remove question from survey")
+
+	
+	if request.form.getlist('question')==[]:
+		errorMSG("routes.addqsurvey","no questions selected")
+		return opensurvey()
+
+	survey_question = request.form['question']
+
+	if (request.form.getlist("surveyid")==[]):
+		errorMSG("routes.opensurvey","surveyid not selected")
+		return surveyinfo()
+	
+	surveyID = request.form["surveyid"]
+	survey = Survey.query.filter_by(id=surveyID).first()	
+	if(survey==None):
+		errorMSG("routes.opensurvey","survey object is empty")
+		return surveyinfo()	
+
+	#remove question from the survey
+	if (survey_question[1:2]=='0'):	
+		question = MCQuestion.query.filter_by(id=int(survey_question[4:5])).first()
+		survey.mc_questions.remove(question)
+	elif (survey_question[1:2]=='1'):
+		question = GeneralQuestion.query.filter_by(id=int(survey_question[4:5])).first()
+		survey.gen_questions.remove(question)
+
+	db_session.commit()
+
+
+
+	return opensurvey()
 
 
 
 
+
+#old method
 @app.route("/createsurvey", methods=["GET", "POST"])
 def createsurvey():
 
@@ -246,13 +383,6 @@ def db_test():
 	# 	print (user)
 
 	return render_template("home.html")
-
-#@app.route("/createquestion/<int:qID>/<int:qType>", methods=["GET", "POST"])
-#def complete_survey(sID):
-
-#	if request.method == "GET":
-
-
 
 
 @app.route('/modifyquestion/<int:Questiontype>/<int:qID>', methods=["GET", "POST"])

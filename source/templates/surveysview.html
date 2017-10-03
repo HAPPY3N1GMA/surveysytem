@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+<head>
+  <title>Surveys</title>
+  <!-- CSS Style Sheet -->
+  <link rel="stylesheet" type= "text/css" href="static/styles/bootstrap.min.css">
+  <link rel="stylesheet" type= "text/css" href="static/styles/font-awesome.min.css">
+  <link rel="stylesheet" type= "text/css" href="static/styles/ionicons.min.css">
+  <script src="static/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" type= "text/css" href="static/styles/styles.css">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="keywords" content="" />
+  <!--Gives access to Google Fonts-->
+  <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+</head>
+<header>
+  <div class="container row full-width">
+   <nav class="navbar navbar-default col-sm-10">
+    <ul class="nav navbar-nav navbar-right">
+     <li><a href="/admin">Home</a></li>
+     <li><a href="/surveys">Surveys</a></li>
+     <li><a href="/createquestion">Questions</a></li>
+   </ul>
+ </nav>
+</div>
+</header>
+<body>
+  <div class="container">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h1 align="center">Surveys</h1>
+      </div>
+    <div class="panel-body">
+      {% if admin %}
+       <br></br>
+      <form method="POST">
+        <input type="hidden" name="surveyformid" id="surveyformid" value="1">      
+        <div class="container">
+          <input name="svyname" placeholder="Enter survey name"style="width: 400px; height: 25px"/>
+          {%if course_list%}
+            <select name = "svycourse"style="width: 200px;height: 25px">
+           {%for course in course_list%}
+              <option value="{{course.id}}">{{course.name}} - ({{course.offering}} )</option>
+           {%endfor%}
+            </select>
+
+          {%endif%}
+          <button type="submit" class="btn-primary" name="bt">Create New Survey</button>
+        </div>
+      </form>
+      {% endif %}
+
+      <br></br>
+          <form method="POST" class="form-horizontal">
+            <input type="hidden" name="surveyformid" id="surveyformid" value="2"> 
+              <div class="panel panel-default">
+                <div class="multiChoiceList">
+                  <div class="panel-body">
+                    <table class="table table-hover">
+                      <col width="10">
+                      {% if survey_list %}  
+                      <thead>
+                      <tr>
+                        <th>Select</th>
+                        <th>Status</th> 
+                        <th>Title</th>
+                        <th>Date</th>
+                        <th>Course</th>
+                      </tr>
+                      </thead>
+                        <tr>
+                          {% for survey in survey_list -%}
+                          <td><input type="radio" name="surveyid" value="{{survey.id}}"/></td>
+                          <td>
+                          {{ survey.status }}
+                          </td>
+                          <td>
+                          {{ survey.title }}
+                          </td>
+                          <td>
+                          {{ survey.date }}
+                          </td>
+                          <td>
+                            {% for course in course_list %}
+                               {% if course.id == survey.course_id %}
+                                  {{course.name}}
+                               {% endif %}
+                            {% endfor %}
+                          </td>          
+                        </tr> 
+                        {%- endfor %}
+                      {% else %}
+                      <p> There are no surveys available to view <p>
+                      {% endif %}
+                    </table>
+                  </div> 
+                </div>
+              </div>
+              <button type="submit" class="btn-primary" id="open" ="btn-primary" name="open">Open Survey</button>
+            </div>
+          </form>  
+        </div>
+
+
+</body>
+
+
+ </html>
