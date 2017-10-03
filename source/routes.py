@@ -99,34 +99,37 @@ def surveys():
 	else:
 
 		#check if an admin and if so, they are permitted to make new surveys!
-		admin = True
-		student = False
+		admin = False
 
-		if(student==False):
-			surveyform = request.form["surveyformid"]
+		surveyform = request.form["surveyformid"]
+		if surveyform=='2':
+			return opensurvey()		
+
+		if(admin):
 			if surveyform=='1':
 				return newsurvey()
-			if surveyform=='2':
-				return opensurvey()
 			if surveyform=='3':
 				return removeqsurvey()
 			if surveyform=='4':
 				return addqsurvey()
 			if surveyform=='5':
 				return statussurvey()
+		else:	
+			if surveyform=='6':
+				return answersurvey()
+
 		return surveyinfo()
 
 
 def surveyinfo():
-	admin = True
-	student = False
+	admin = False
+	student = True
 	course_list = Course.query.all()
 	survey_list = Survey.query.all()
-	return render_template("surveys.html",admin=True,course_list=course_list,survey_list=survey_list)
+	return render_template("surveys.html",admin=admin,student=student,course_list=course_list,survey_list=survey_list)
 
 def opensurvey():
-	admin = True
-	student = False
+	admin = False
 
 	if (request.form.getlist("surveyid")==[]):
 		errorMSG("routes.opensurvey","surveyid not selected")
@@ -144,10 +147,15 @@ def opensurvey():
 		errorMSG("routes.opensurvey","course object is empty")
 		return surveyinfo()
 
-	if student:
+	if not admin:
 		print("student opening survey")
-		return surveyinfo()
-		return render_template("viewsurvey.html",admin=admin,survey=survey,course=course)
+
+		#TODO: check if student answered survey already here!
+		if survey.status==1:
+			return surveyinfo()
+
+		if survey.status==2:
+			return render_template("answersurvey.html",survey=survey,course=course)
 
 	else:
 		print("staff opening survey")
@@ -163,7 +171,6 @@ def opensurvey():
 
 def newsurvey():
 	admin = True
-	student = False
 
 	survey_name = request.form["svyname"]
 	courseID = request.form["svycourse"]
@@ -258,9 +265,6 @@ def removeqsurvey():
 
 	return opensurvey()
 
-
-
-
 def statussurvey():
 	print("changing survey status")
 
@@ -283,14 +287,23 @@ def statussurvey():
 
 	return opensurvey()
 
-
-
-
 def viewsurvey():
 	print("view survey results now")
 
 	#temp
 	return opensurvey()
+
+
+def answersurvey():
+	print("answer survey here")
+
+	#temp
+	return opensurvey()
+
+
+
+
+
 
 #######################################################################
 ########################## 	 DB TEST 	###############################
@@ -356,10 +369,9 @@ def questions():
 	else:
 
 		#check if an admin and if so, they are permitted to make new questions!
-		admin = True
-		student = False
+		admin = False
 
-		if(student==False):
+		if(admin):
 			questionform = request.form["questionformid"]
 			if questionform=='1':
 				return openquestion()
