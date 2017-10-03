@@ -22,7 +22,7 @@
 				<ul class="nav navbar-nav navbar-right">
      <li><a href="/admin">Home</a></li>
      <li><a href="/surveys">Surveys</a></li>
-     <li><a href="/createquestion">Questions</a></li>
+     <li><a href="/questions">Questions</a></li>
 				</ul>
 		</nav> 
 	 </div>
@@ -36,7 +36,7 @@
 		<div class="panel-heading">		
 
 			<fieldset class="form-group">
-				<label for="Questiontype">Question Type</label>
+				<label for="questionType">Question Type</label>
 				<select class="form-control" id="TypeOfQuestion">
 					<option>Extended Response</option>
 					<option>Multiple Choice</option>
@@ -45,17 +45,15 @@
 			
 			<div class="panel-body">
 					<form method="POST" class="form-horizontal">
-						<input type="hidden" name="oldType" id="oldType" value="{{Questiontype}}">
-
-						<p>Question Type: {{Questiontype}}</p>
-
-						<input type="hidden" name="qID" id="qID" value="{{questionInfo.id}}">
+						<input type="hidden" name="oldType" id="oldType" value="{{questionType}}">
+						<input type="hidden" name="questionformid" id="questionformid" value="4">
+						<input type="hidden" name="qID" id="qID" value="{{questionObject.id}}">
 						<input type="hidden" name="delete" id="delete" value="0">
 						<input type="hidden" name="qtype" id="qtype" value="">
 						<div class="form-group row">
 							<label for="question" class="col-sm-2 col-form-label">Question</label>
 							<div class="col-sm-10">
-								<input type="text" class="form-control" name="question" value="{{ questionInfo.question }}">
+								<input type="text" class="form-control" id="questiontitle" name="questiontitle" value="{{ questionObject.question }}">
 							</div>
 						</div>
 
@@ -64,28 +62,28 @@
 							<div class="form-group row">
 									<label for="option_one" class="col-sm-2 col-form-label">Option One:</label>
 									<div class="col-sm-10">
-										<input type="text" class="form-control" name="option_one" {% if Questiontype==1 %} value="{{ questionInfo.answerOne }}" {% endif %}
+										<input type="text" class="form-control" name="option_one" {% if questionType==1 %} value="{{ questionObject.answerOne }}" {% endif %}
 										t>
 									</div>
 							</div>
 							<div class="form-group row">
 									<label for="option_two" class="col-sm-2 col-form-label">Option Two:</label>
 									<div class="col-sm-10">
-										<input type="text" class="form-control" name="option_two" {% if Questiontype==1 %} value="{{ questionInfo.answerTwo }}" {% endif %}
+										<input type="text" class="form-control" name="option_two" {% if questionType==1 %} value="{{ questionObject.answerTwo }}" {% endif %}
 										>
 									</div>
 							</div>
 							<div class="form-group row">
 									<label for="option_three" class="col-sm-2 col-form-label">Option Three:</label>
 									<div class="col-sm-10">
-										<input type="text" class="form-control" name="option_three" {% if Questiontype==1 %} value="{{ questionInfo.answerThree }}" {% endif %}
+										<input type="text" class="form-control" name="option_three" {% if questionType==1 %} value="{{ questionObject.answerThree }}" {% endif %}
 										>
 									</div>
 							</div>
 							<div class="form-group row">
 									<label for="option_four" class="col-sm-2 col-form-label">Option Four:</label>
 									<div class="col-sm-10">
-										<input type="text" class="form-control" name="option_four" {% if Questiontype==1 %} value="{{ questionInfo.answerFour }}" {% endif %}
+										<input type="text" class="form-control" name="option_four" {% if questionType==1 %} value="{{ questionObject.answerFour }}" {% endif %}
 										>
 									</div>
 							</div>
@@ -98,7 +96,7 @@
 
 						   <span style="float:right;"> <label>Optional<input 
 						   	type="checkbox" id = "optional" name="optional" onclick="document.getElementById('optional').value = '1';"
-						   	{% if questionInfo.status == 1 %} value="1" checked {% else %} value="0" {% endif %} 
+						   	{% if questionObject.status == 1 %} value="1" checked {% else %} value="0" {% endif %} 
 						   ></label></span>
 
 						<button type="submit" class="btn-primary" >Submit</button>
@@ -117,7 +115,7 @@
 <script type="text/javascript">
 $(document).ready(function()
 {
-	if({{Questiontype}}==1){
+	if({{questionType}}==1){
 		document.getElementById('TypeOfQuestion').value= "Multiple Choice"
 		document.getElementById('qtype').value='1';
 		$(".multiChoice").slideDown(0);

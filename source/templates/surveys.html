@@ -21,7 +21,7 @@
     <ul class="nav navbar-nav navbar-right">
      <li><a href="/admin">Home</a></li>
      <li><a href="/surveys">Surveys</a></li>
-     <li><a href="/createquestion">Questions</a></li>
+     <li><a href="/questions">Questions</a></li>
    </ul>
  </nav>
 </div>
@@ -74,7 +74,13 @@
                           {% for survey in survey_list -%}
                           <td><input type="radio" name="surveyid" value="{{survey.id}}"/></td>
                           <td>
-                          {{ survey.status }}
+                            {% if survey.status==1 %}
+                            <p>Draft</p>
+                            {% elif survey.status==2 %}
+                            <p>Active</p>
+                            {% else %}
+                            <p>Closed</p>
+                            {% endif %}
                           </td>
                           <td>
                           {{ survey.title }}

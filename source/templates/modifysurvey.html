@@ -21,7 +21,7 @@
     <ul class="nav navbar-nav navbar-right">
      <li><a href="/admin">Home</a></li>
      <li><a href="/surveys">Surveys</a></li>
-     <li><a href="/createquestion">Questions</a></li>
+     <li><a href="/questions">Questions</a></li>
    </ul>
  </nav>
 </div>
@@ -44,16 +44,17 @@
                   <div class="panel-body">
                     <h4 align="center">Extended Response</h4>
                     <table class="table table-hover">
-                      <col width="10" align="center">{% if admin %}<col width="10" align="center">{% endif %}
+                      <col width="10" align="center">{% if admin and survey.status==1 %}<col width="10" align="center">{% endif %}
                         <thead>
                         <tr>
-                          <th>Select</th> 
+                         {% if survey.status==1 %}<th>Select</th>{% endif %}
                          {% if admin %}<th>Optional</th>{% endif %}
                           <th>Question</th>      
                         </tr>
                         </thead>
                       <tr>
                         {% for question in surveygen -%}
+                        {% if survey.status==1 %}
                         <td>
                         {% if question.status==1 or admin %}
                           <input type="radio" name="question" onclick="$('.surveymc').prop('checked', false);" value="{{1,question.id}}"/>
@@ -61,6 +62,7 @@
                           <input type="radio" name="question" onclick="$('.surveymc').prop('checked', false);" value="{{1,question.id}}" disabled="disabled"/>
                         {% endif %}
                         </td>
+                        {% endif %}
                         {% if admin %}
                         <td>
                         {% if question.status == 1 %}
@@ -87,11 +89,11 @@
                 <div class="surveymc">
                   <div class="panel-body">
                     <table class="table table-hover">
-                      <col width="10" align="center">{% if admin %}<col width="10" align="center">{% endif %}
+                      <col width="10" align="center">{% if admin and survey.status==1 %}<col width="10" align="center">{% endif %}
                       <h4 align="center">Multiple Choice</h4>
                       <thead>
                       <tr>
-                        <th>Select</th> 
+                        {% if survey.status==1 %}<th>Select</th>{% endif %}
                         {% if admin %}<th>Optional</th>{% endif %}
                         <th>Question</th>                     
                         <th>A</th>
@@ -102,6 +104,7 @@
                       </thead>
                         <tr>
                           {% for question in surveymc -%}
+                          {% if survey.status==1 %}
                           <td>
                             {% if question.status==1 or admin %}
                               <input type="radio" name="question" onclick="$('.surveygen').prop('checked', false);" value="{{0,question.id}}"/>
@@ -109,7 +112,7 @@
                               <input type="radio" name="question" onclick="$('.surveygen').prop('checked', false);" value="{{0,question.id}}" disabled="disabled"/>
                             {% endif %}
                           </td>
-
+                          {% endif %}
                               {% if admin %}
                               <td>
                                 {% if question.status == 1 %}
@@ -137,16 +140,20 @@
                   </div> 
                 </div>
               </div>
+
+{% if survey.status==1 %}
+
                 <button type="submit" class="btn-primary" name="remove" >Remove Question</button>
+{% endif %}
+
             </form>
           </div>
         </div>
 
-          <br></br>
-              <input type="text" class="container" value="http://127.0.0.1:5000/{{ survey.id }}" placeholder="" style="width: 200px;height:25px"/ readonly>
-              <input type="button" onclick="location.href='http://127.0.0.1:5000/{{ survey.id }}';" style="width: 100px;height:25px" value="View Survey" />
-          <br></br>
-          <br></br>
+
+
+{% if survey.status==1 %}
+
 
       <form method="POST">
         <input type="hidden" name="surveyformid" id="surveyformid" value="4">
@@ -185,7 +192,7 @@
                       </thead>
                         {% for question in multi -%}
                           <tr>
-                            {% if question.status==1 or admin %}
+                            {% if question.status==1 or admin and question.status!=2 %}
                               <td>
                                 <input type="checkbox" name="question" value="{{0,question.id}}"/>
                               </td>
@@ -194,7 +201,7 @@
                                 {% if question.status == 1 %}
                                   <p>Yes<p>
                                 {% elif question.status == 2 %}
-                                  <p>Del<p>
+                                  <p>DONOT SHOW<p>
                                 {% else %}    
                                   <p>-<p>
                                 {% endif %}
@@ -236,7 +243,7 @@
                         </thead>
                       <tr/>
                         {% for question in general -%}
-                        {% if question.status==1 or admin %}
+                        {% if question.status==1 or admin and question.status!=2 %}
                         <tr>
                           <td>
                           <input type="checkbox" name="question" value="{{1,question.id}}"/>
@@ -245,7 +252,9 @@
                             <td>
                               {% if question.status == 1 %}
                                 <p>Yes<p>
-                              {% else %}
+                                {% elif question.status == 2 %}
+                                  <p>DONOT SHOW<p>
+                                {% else %}   
                                 <p>-<p>
                               {% endif %}
                             </td>
@@ -272,8 +281,54 @@
           {% endif %}
         </div>
       </form>
+
+{% endif %}
+
+
     </div>
   </div>
+
+
+
+
+
+
+
+
+
+      <form method="POST">
+        <input type="hidden" name="surveyformid" id="surveyformid" value="5">  
+        <input type="hidden" name="surveyid" id="surveyid" value="{{survey.id}}">        
+          <div class="panel panel-default">
+            <div class="panel-body">
+
+            {% if survey.status==1 %}
+              {% if admin %}
+              <button type="submit" class="btn btn-primary btn-lg btn-block">Publish Survey</button>
+              {% else %}
+              <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">Publish Survey</button>
+              {% endif %}
+              <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">View Results</button>
+            {% elif survey.status==2 %}
+              {% if admin %}
+              <button type="submit" class="btn btn-primary btn-lg btn-block">End Survey</button>
+              {% else %}
+              <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">End Survey</button>
+              {% endif %}
+              <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">View Results</button>
+              {% else %}
+              <button type="submit" class="btn btn-primary btn-lg btn-block">View Results</button>
+            {% endif %}
+
+            </div>
+        </div>
+    </div>
+</form>
+
+
+
+
+
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js" integrity="sha384-vZ2WRJMwsjRMW/8U7i6PWi6AlO1L79snBrmgiDpgIWJ82z8eA5lenwvxbMV1PAh7" crossorigin="anonymous"></script>
