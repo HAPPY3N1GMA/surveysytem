@@ -4,7 +4,7 @@ from flask import Flask, redirect, render_template, request, url_for, flash
 from server import app, users, authenticated, errorMSG
 from defines import debug
 from models import GeneralQuestion, MCQuestion, SurveyResponse,\
-					QuestionResponse
+					GeneralResponse, MCResponse
 from models import Survey, Course, UniUser
 from database import db_session, Base
 from flask_login import login_user, login_required
@@ -99,7 +99,7 @@ def surveys():
 	else:
 
 		#check if an admin and if so, they are permitted to make new surveys!
-		admin = False
+		admin = True
 
 		surveyform = request.form["surveyformid"]
 		if surveyform=='2':
@@ -122,14 +122,14 @@ def surveys():
 
 
 def surveyinfo():
-	admin = False
-	student = True
+	admin = True
+	student = False
 	course_list = Course.query.all()
 	survey_list = Survey.query.all()
 	return render_template("surveys.html",admin=admin,student=student,course_list=course_list,survey_list=survey_list)
 
 def opensurvey():
-	admin = False
+	admin = True
 
 	if (request.form.getlist("surveyid")==[]):
 		errorMSG("routes.opensurvey","surveyid not selected")
@@ -295,10 +295,81 @@ def viewsurvey():
 
 
 def answersurvey():
-	print("answer survey here")
+	print("answering survey")
+
+	#check student answered all fields
+	surveyID = request.form["surveyid"]
+
+	survey = Survey.query.filter_by(id=surveyID).first()	
+	if(survey==None):
+		errorMSG("routes.answersurvey","survey object is empty")
+		return surveyinfo()	
+
+	course = Course.query.filter_by(id=survey.course_id).first()	
+	if(course==None):
+		errorMSG("routes.answersurvey","course object is empty")
+		return surveyinfo()
+
+	print("length:",len(survey.gen_questions))
+
+	genResponseList = []
+	if len(survey.gen_questions)>0:
+
+		genResponseList = request.form.getlist('genResponse')
+		genResponseList = list(filter(None, genResponseList))
+
+		if len(survey.gen_questions)!=len(genResponseList):
+			errorMSG("routes.answersurvey","Extended Response Questions not completed")
+			return opensurvey()
+
+		#TODOcheck that the responses have valid characters
+
+	mcResponseList = []
+	if len(survey.mc_questions)>0:
+
+		mcResponseList = request.form.getlist('mcResponse')
+		mcResponseList = list(filter(None, mcResponseList))
+
+		if len(survey.mc_questions)!=len(mcResponseList):
+			errorMSG("routes.answersurvey","MultiChoice Questions not completed")
+			return opensurvey()
+
+		#TODOcheck that the responses have valid characters
+
+
+	surveyResponse = SurveyResponse(survey.id)
+	db_session.add(surveyResponse)
+
+
+	#QuestionResponse(surveyResponse.id, mcquestionid, genquestionid,
+    #             answer)
+
+
+	surveyResponse.id
+
+	#this sorts and stores the questions into the survey
+	for question,response in zip(survey.gen_questions,genResponseList):
+		print(response)
+
+	db_session.commit()
+
+
+
+	#save all fields
+
+
+	#set survey to completed by this student to prevent resubmission
+
+
+
+
+
+
+
+
 
 	#temp
-	return opensurvey()
+	return surveyinfo()
 
 
 
@@ -369,7 +440,7 @@ def questions():
 	else:
 
 		#check if an admin and if so, they are permitted to make new questions!
-		admin = False
+		admin = True
 
 		if(admin):
 			questionform = request.form["questionformid"]
