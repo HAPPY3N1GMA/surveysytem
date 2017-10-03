@@ -78,25 +78,25 @@
 						<div class="panel-body">
 							{%- if question.answerOne -%}
 						<tr>
-							<td><input type="radio" name="mcResponse" value="1"/></td>
+							<td><input type="radio" name="{{question.id}}" value="1"/></td>
               <td>{{ question.answerOne }}</td>
 						</tr> 
 							{%- endif -%}
 							{%- if question.answerTwo -%}
 						<tr>
-							<td><input type="radio" name="mcResponse" value="2"/></td>
+							<td><input type="radio" name="{{question.id}}" value="2"/></td>
               <td>{{ question.answerTwo }}</td>
 						</tr> 
 							{%- endif -%}
 							{%- if question.answerThree -%}
 						<tr>
-							<td><input type="radio" name="mcResponse" value="3"/></td>
+							<td><input type="radio" name="{{question.id}}" value="3"/></td>
               <td>{{ question.answerThree }}</td>
 						</tr> 
 							{%- endif -%}
 							{%- if question.answerFour -%}
 						<tr>
-							<td><input type="radio" name="mcResponse" value="4"/></td>
+							<td><input type="radio" name="{{question.id}}" value="4"/></td>
               <td>{{ question.answerFour }}</td>
 						</tr> 
 							{%- endif -%}

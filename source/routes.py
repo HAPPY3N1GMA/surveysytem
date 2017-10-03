@@ -323,20 +323,34 @@ def answersurvey():
 			errorMSG("routes.answersurvey","Extended Response Questions not completed")
 			return opensurvey()
 
-		#TODOcheck that the responses have valid characters
+	for text in genResponseList:
+		if (get.cleanString(str(text))==False):
+			errorMSG("routes.answersurvey","Invalid input in extended response")
+			return opensurvey()
+
 
 	mcResponseList = []
 	if len(survey.mc_questions)>0:
+		for question in survey.mc_questions:
+			if (request.form.getlist(str(question.id))==[]):
+				errorMSG("routes.answersurvey","MultiChoice Questions not completed")
+				return opensurvey()
+			mcResponseList.append(request.form[str(question.id)])
 
-		mcResponseList = request.form.getlist('mcResponse')
-		mcResponseList = list(filter(None, mcResponseList))
+	mcResponseList = list(filter(None, mcResponseList))
 
-		if len(survey.mc_questions)!=len(mcResponseList):
-			errorMSG("routes.answersurvey","MultiChoice Questions not completed")
-			return opensurvey()
+	if len(survey.mc_questions)!=len(mcResponseList):
+		errorMSG("routes.answersurvey","MultiChoice Questions not completed")
+		return opensurvey()
+
+	print("mcResponseList:",mcResponseList)
+
 
 		#TODOcheck that the responses have valid characters
 
+
+
+	#see if there is already a survey response 
 
 	surveyResponse = SurveyResponse(survey.id)
 	db_session.add(surveyResponse)
@@ -346,11 +360,18 @@ def answersurvey():
     #             answer)
 
 
-	surveyResponse.id
+	#surveyResponse.id
 
 	#this sorts and stores the questions into the survey
 	for question,response in zip(survey.gen_questions,genResponseList):
 		print(response)
+
+
+	for question,response in zip(survey.mc_questions,mcResponseList):
+		print(response)
+		response = MCResponse(surveyResponse.id,question.id,response)
+		surveyResponse.mc_responses.append(response)
+
 
 	db_session.commit()
 
