@@ -115,26 +115,63 @@ class MCQuestion(Base):
 
 
 
-class QuestionResponse(Base):
-    __tablename__ = 'questionresponse'
+class GeneralResponse(Base):
+    __tablename__ = 'generalresponse'
     id = Column(Integer, primary_key=True)
     response_id = Column(Integer, ForeignKey('surveyresponse.id'))
-    mcquestion_id = Column(Integer, ForeignKey('mcquestion.id'))
-    genquestion_id = Column(Integer, ForeignKey('generalquestion.id'))
+    question_id = Column(Integer, ForeignKey('generalquestion.id'))
     response = Column(String)
 
-    def __init__(self, responseid=None, mcquestionid=None, genquestionid=None,
+    def __init__(self, responseid=None, questionid=None,
                  _response=None):
         self.response_id = responseid
-        self.mcquestion_id = mcquestionid
-        self.genquestion_id = genquestionid
+        self.question_id = questionid
         self.response = _response
 
     def __repr__(self):
-        return '<Response to %r or %r for %r>' % (self.question_id,
-                                                  self.genquestion_id,
+        return '<GeneralResponse to %r or %r for %r>' % (self.question_id,
                                                   self.response_id)
 
+
+
+
+class MCResponse(Base):
+    __tablename__ = 'mcresponse'
+    id = Column(Integer, primary_key=True)
+    response_id = Column(Integer, ForeignKey('surveyresponse.id'))
+    question_id = Column(Integer, ForeignKey('mcquestion.id'))
+    response = Column(String)
+
+    def __init__(self, responseid=None, questionid=None,
+                 _response=None):
+        self.response_id = responseid
+        self.question_id = questionid
+        self.response = _response
+
+    def __repr__(self):
+        return '<MCResponse to %r or %r for %r>' % (self.question_id,
+                                                  self.response_id)
+
+
+# class GeneralResponse(Base):
+#     __tablename__ = 'questionresponse'
+#     id = Column(Integer, primary_key=True)
+#     response_id = Column(Integer, ForeignKey('surveyresponse.id'))
+#     mcquestion_id = Column(Integer, ForeignKey('mcquestion.id'))
+#     genquestion_id = Column(Integer, ForeignKey('generalquestion.id'))
+#     response = Column(String)
+
+#     def __init__(self, responseid=None, mcquestionid=None, genquestionid=None,
+#                  _response=None):
+#         self.response_id = responseid
+#         self.mcquestion_id = mcquestionid
+#         self.genquestion_id = genquestionid
+#         self.response = _response
+
+#     def __repr__(self):
+#         return '<Response to %r or %r for %r>' % (self.question_id,
+#                                                   self.genquestion_id,
+#                                                   self.response_id)
 
 
 
@@ -185,17 +222,41 @@ class SurveyResponse(Base):
     __tablename__ = 'surveyresponse'
     id = Column(Integer, primary_key=True)
     survey_id = Column(Integer, ForeignKey('survey.id'))
-    responses = relationship("QuestionResponse",
+    mc_responses = relationship("MCResponse",
+                             backref="surveyresponse")
+    gen_responses = relationship("GeneralResponse",
                              backref="surveyresponse")
 
-    def __init__(self, surveyid=None, _responses=None):
+    def __init__(self, surveyid=None, _mc_responses=[], _gen_responses=[]):
         self.survey_id = surveyid
-        self.responses = _responses
+        self.mc_responses = _mc_responses
+        self.gen_responses = _gen_responses
+
 
     def __repr__(self):
         return '<Response to %r>' % (self.survey_id)       
 
+class YNQuestion(Base):
+    __tablename__ = 'ynquestion'
+    id = Column(Integer, primary_key=True)
+    question = Column(String)
+    # If false, question is mandatory
+    # Boolean in SQLite are not True/False
+    # Stored as 1 for True, 0 False
+    optional = Column(Boolean)
 
+    surveys = relationship("Survey",
+                           secondary="ynassociation",
+                           backref="ynquestion")
+
+    def __init__(self, question=None):
+        self.question = question
+
+    #def __repr__(self):
+    #    return '<General Question %r>' % (self.question)    
+
+    def __repr__(self):
+        return '%r - Yes/No' % (self.question)
 
 
 
@@ -212,6 +273,13 @@ usassociation_table = Table('usassociation', Base.metadata,
 mcassociation_table = Table('mcassociation', Base.metadata,
                             Column('mcquestion_id', Integer,
                                    ForeignKey('mcquestion.id')),
+                            Column('survey_id', Integer,
+                                   ForeignKey('survey.id'))
+                            )
+
+ynassociation_table = Table('ynassociation', Base.metadata,
+                            Column('ynquestion_id', Integer,
+                                   ForeignKey('ynquestion.id')),
                             Column('survey_id', Integer,
                                    ForeignKey('survey.id'))
                             )

@@ -72,6 +72,9 @@
                       </thead>
                         <tr>
                           {% for survey in survey_list -%}
+                          {% if student and survey.status!=2%}
+                          {%else%}
+
                           <td><input type="radio" name="surveyid" value="{{survey.id}}"/></td>
                           <td>
                             {% if survey.status==1 %}
@@ -96,6 +99,7 @@
                             {% endfor %}
                           </td>          
                         </tr> 
+                        {% endif %}
                         {%- endfor %}
                       {% else %}
                       <p> There are no surveys available to view <p>

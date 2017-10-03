@@ -28,32 +28,90 @@
 	<body>
 		<div class="container">
 			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h1 align="center">Answer Survey page</h1>
-				</div>
-				<div class="panel-body">
-					{% if questionList %}  
-						<form method="POST">
-							{% for question in questionList -%}
-							<div class="panel panel-default">
-								<div class="panel-heading">
-									{{ question[1] }}
-								</div>
-								<div class="panel-body">
-									{%- for answer in question[2:] -%}
-									<div class="radio">
-										<input type="radio" name="{{ question[0] }}" value="{{ loop.index0 }}">
-										<label for="{{ loop.index0 }}">{{ answer }}</label>
+        <h1 align="center"> {{survey.title}} </h1>
+        <h2 align="center"> {{course.name}} </h2>
+			<div class="panel-body">
+        <form method="POST">
+        <input type="hidden" name="surveyformid" id="surveyformid" value="6">
+        <input type="hidden" name="surveyid" id="surveyid" value="{{survey.id}}">
+	        <div class="panel panel-default">
+	          <div class="surveygen">
+	            <div class="panel-body">
+	            	{% if survey.gen_questions %}
+	              <h4 align="center">Extended Response</h4>
+								{% for question in survey.gen_questions -%}
+									<div class="panel panel-default">
+										<div class="panel-heading">
+											{{ question.question }}
+										</div>
+										<div class="panel-body">
+											<div class="col-sm-10">
+												<input type="text" class="form-control" id="{{question.id}}" name="genResponse" value="">
+											</div>
+										</div>
 									</div>
-									{%- endfor -%}
-								</div>
+								{% endfor %}
+								{% endif %}
 							</div>
-							{%- endfor %}
-							<br>
-							<button type="submit" class="btn-primary" name="bt">Submit</button></br>
-						</form>
-					{% endif %}
-				</div>
+						</div>
+					</div>
+	      	{% if survey.mc_questions %}
+	        <h4 align="center">Multiple Choice</h4>
+
+					{% for question in survey.mc_questions -%}
+
+
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							{{ question.question }}
+						</div>
+
+
+	        <table class="table table-hover">
+	          <col width="10" >
+            <thead>
+            <tr>
+              <th>Select</th>
+              <th>Answer</th>
+            </tr>
+            </thead>
+						<div class="panel-body">
+							{%- if question.answerOne -%}
+						<tr>
+							<td><input type="radio" name="{{question.id}}" value="1"/></td>
+              <td>{{ question.answerOne }}</td>
+						</tr> 
+							{%- endif -%}
+							{%- if question.answerTwo -%}
+						<tr>
+							<td><input type="radio" name="{{question.id}}" value="2"/></td>
+              <td>{{ question.answerTwo }}</td>
+						</tr> 
+							{%- endif -%}
+							{%- if question.answerThree -%}
+						<tr>
+							<td><input type="radio" name="{{question.id}}" value="3"/></td>
+              <td>{{ question.answerThree }}</td>
+						</tr> 
+							{%- endif -%}
+							{%- if question.answerFour -%}
+						<tr>
+							<td><input type="radio" name="{{question.id}}" value="4"/></td>
+              <td>{{ question.answerFour }}</td>
+						</tr> 
+							{%- endif -%}
+						</div>
+
+
+
+					</table>
+					{%- endfor %}
+
+	        {% endif %}
+
+					<br>
+					<button type="submit" class="btn-primary" name="bt">Submit</button></br>
+				</form>
 			</div>
 		</div>
 	</body>
