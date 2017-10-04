@@ -20,10 +20,7 @@ else:
 @app.route("/")
 def index():
 	global _authenticated
-	#survey_pool = fileclasses.survey.read_all()
-
-	#return render_template("home.html", survey_pool=survey_pool, authenticated=_authenticated)
-	return redirect(url_for("admin"))
+	return redirect(url_for("login"))
 
 @app.route("/admin")
 def admin(): 
@@ -34,6 +31,17 @@ def admin():
 		return render_template("admin.html", admin=admin)
 	else:
 		return redirect(url_for("login"))
+
+@app.route("/home")
+def home():
+	global _authenticated
+	if _authenticated:
+		#send the type of user so that we only display what we want them to see!
+		admin = False #TEMP hardcoded
+		return render_template("admin.html", admin=admin)
+	else:
+		return redirect(url_for("login"))
+
 
 
 @app.route("/submitted")
@@ -76,10 +84,6 @@ def test():
 		return redirect(url_for("login"))
 
 
-@app.route("/home")
-def home():
-		return redirect(url_for("index"))
-
 
 
 #######################################################################
@@ -116,6 +120,8 @@ def surveys():
 			if surveyform=='5':
 				return statussurvey()
 		else:	
+
+		#students can only answer the survey
 			if surveyform=='6':
 				return answersurvey()
 
@@ -148,6 +154,7 @@ def opensurvey():
 		errorMSG("routes.opensurvey","course object is empty")
 		return surveyinfo()
 
+	#this is a temp if statement - check instead that they are a student and run this code
 	if not admin:
 		print("student opening survey")
 
@@ -159,6 +166,9 @@ def opensurvey():
 			return render_template("answersurvey.html",survey=survey,course=course)
 
 	else:
+
+	#check that this is a staff member permitted to open this survey
+
 		print("staff opening survey")
 		#sort these based on who you are!
 		general = GeneralQuestion.query.all()
@@ -168,6 +178,8 @@ def opensurvey():
 		surveymc = survey.mc_questions
 
 		return render_template("modifysurvey.html",admin=admin,surveygen=surveygen,surveymc=surveymc,survey=survey,course=course,general=general,multi=multi)
+
+	return surveyinfo()
 
 
 def newsurvey():
@@ -311,8 +323,6 @@ def answersurvey():
 		errorMSG("routes.answersurvey","course object is empty")
 		return surveyinfo()
 
-	print("length:",len(survey.gen_questions))
-
 	genResponseList = []
 	if len(survey.gen_questions)>0:
 
@@ -335,6 +345,7 @@ def answersurvey():
 			if (request.form.getlist(str(question.id))==[]):
 				errorMSG("routes.answersurvey","MultiChoice Questions not completed")
 				return opensurvey()
+
 			mcResponseList.append(request.form[str(question.id)])
 
 	mcResponseList = list(filter(None, mcResponseList))
@@ -343,57 +354,33 @@ def answersurvey():
 		errorMSG("routes.answersurvey","MultiChoice Questions not completed")
 		return opensurvey()
 
-	print("mcResponseList:",mcResponseList)
 
-
-		#TODOcheck that the responses have valid characters
-
-
-
-	#see if there is already a survey response 
+	#double check this person has not already responded? 
 
 	surveyResponse = SurveyResponse(survey.id)
 	db_session.add(surveyResponse)
 
 
-	#QuestionResponse(surveyResponse.id, mcquestionid, genquestionid,
-    #             answer)
-
-
-	#surveyResponse.id
-
-	#this sorts and stores the questions into the survey
+	#this sorts and stores the answers into the survey response based on type
 	for question,response in zip(survey.gen_questions,genResponseList):
-		print(response)
-
+		response = GeneralResponse(surveyResponse.id,question.id,response)
+		surveyResponse.gen_responses.append(response)
 
 	for question,response in zip(survey.mc_questions,mcResponseList):
-		print(response)
 		response = MCResponse(surveyResponse.id,question.id,response)
 		surveyResponse.mc_responses.append(response)
 
-
+	#commit the new survey response to this survey
 	db_session.commit()
 
 
 
-	#save all fields
 
-
-	#set survey to completed by this student to prevent resubmission
-
+	#TODO: set survey to completed by this student to prevent resubmission!
 
 
 
-
-
-
-
-
-	#temp
-	return surveyinfo()
-
-
+	return redirect(url_for("submit"))
 
 
 
@@ -488,7 +475,6 @@ def questioninfo():
 
 
 def openquestion():
-	print("open question")
 
 	if (request.form.getlist('question')==[]):
 		errorMSG("routes.openquestion","question not selected")
@@ -512,7 +498,7 @@ def openquestion():
 
 def addquestion():
 
-	#check user is admin
+	#check user is admin and not staff or student
 	admin = False
 
 	if not admin:
@@ -583,22 +569,17 @@ def addquestion():
 
 def modifyquestion():
 
-	print("modify question")
-
-	oldType = request.form["oldType"]
+	oldType = request.form["oldType"] #old question type (was it MC or general?)
 	qID = request.form["qID"]
 	question = request.form["questiontitle"]
-
-
-	print("oldType:",oldType, "qID:",qID )
 
 	status = 0
 
 	if(request.form.getlist("optional")!=[]):
 		status = 1
 
+	#is the question getting deleted?
 	if(request.form["delete"]=='1'):
-		#im deleting this question
 		status = 2
 	else:
 		if(question==""):
@@ -610,14 +591,12 @@ def modifyquestion():
 				errorMSG("routes.modifyquestion","Invalid input in fields")
 				return openquestion()
 
-	#old question object being modified
+	#open the correct question objecttype
+	# 1 is MC, 2 is General
 	if(oldType=='2'):
-		print("im a general question modificiation")
 		qObject=GeneralQuestion.query.filter_by(id=qID).first()
 	else:
-		print("im a mc question modificiation")
 		qObject=MCQuestion.query.filter_by(id=qID).first()	
-
 
 	if(qObject==None):
 		errorMSG("routes.modifyquestion ","No question object Found")
@@ -625,7 +604,6 @@ def modifyquestion():
 
 	#is the question just getting deleted?
 	if(status==2):
-		print("Question ID:",qObject.id,"Title: ",qObject.question, "im getting deleted now")
 		qObject.status = status
 		db_session.commit()
 		return questioninfo()
@@ -645,10 +623,12 @@ def modifyquestion():
 			db_session.add(new)
 			
 		db_session.commit()	
+
 		return questioninfo()	
 
 
-	#multiple choice question
+	#only multiple choice questions will get past here!
+
 	answer_one = request.form["option_one"]
 	answer_two = request.form["option_two"]
 	answer_three = request.form["option_three"]
@@ -672,8 +652,8 @@ def modifyquestion():
 		errorMSG("routes.createsurvey","Only one answer provided for a mc question")
 		return openquestion()
 
+	#has by data type changed? If no, then I just update the MC fields
 	if(oldType=='1'):
-		#same mc question, just update all the fields
 		qObject.question = question
 		qObject.status = status
 		qObject.answerOne = answer_one
@@ -681,7 +661,7 @@ def modifyquestion():
 		qObject.answerThree = answer_three
 		qObject.answerFour = answer_four	
 	else:
-		#new mc question, set old question to deleted, and make new question
+		#new mc question, set old question to deleted, and make new general question type
 		qObject.status = 2
 		new = MCQuestion(question,answer_one,answer_two,answer_three,answer_four,status)
 		db_session.add(new)

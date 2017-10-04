@@ -21,7 +21,9 @@
     <ul class="nav navbar-nav navbar-right">
      <li><a href="/admin">Home</a></li>
      <li><a href="/surveys">Surveys</a></li>
+     {% if admin or staff%}
      <li><a href="/questions">Questions</a></li>
+     {% endif %}
    </ul>
  </nav>
 </div>
@@ -64,15 +66,15 @@
                         </td>
                         {% endif %}
                         {% if admin %}
-                        <td>
-                        {% if question.status == 1 %}
-                          <p>Yes<p>
-                        {% elif question.status == 2 %}
-                          <p>Del<p>
-                        {% else %}    
-                          <p>-<p>
-                        {% endif %}
-                        </td>
+                          <td>
+                            {% if question.status == 1 %}
+                              <p>Yes<p>
+                            {% elif question.status == 2 %}
+                              <p>Del<p>
+                            {% else %}    
+                              <p>-<p>
+                            {% endif %}
+                          </td>
                         {% endif %}
                         <td>
                           {{ question.question }}
@@ -104,15 +106,15 @@
                       </thead>
                         <tr>
                           {% for question in surveymc -%}
-                          {% if survey.status==1 %}
-                          <td>
-                            {% if question.status==1 or admin %}
-                              <input type="radio" name="question" onclick="$('.surveygen').prop('checked', false);" value="{{0,question.id}}"/>
-                            {% else %}
-                              <input type="radio" name="question" onclick="$('.surveygen').prop('checked', false);" value="{{0,question.id}}" disabled="disabled"/>
+                            {% if survey.status==1 %}
+                              <td>
+                                {% if question.status==1 or admin %}
+                                  <input type="radio" name="question" onclick="$('.surveygen').prop('checked', false);" value="{{0,question.id}}"/>
+                                {% else %}
+                                  <input type="radio" name="question" onclick="$('.surveygen').prop('checked', false);" value="{{0,question.id}}" disabled="disabled"/>
+                                {% endif %}
+                              </td>
                             {% endif %}
-                          </td>
-                          {% endif %}
                               {% if admin %}
                               <td>
                                 {% if question.status == 1 %}
@@ -129,10 +131,10 @@
                                 {{ question.question }}
                               </td>
 
-                  <span style="float:right;"><td>{{question.answerOne}}</td></span>
-                  <span style="float:right;"><td>{{question.answerTwo}}</td></span></span>
-                  <span style="float:right;"><td>{{question.answerThree}}</td></span>
-                  <span style="float:right;"><td>{{question.answerFour}}</td></span>
+                              <span style="float:right;"><td>{{question.answerOne}}</td></span>
+                              <span style="float:right;"><td>{{question.answerTwo}}</td></span></span>
+                              <span style="float:right;"><td>{{question.answerThree}}</td></span>
+                              <span style="float:right;"><td>{{question.answerFour}}</td></span>
 
                         </tr> 
                           {%- endfor %}
@@ -210,12 +212,10 @@
                               <td>
                                 {{ question.question }}
                               </td>
-
-                  <span style="float:right;"><td>{{question.answerOne}}</td></span>
-                  <span style="float:right;"><td>{{question.answerTwo}}</td></span></span>
-                  <span style="float:right;"><td>{{question.answerThree}}</td></span>
-                  <span style="float:right;"><td>{{question.answerFour}}</td></span>
-
+                              <span style="float:right;"><td>{{question.answerOne}}</td></span>
+                              <span style="float:right;"><td>{{question.answerTwo}}</td></span></span>
+                              <span style="float:right;"><td>{{question.answerThree}}</td></span>
+                              <span style="float:right;"><td>{{question.answerFour}}</td></span>
                             {% endif %}
                           </tr> 
                         {%- endfor %}
@@ -281,58 +281,44 @@
           {% endif %}
         </div>
       </form>
-
-{% endif %}
-
-
-    </div>
+    {% endif %}
   </div>
+</div>
 
+<form method="POST">
+  <input type="hidden" name="surveyformid" id="surveyformid" value="5">  
+  <input type="hidden" name="surveyid" id="surveyid" value="{{survey.id}}">        
+    <div class="panel panel-default">
+      <div class="panel-body">
 
+      {% if survey.status==1 %}
 
+        {% if admin %}
+        <button type="submit" class="btn btn-primary btn-lg btn-block">Publish Survey</button>
+        {% else %}
+        <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">Publish Survey</button>
+        {% endif %}
+        <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">View Results</button>
 
+      {% elif survey.status==2 %}
 
+        {% if admin %}
+        <button type="submit" class="btn btn-primary btn-lg btn-block">End Survey</button>
+        {% else %}
+        <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">End Survey</button>
+        {% endif %}
+        <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">View Results</button>
+        {% else %}
+        <button type="submit" class="btn btn-primary btn-lg btn-block">View Results</button>
+      {% endif %}
 
-
-
-
-      <form method="POST">
-        <input type="hidden" name="surveyformid" id="surveyformid" value="5">  
-        <input type="hidden" name="surveyid" id="surveyid" value="{{survey.id}}">        
-          <div class="panel panel-default">
-            <div class="panel-body">
-
-            {% if survey.status==1 %}
-              {% if admin %}
-              <button type="submit" class="btn btn-primary btn-lg btn-block">Publish Survey</button>
-              {% else %}
-              <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">Publish Survey</button>
-              {% endif %}
-              <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">View Results</button>
-            {% elif survey.status==2 %}
-              {% if admin %}
-              <button type="submit" class="btn btn-primary btn-lg btn-block">End Survey</button>
-              {% else %}
-              <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">End Survey</button>
-              {% endif %}
-              <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">View Results</button>
-              {% else %}
-              <button type="submit" class="btn btn-primary btn-lg btn-block">View Results</button>
-            {% endif %}
-
-            </div>
-        </div>
-    </div>
+      </div>
+  </div>
+</div>
 </form>
-
-
-
-
-
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js" integrity="sha384-vZ2WRJMwsjRMW/8U7i6PWi6AlO1L79snBrmgiDpgIWJ82z8eA5lenwvxbMV1PAh7" crossorigin="anonymous"></script>
-
 
   <script type="text/javascript">
    $(document).ready(function()

@@ -2,7 +2,6 @@
 <html>
 <head>
   <title>Surveys</title>
-  <!-- CSS Style Sheet -->
   <link rel="stylesheet" type= "text/css" href="static/styles/bootstrap.min.css">
   <link rel="stylesheet" type= "text/css" href="static/styles/font-awesome.min.css">
   <link rel="stylesheet" type= "text/css" href="static/styles/ionicons.min.css">
@@ -21,7 +20,9 @@
     <ul class="nav navbar-nav navbar-right">
      <li><a href="/admin">Home</a></li>
      <li><a href="/surveys">Surveys</a></li>
-     <li><a href="/questions">Questions</a></li>
+    {% if admin or staff%}
+    <li><a href="/questions">Questions</a></li>
+    {% endif %}
    </ul>
  </nav>
 </div>
@@ -102,7 +103,7 @@
                         {% endif %}
                         {%- endfor %}
                       {% else %}
-                      <p> There are no surveys available to view <p>
+                      <p> You currently have no surveys available to view! <p>
                       {% endif %}
                     </table>
                   </div> 
