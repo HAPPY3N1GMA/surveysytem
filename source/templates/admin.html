@@ -17,7 +17,9 @@
                            <ul class="nav navbar-nav navbar-right">
      <li><a href="/admin">Home</a></li>
      <li><a href="/surveys">Surveys</a></li>
+     {% if admin or staff%}
      <li><a href="/questions">Questions</a></li>
+     {% endif %}
                            </ul>
                      </nav> 
         </div>
@@ -31,7 +33,7 @@
                 <div class="panel-body">
                     <a href="/surveys"><button type="button" class="btn btn-primary btn-lg btn-block">Surveys</button></a>
                     <br>
-                    {% if admin %}
+                    {% if admin or staff %}
                     <a href="/questions"><button type="button" class="btn btn-secondary btn-lg btn-block">Questions</button></a>
                     {%endif%}
                 </div>
