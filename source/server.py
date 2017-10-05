@@ -7,9 +7,6 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = "Highly secret key"
 
 
-users = {"admin": "password"}
-authenticated = 0
-
 #  flask login config - to be moved to login-cfg.py later
 login_manager = LoginManager()
 login_manager.init_app(app)

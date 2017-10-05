@@ -1,7 +1,7 @@
 import csv, ast, os, time, copy
 from datetime import datetime
 from flask import Flask, redirect, render_template, request, url_for, flash
-from server import app, users, authenticated, errorMSG
+from server import app, errorMSG
 from defines import debug
 from functions import get
 from models import GeneralQuestion, MCQuestion, SurveyResponse,\
@@ -140,8 +140,19 @@ def surveyinfo():
 	if (current_user.is_authenticated)==False:
 		return redirect(url_for("login"))
 
-	course_list = Course.query.all()
-	survey_list = Survey.query.all()
+	#users only see the surveys/courses they are permitted to see!
+
+	course_list = current_user.courses
+	survey_list = current_user.surveys
+
+
+	for course in course_list:
+		print("testing:",course.survey)
+
+	if(current_user.role == 'admin'):
+		course_list = Course.query.all()
+		survey_list = Survey.query.all()
+
 	return render_template("surveys.html",user=current_user,course_list=course_list,survey_list=survey_list)
 
 def opensurvey():
@@ -164,23 +175,8 @@ def opensurvey():
 		errorMSG("routes.opensurvey","course object is empty")
 		return surveyinfo()
 
-	if current_user.role != 'admin':
-		print("student opening survey")
 
-		#TODO: check if student answered survey already here!
-		if survey.status==1:
-			return surveyinfo()
-
-		if survey.status==2:
-			return render_template("answersurvey.html",survey=survey,course=course)
-
-	else:
-
-		if(current_user.role != 'admin' or current_user.role != 'staff'):
-			errorMSG("routes.opensurvey","unauthorised user attempted access:",current_user.id)
-			return render_template("home.html", user=current_user)
-
-
+	if current_user.role=='admin' or current_user.role=='staff':
 
 		#TODO does this staff member have access to this survey???
 
@@ -193,6 +189,17 @@ def opensurvey():
 		surveymc = survey.mc_questions
 
 		return render_template("modifysurvey.html",user=current_user,surveygen=surveygen,surveymc=surveymc,survey=survey,course=course,general=general,multi=multi)
+
+
+	if current_user.role == 'student':
+
+		#TODO: check if student answered survey already here!
+		if survey.status==1:
+			return surveyinfo()
+
+		if survey.status==2:
+			return render_template("answersurvey.html",survey=survey,course=course)
+
 
 	return surveyinfo()
 
@@ -208,6 +215,12 @@ def newsurvey():
 	survey_name = request.form["svyname"]
 	courseID = request.form["svycourse"]
 
+
+	course = Course.query.filter_by(id=courseID).first()	
+	if(course==None):
+		errorMSG("routes.newsurvey","course object is empty")
+		return surveyinfo()
+
 	#qObject=Course.query.filter_by(id=courseID).first()
 
 	if (get.cleanString(str(survey_name))==False):
@@ -218,8 +231,15 @@ def newsurvey():
 		errorMSG("routes.newsurvey","No course selected")
 		return surveyinfo()
 
-	#new survey created then redirect to the modify survey page to add questions etc
+
+	#if survey already in system exit
+	if(Survey.query.filter_by(course_id=courseID).first()!=None):
+		errorMSG("routes.newsurvey","survey already exists!")
+		return surveyinfo()	
+
 	survey = Survey(survey_name,datetime.now(),courseID)
+	survey.staff=course.uniusers
+
 	db_session.add(survey)
 	db_session.commit()
 

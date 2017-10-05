@@ -69,16 +69,17 @@
                         <th>Title</th>
                         <th>Date</th>
                         <th>Course</th>
+                        <th>Offering</th>
                       </tr>
                       </thead>
                         <tr>
                           {% for survey in survey_list -%}
-                            {% if current_user.role=='student' and survey.status!=2%}
-                            {%else%}
                             <td><input type="radio" name="surveyid" value="{{survey.id}}"/></td>
                             <td>
-                              {% if survey.status==1 %}
+                              {% if survey.status==0 %}
                               <p>Draft</p>
+                              {% elif survey.status==1 %}
+                              <p>Review</p>
                               {% elif survey.status==2 %}
                               <p>Active</p>
                               {% else %}
@@ -91,15 +92,17 @@
                             <td>
                             {{ survey.date }}
                             </td>
-                            <td>
-                              {% for course in current_user.courses %}
+                              {% for course in course_list %}
                                  {% if course.id == survey.course_id %}
+                                  <td>
                                     {{course.name}}
+                                  </td>        
+                                  <td>
+                                    {{course.offering}}
+                                  </td>    
                                  {% endif %}
-                              {% endfor %}
-                            </td>          
+                              {% endfor %}  
                           </tr> 
-                          {% endif %}
                         {%- endfor %}
                       {% else %}
                       <p> You currently have no surveys available to view! <p>

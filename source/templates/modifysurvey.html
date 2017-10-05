@@ -34,11 +34,11 @@
     <div class="panel panel-default">
       <div class="panel-heading">
         <h1 align="center"> {{survey.title}} </h1>
-        <h2 align="center"> {{course.name}} </h2>
       </div>
     <div class="panel-body">
         <div class="panel panel-default">
           <div class="panel-heading">
+            <h3 align="center">Current Survey</h3>
             <form method="POST">
             <input type="hidden" name="surveyformid" id="surveyformid" value="3">
             <input type="hidden" name="surveyid" id="surveyid" value="{{survey.id}}">
@@ -143,7 +143,7 @@
                 </div>
               </div>
 
-{% if survey.status==1 %}
+{% if survey.status == 0 or survey.status == 1 and surveymc or surveygen %}
 
                 <button type="submit" class="btn-primary" name="remove" >Remove Question</button>
 {% endif %}
@@ -154,7 +154,7 @@
 
 
 
-{% if survey.status==1 %}
+{% if survey.status == 0 or survey.status == 1 %}
 
 
       <form method="POST">
@@ -284,14 +284,24 @@
     {% endif %}
   </div>
 </div>
-
+  <div class="container">
 <form method="POST">
   <input type="hidden" name="surveyformid" id="surveyformid" value="5">  
   <input type="hidden" name="surveyid" id="surveyid" value="{{survey.id}}">        
     <div class="panel panel-default">
       <div class="panel-body">
 
-      {% if survey.status==1 %}
+
+
+      {% if survey.status==0 %}
+
+        {% if current_user.role=='admin' %}
+        <button type="submit" class="btn btn-primary btn-lg btn-block">Review Survey</button>
+        <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">Publish Survey</button>
+        <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">View Results</button>
+      {% endif %}
+
+      {% elif survey.status==1 %}
 
         {% if current_user.role=='admin' %}
         <button type="submit" class="btn btn-primary btn-lg btn-block">Publish Survey</button>
@@ -316,7 +326,7 @@
   </div>
 </div>
 </form>
-
+</div>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js" integrity="sha384-vZ2WRJMwsjRMW/8U7i6PWi6AlO1L79snBrmgiDpgIWJ82z8eA5lenwvxbMV1PAh7" crossorigin="anonymous"></script>
 
