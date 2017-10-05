@@ -64,13 +64,6 @@ def login():
 	return render_template("login.html", invalid=False)
 
 
-def check_password(user, pwd):
-	if pwd == users.get(user):
-		return True
-	else:
-		return False
-
-
 @app.route("/logintest")
 @login_required
 def test():
@@ -103,24 +96,19 @@ def home():
 
 
 @app.route("/surveys", methods=["GET", "POST"])
-
+@login_required
 def surveys():
-	global _authenticated
-	if not _authenticated:
-		return redirect(url_for("login"))
 
 	if request.method == "GET":
 		return surveyinfo()
 	else:
 
 		#check if an admin and if so, they are permitted to make new surveys!
-		admin = False
-
 		surveyform = request.form["surveyformid"]
 		if surveyform=='2':
 			return opensurvey()		
 
-		if(admin):
+		if(current_user.role == 'admin'):
 			if surveyform=='1':
 				return newsurvey()
 			if surveyform=='3':
@@ -162,7 +150,7 @@ def opensurvey():
 		errorMSG("routes.opensurvey","course object is empty")
 		return surveyinfo()
 
-	if not admin:
+	if current_user.role != 'admin':
 		print("student opening survey")
 
 		#TODO: check if student answered survey already here!
@@ -466,19 +454,13 @@ def db_test():
 #######################################################################
 
 @app.route('/questions', methods=["GET", "POST"])
+@login_required
 def questions():
-	global _authenticated
-	if not _authenticated:
-		return redirect(url_for("login"))
-
 	if request.method == "GET":
 		return questioninfo()
 	else:
-
 		#check if an admin and if so, they are permitted to make new questions!
-		admin = False
-
-		if(admin):
+		if(current_user.role == 'admin'):
 			questionform = request.form["questionformid"]
 			if questionform=='1':
 				return openquestion()
@@ -525,11 +507,7 @@ def openquestion():
 
 
 def addquestion():
-
-	#check user is admin
-	admin = False
-
-	if not admin:
+	if current_user.role != 'admin':
 		errorMSG("routes.addquestion","Unknown user attempted to add question")
 		return questioninfo()
 
