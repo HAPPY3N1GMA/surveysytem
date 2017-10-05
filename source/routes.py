@@ -26,12 +26,13 @@ def index():
 	return redirect(url_for("admin"))
 
 @app.route("/admin")
+@login_required
 def admin(): 
-	global _authenticated
-	if _authenticated:
-		#send the type of user so that we only display what we want them to see!
-		admin = False #TEMP hardcoded
-		return render_template("admin.html", admin=admin)
+	if current_user.role == 'admin':
+		# Tests below, feel free to delete
+		listOfSurveys = Survey.query.all()
+		print(listOfSurveys)
+		return render_template("admin.html", admin=True, list=listOfSurveys)
 	else:
 		return redirect(url_for("login"))
 
