@@ -32,6 +32,7 @@ def admin():
 		# Tests below, feel free to delete
 		listOfSurveys = Survey.query.all()
 		print(listOfSurveys)
+		# can remove admin variable if needed
 		return render_template("admin.html", admin=True, list=listOfSurveys)
 	else:
 		return redirect(url_for("login"))
