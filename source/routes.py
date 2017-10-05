@@ -73,9 +73,13 @@ def check_password(user, pwd):
 @app.route("/logintest")
 @login_required
 def test():
+	# All user attributes can be accessed using the current_user variable
+	# which returns None if no logged in user
 	print(current_user.is_authenticated)
 	print(current_user.password)
 	print(current_user.id)
+
+	return redirect(url_for("index"))
 
 
 @app.route("/home")
