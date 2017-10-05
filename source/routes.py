@@ -8,7 +8,7 @@ from models import GeneralQuestion, MCQuestion, SurveyResponse,\
 					GeneralResponse, MCResponse
 from models import Survey, Course, UniUser
 from database import db_session, Base
-from flask_login import login_user, login_required, current_user
+from flask_login import login_user, login_required, current_user, logout_user
 
 #got tired of logging in password each time
 if(debug):
@@ -78,8 +78,15 @@ def test():
 	print(current_user.is_authenticated)
 	print(current_user.password)
 	print(current_user.id)
+	print(current_user.courses)
 
 	return redirect(url_for("index"))
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect("index")
 
 
 @app.route("/home")
