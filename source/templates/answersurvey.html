@@ -12,11 +12,12 @@
 		<div class="container row full-width">
 			<nav class="navbar navbar-default col-sm-10">
 				<ul class="nav navbar-nav navbar-right">
-					<li><a href="/admin">Home</a></li>
+					<li><a href="/home">Home</a></li>
 					<li><a href="/surveys">Surveys</a></li>
-					{% if admin or staff%}
-						<li><a href="/questions">Questions</a></li>
-					{% endif %}
+                    {% if current_user.role=='admin'%}
+                    <li><a href="/questions">Questions</a></li>
+                    {% endif %}
+					<li><a href="/logout">Logout</a></li>
 				</ul>
 			</nav> 
 		</div>
@@ -37,7 +38,7 @@
 									<div class="panel panel-default">
 										<div class="panel-body">
 											<div class="panel panel-default">
-												<div class="panel-heading">									
+												<div class="panel-heading">			
 													{{ question.question }}
 												</div>
 												<table class="table table-hover">
