@@ -261,7 +261,9 @@ def newsurvey():
 		return surveyinfo()	
 
 	survey = Survey(survey_name,datetime.now(),courseID)
-	#survey.users=course.uniusers --- add course useres to it when its not in draft mode
+
+	#add this survey to the course
+	course.survey.append(survey)
 
 	db_session.add(survey)
 	db_session.commit()
@@ -393,6 +395,10 @@ def statussurvey():
 		#set staff to the survey
 		survey.users=staff
 		#print("staff users:",survey.users)
+
+		#course.survey.append(survey)  #this doesnt work
+
+
 
 	elif survey.status == 1:
 
