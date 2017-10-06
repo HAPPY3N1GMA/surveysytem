@@ -166,7 +166,6 @@ def surveyinfo():
 		survey_list = Survey.query.all()
 
 	else:
-
 		#course_list = current_user.courses
 		survey_list = current_user.surveys
 		course_list = current_user.courses
@@ -264,8 +263,14 @@ def newsurvey():
 
 	#add this survey to the course
 	course.survey.append(survey)
-
+	staff_affected = course.uniusers
+	# print(staff_affected)
 	db_session.add(survey)
+	db_session.commit()
+
+	for user in staff_affected:
+		user.surveys.append(survey)
+
 	db_session.commit()
 
 	return surveyinfo()
