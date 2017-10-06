@@ -274,9 +274,6 @@ def addqsurvey():
 		return redirect(url_for("login"))
 
 
-
-	print("current_user.role:",current_user.role)
-
 	if(current_user.role != 'admin' and current_user.role != 'staff'):
 		errorMSG("routes.addqsurvey","unauthorised user attempted access:",current_user.id)
 		return render_template("home.html", user=current_user)
