@@ -13,7 +13,28 @@ class UniUser(Base):
                            secondary="ucassociation",
                            backref='uniuser')
 
-    surveys = relationship("Survey", backref='uniuser')
+    #surveys = relationship("Survey", backref='uniuser')
+
+    surveys = relationship("Survey",
+                           secondary="usassociation",
+                           backref='uniuser')
+
+
+    def is_active(self):
+        """True, as all users are active."""
+        return True
+
+    def get_id(self):
+        """Return the email address to satisfy Flask-Login's requirements."""
+        return self.id
+
+    def is_authenticated(self):
+        """Return True if the user is authenticated."""
+        return self.authenticated
+
+    def is_anonymous(self):
+        """False, as anonymous users aren't supported."""
+        return False
 
     def is_active(self):
         """True, as all users are active."""
@@ -51,6 +72,8 @@ ucassociation_table = Table('ucassociation', Base.metadata,
                             )
 
 
+
+
 class Course(Base):
     __tablename__ = 'course'
     id = Column(Integer, primary_key=True)
@@ -59,17 +82,27 @@ class Course(Base):
     uniusers = relationship("UniUser",
                             secondary="ucassociation",
                             backref="course")
+    #survey_id = Column(Integer, ForeignKey('survey.id'))
 
-    def __init__(self, name=None, offeringid=None, uniuserid=None):
-        self.cid = id
+    survey = relationship("Survey",
+                       secondary="csassociation",
+                       backref='course')
+
+    def __init__(self, name=None, offeringid=None, survey=[]):
         self.name = name
         self.offering = offeringid
-        self.uniuser_id = uniuserid
+        self.survey = survey
+        #self.uniuser_id = uniuserid
 
     def __repr__(self):
         return '<CourseName %r>' % (self.name)
 
-
+csassociation_table = Table('csassociation', Base.metadata,
+                            Column('course_id', Integer,
+                                   ForeignKey('course.id')),
+                            Column('survey_id', Integer,
+                                   ForeignKey('survey.id'))
+                            )
 
 #question status
 # 0 = Standard
@@ -169,37 +202,6 @@ class MCResponse(Base):
                                                   self.response_id)
 
 
-# class GeneralResponse(Base):
-#     __tablename__ = 'questionresponse'
-#     id = Column(Integer, primary_key=True)
-#     response_id = Column(Integer, ForeignKey('surveyresponse.id'))
-#     mcquestion_id = Column(Integer, ForeignKey('mcquestion.id'))
-#     genquestion_id = Column(Integer, ForeignKey('generalquestion.id'))
-#     response = Column(String)
-
-#     def __init__(self, responseid=None, mcquestionid=None, genquestionid=None,
-#                  _response=None):
-#         self.response_id = responseid
-#         self.mcquestion_id = mcquestionid
-#         self.genquestion_id = genquestionid
-#         self.response = _response
-
-#     def __repr__(self):
-#         return '<Response to %r or %r for %r>' % (self.question_id,
-#                                                   self.genquestion_id,
-#                                                   self.response_id)
-
-
-
-
-
-
-
-
-#HOW TO LINK PEOPLE WHO CAN USE THIS SURVEY? it should be automatically
-#done based on the course - as only course staff can access it!
-
-
 
 class Survey(Base):
     __tablename__ = 'survey'
@@ -208,7 +210,8 @@ class Survey(Base):
     title = Column(String)
     date = Column(Date)
     course_id = Column(Integer, ForeignKey('course.id'))
-    uniuser_id = Column(Integer, ForeignKey('uniuser.id'))
+
+    #uniuser_id = Column(Integer, ForeignKey('uniuser.id'))
 
     mc_questions = relationship("MCQuestion",
                                 secondary="mcassociation",
@@ -216,18 +219,19 @@ class Survey(Base):
     gen_questions = relationship("GeneralQuestion",
                                  secondary="genassociation",
                                  backref='survey')
-
-    staff = relationship("UniUser", secondary="usassociation",
+    #what users have accesss to this survey (both students and staff - can remove students then)
+    users = relationship("UniUser", secondary="usassociation",
                          backref="survey")
 
+
     def __init__(self, title=None, date=None, courseid=None,
-                 mcquestions=[], genquestions=[], _staff=[], status=1):
+                 mcquestions=[], genquestions=[], _users=[], status=0):
         self.title = title
         self.date = date
         self.course_id = courseid
         self.mc_questions = mcquestions
         self.gen_questions = genquestions
-        self.staff = _staff
+        self.users = _users
         self.status = status #1=open for edit, 2=open to answer, closed to edit, 3=closed
 
     def __repr__(self):
@@ -274,6 +278,8 @@ class YNQuestion(Base):
 
     def __repr__(self):
         return '%r - Yes/No' % (self.question)
+
+
 
 
 

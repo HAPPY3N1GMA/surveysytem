@@ -2,7 +2,6 @@
 <html>
 <head>
   <title>Surveys</title>
-  <!-- CSS Style Sheet -->
   <link rel="stylesheet" type= "text/css" href="static/styles/bootstrap.min.css">
   <link rel="stylesheet" type= "text/css" href="static/styles/font-awesome.min.css">
   <link rel="stylesheet" type= "text/css" href="static/styles/ionicons.min.css">
@@ -12,16 +11,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="keywords" content="" />
-  <!--Gives access to Google Fonts-->
   <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
 </head>
 <header>
   <div class="container row full-width">
    <nav class="navbar navbar-default col-sm-10">
     <ul class="nav navbar-nav navbar-right">
-     <li><a href="/admin">Home</a></li>
-     <li><a href="/surveys">Surveys</a></li>
-     <li><a href="/questions">Questions</a></li>
+      <li><a href="/home">Home</a></li>
+      <li><a href="/surveys">Surveys</a></li>
+      {% if current_user.role=='admin'%}
+      <li><a href="/questions">Questions</a></li>
+      {% endif %}
+      <li><a href="/logout">Logout</a></li>                    
    </ul>
  </nav>
 </div>
@@ -33,7 +34,7 @@
         <h1 align="center">Surveys</h1>
       </div>
     <div class="panel-body">
-      {% if admin %}
+      {% if current_user.role=='admin' %}
        <br></br>
       <form method="POST">
         <input type="hidden" name="surveyformid" id="surveyformid" value="1">       
@@ -41,9 +42,11 @@
           <input name="svyname" placeholder="Enter survey name"style="width: 400px; height: 25px"/>
           {%if course_list%}
             <select name = "svycourse"style="width: 200px;height: 25px">
-           {%for course in course_list%}
-              <option value="{{course.id}}">{{course.name}} - ({{course.offering}} )</option>
-           {%endfor%}
+            {%for course in course_list%}
+              {%if course.survey==[] %}
+                <option value="{{course.id}}">{{course.name}} - ({{course.offering}} )</option>
+              {%endif%}
+            {%endfor%}
             </select>
 
           {%endif%}
@@ -68,53 +71,53 @@
                         <th>Title</th>
                         <th>Date</th>
                         <th>Course</th>
+                        <th>Offering</th>
                       </tr>
                       </thead>
                         <tr>
                           {% for survey in survey_list -%}
-                          {% if student and survey.status!=2%}
-                          {%else%}
-
-                          <td><input type="radio" name="surveyid" value="{{survey.id}}"/></td>
-                          <td>
-                            {% if survey.status==1 %}
-                            <p>Draft</p>
-                            {% elif survey.status==2 %}
-                            <p>Active</p>
-                            {% else %}
-                            <p>Closed</p>
-                            {% endif %}
-                          </td>
-                          <td>
-                          {{ survey.title }}
-                          </td>
-                          <td>
-                          {{ survey.date }}
-                          </td>
-                          <td>
-                            {% for course in course_list %}
-                               {% if course.id == survey.course_id %}
-                                  {{course.name}}
-                               {% endif %}
-                            {% endfor %}
-                          </td>          
-                        </tr> 
-                        {% endif %}
+                            <td><input type="radio" name="surveyid" value="{{survey.id}}"/></td>
+                            <td>
+                              {% if survey.status==0 %}
+                              <p>Draft</p>
+                              {% elif survey.status==1 %}
+                              <p>Review</p>
+                              {% elif survey.status==2 %}
+                              <p>Active</p>
+                              {% else %}
+                              <p>Closed</p>
+                              {% endif %}
+                            </td>
+                            <td>
+                            {{ survey.title }}
+                            </td>
+                            <td>
+                            {{ survey.date }}
+                            </td>
+                              {% for course in course_list %}
+                                 {% if course.id == survey.course_id %}
+                                  <td>
+                                    {{course.name}}
+                                  </td>        
+                                  <td>
+                                    {{course.offering}}
+                                  </td>    
+                                 {% endif %}
+                              {% endfor %}  
+                          </tr> 
                         {%- endfor %}
                       {% else %}
-                      <p> There are no surveys available to view <p>
+                      <p> You currently have no surveys available to view! <p>
                       {% endif %}
                     </table>
                   </div> 
                 </div>
               </div>
-              <button type="submit" class="btn-primary" id="open" ="btn-primary" name="open">Open Survey</button>
+              {% if survey_list%}
+                <button type="submit" class="btn-primary" id="open" ="btn-primary" name="open">Open Survey</button>
+              {%endif%}
             </div>
           </form>  
         </div>
-
-
-</body>
-
-
+  </body>
  </html>

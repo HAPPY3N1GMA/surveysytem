@@ -1,0 +1,41 @@
+TODO:
+
+#we need to put this in! not just wipe the db everytime
+changes to any csv file will be added to db automatically on startup!
+
+#we have done nothing on this yet
+Students and staff will be able to get access to a graphical display of survey results only after the survey
+has closed. 
+
+
+#our survey staff can still see the survey questions, but modifying/publishing is disabled
+#see comment in routes.py line 400ish
+ Survey appears on the dashboard of all staff associated with the course offering, but as soon as
+one staff reviews it, it disappears from the dashboard of other staff associated with the course. 
+
+
+#does it satisfy this if the admin can go to questions tab and change its type?
+When adding a question to the survey, admin can choose what type of response the question might have
+
+#atm ours is only set by the admin publishing it....and then ending the survey
+reviewed by the staff-in-charge, the survey should be active (i.e. open to the
+students) only for a fixed period of time. Once, the period lapses, students should no longer be able to
+fill out the survey.
+
+
+
+
+#password etc
+50,staff670,staff
+50,COMP4931,18s1
+
+
+#STAFF ID
+1161,SENG2011,17s2
+1161,staff1161,staff
+
+
+#STUDENT ID
+298,SENG2011,17s2
+298,student763,student
+

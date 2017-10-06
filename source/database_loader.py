@@ -12,6 +12,7 @@ def db_load():
 
 def admin_load():
     admin = UniUser(1111111, 'password', 'admin', [], [])
+    admin = UniUser(1, '1', 'admin', [], [])
     db_session.add(admin)
     db_session.commit()
     print('Admin loaded...')

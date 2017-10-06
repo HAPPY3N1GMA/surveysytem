@@ -1,7 +1,7 @@
 import csv, ast, os, time, copy
 from datetime import datetime
 from flask import Flask, redirect, render_template, request, url_for, flash
-from server import app, users, authenticated, errorMSG
+from server import app, errorMSG
 from defines import debug
 from functions import get
 from models import GeneralQuestion, MCQuestion, SurveyResponse,\
@@ -10,37 +10,42 @@ from models import Survey, Course, UniUser
 from database import db_session, Base
 from flask_login import login_user, login_required, current_user, logout_user
 
-#got tired of logging in password each time
-if(debug):
-	_authenticated = authenticated
-else:
-	_authenticated = True
-
-
 @app.route("/")
 def index():
-	global _authenticated
-	#survey_pool = fileclasses.survey.read_all()
+	if (current_user.is_authenticated):
+		return render_template("home.html", user=current_user)
+	else:
+		return redirect(url_for("login"))
 
-	#return render_template("home.html", survey_pool=survey_pool, authenticated=_authenticated)
-	return redirect(url_for("admin"))
 
-@app.route("/admin")
-@login_required
-def admin(): 
-	if current_user.role == 'admin':
-		# Tests below, feel free to delete
-		listOfSurveys = Survey.query.all()
-		print(listOfSurveys)
-		# can remove admin variable if needed
-		return render_template("admin.html", admin=True, list=listOfSurveys)
+# #admin no longer required... same as the home page
+# @app.route("/admin")
+# @login_required
+# def admin(): 
+# 	if current_user.role == 'admin':
+# 		# Tests below, feel free to delete
+# 		listOfSurveys = Survey.query.all()
+# 		print(listOfSurveys)
+# 		# can remove admin variable if needed
+# 		return render_template("admin.html", admin=True, list=listOfSurveys)
+# 	else:
+# 		return redirect(url_for("login"))
+
+
+
+
+@app.route("/home")
+def home():
+	if (current_user.is_authenticated):
+		return render_template("home.html", user=current_user)
 	else:
 		return redirect(url_for("login"))
 
 
 @app.route("/submitted")
 def submit(): 
-	return render_template("completed.html")
+	if (current_user.is_authenticated):
+		return render_template("completed.html")
 
 
 #######################################################################
@@ -54,12 +59,18 @@ def login():
 		id = request.form['username']
 		password = request.form['password']
 		user = UniUser.query.get(id)
+
+		if user==None:
+			print("nouser")
+			return render_template("login.html", invalid=True)
+
 		if password == user.password:
 			login_user(user)
 			flash('Logged in successfully.')
 			next = request.args.get('next')
-			return redirect(next or url_for('admin'))
+			return redirect(next or url_for('home'))
 		else:
+			print("incorrect password")
 			return render_template("login.html", invalid=True)
 
 	return render_template("login.html", invalid=False)
@@ -75,18 +86,14 @@ def test():
 	print(current_user.id)
 	print(current_user.courses)
 
-	return redirect(url_for("index"))
+	return redirect(url_for("login"))
 
 @app.route("/logout")
 @login_required
 def logout():
-    logout_user()
-    return redirect("index")
+	logout_user()
+	return redirect("login")
 
-
-@app.route("/home")
-def home():
-		return redirect(url_for("index"))
 
 
 
@@ -99,6 +106,8 @@ def home():
 @app.route("/surveys", methods=["GET", "POST"])
 @login_required
 def surveys():
+	if (current_user.is_authenticated)==False:
+		return redirect(url_for("login"))
 
 	if request.method == "GET":
 		return surveyinfo()
@@ -109,16 +118,38 @@ def surveys():
 		if surveyform=='2':
 			return opensurvey()		
 
-		if(current_user.role == 'admin'):
-			if surveyform=='1':
-				return newsurvey()
-			if surveyform=='3':
-				return removeqsurvey()
-			if surveyform=='4':
-				return addqsurvey()
-			if surveyform=='5':
-				return statussurvey()
-		else:	
+		if(current_user.role == 'admin' or current_user.role == 'staff'):
+			if(current_user.role=='admin'):
+				if surveyform=='1':
+					return newsurvey()
+				if surveyform=='3':
+					return removeqsurvey()
+				if surveyform=='4':
+					return addqsurvey()
+				if surveyform=='5':
+					return statussurvey()
+
+			if request.form.getlist("surveyid")==[]:
+				errorMSG("routes.surveys","survey doesnt exist")
+				return surveyinfo()	
+
+			surveyID = request.form["surveyid"]
+			survey = Survey.query.filter_by(id=surveyID).first()	
+			if(survey==None):
+				errorMSG("routes.surveys","survey object is empty")
+				return surveyinfo()	
+
+
+			#enrolled staff have access to modify surveys
+			if current_user in survey.users and survey.status==1:
+				if surveyform=='3':
+					return removeqsurvey()
+				if surveyform=='4':
+					return addqsurvey()
+				if surveyform=='5':
+					return statussurvey()
+		else:
+		#students can only answer the survey
 			if surveyform=='6':
 				return answersurvey()
 
@@ -126,14 +157,28 @@ def surveys():
 
 
 def surveyinfo():
-	admin = False
-	student = True
-	course_list = Course.query.all()
-	survey_list = Survey.query.all()
-	return render_template("surveys.html",admin=admin,student=student,course_list=course_list,survey_list=survey_list)
+	if (current_user.is_authenticated)==False:
+		return redirect(url_for("login"))
+
+	#users only see the surveys/courses they are permitted to see!
+	if(current_user.role == 'admin'):
+		course_list = Course.query.all()
+		survey_list = Survey.query.all()
+
+	else:
+
+		#course_list = current_user.courses
+		survey_list = current_user.surveys
+		course_list = current_user.courses
+
+
+		#survey list needs to only hae surveys i can access at this time!
+
+	return render_template("surveys.html",user=current_user,course_list=course_list,survey_list=survey_list)
 
 def opensurvey():
-	admin = False
+	if (current_user.is_authenticated)==False:
+		return redirect(url_for("login"))
 
 	if (request.form.getlist("surveyid")==[]):
 		errorMSG("routes.opensurvey","surveyid not selected")
@@ -151,33 +196,53 @@ def opensurvey():
 		errorMSG("routes.opensurvey","course object is empty")
 		return surveyinfo()
 
-	if current_user.role != 'admin':
-		print("student opening survey")
 
-		#TODO: check if student answered survey already here!
+	if current_user.role == 'student':
+
+		#TODO: check if student answered survey already here looking at survey.uniuser_id!
+		if survey.status==0:
+			return surveyinfo()
 		if survey.status==1:
 			return surveyinfo()
-
 		if survey.status==2:
 			return render_template("answersurvey.html",survey=survey,course=course)
+		if survey.status==3:
+			#open survey results
+			return surveyinfo()
 
-	else:
-		print("staff opening survey")
-		#sort these based on who you are!
+	if current_user.role=='admin' or current_user in survey.users:
+
 		general = GeneralQuestion.query.all()
 		multi = MCQuestion.query.all()
 
 		surveygen = survey.gen_questions
 		surveymc = survey.mc_questions
 
-		return render_template("modifysurvey.html",admin=admin,surveygen=surveygen,surveymc=surveymc,survey=survey,course=course,general=general,multi=multi)
+		return render_template("modifysurvey.html",user=current_user,surveygen=surveygen,surveymc=surveymc,survey=survey,course=course,general=general,multi=multi)
+
+
+	return surveyinfo()
 
 
 def newsurvey():
-	admin = False
+	if (current_user.is_authenticated)==False:
+		return redirect(url_for("login"))
+
+	if(current_user.role != 'admin'):
+		errorMSG("routes.newsurvey","unauthorised user attempted access:",current_user.id)
+		return render_template("home.html", user=current_user)
 
 	survey_name = request.form["svyname"]
 	courseID = request.form["svycourse"]
+
+
+	print("NEW COURSE ID:",courseID)
+
+
+	course = Course.query.filter_by(id=courseID).first()	
+	if(course==None):
+		errorMSG("routes.newsurvey","course object is empty")
+		return surveyinfo()
 
 	#qObject=Course.query.filter_by(id=courseID).first()
 
@@ -189,8 +254,17 @@ def newsurvey():
 		errorMSG("routes.newsurvey","No course selected")
 		return surveyinfo()
 
-	#new survey created then redirect to the modify survey page to add questions etc
+
+	#if survey already in system exit
+	if(Survey.query.filter_by(course_id=courseID).first()!=None):
+		errorMSG("routes.newsurvey","survey already exists!")
+		return surveyinfo()	
+
 	survey = Survey(survey_name,datetime.now(),courseID)
+
+	#add this survey to the course
+	course.survey.append(survey)
+
 	db_session.add(survey)
 	db_session.commit()
 
@@ -198,10 +272,13 @@ def newsurvey():
 
 
 def addqsurvey():
-	print("add question to survey")
+	if (current_user.is_authenticated)==False:
+		return redirect(url_for("login"))
 
-	#check they are staff first
 
+	if(current_user.role != 'admin' and current_user.role != 'staff'):
+		errorMSG("routes.addqsurvey","unauthorised user attempted access:",current_user.id)
+		return render_template("home.html", user=current_user)
 
 	#get list of questions to add
 	survey_questions = request.form.getlist('question')
@@ -212,15 +289,22 @@ def addqsurvey():
 
 
 	if (request.form.getlist("surveyid")==[]):
-		errorMSG("routes.opensurvey","surveyid not selected")
+		errorMSG("routes.addqsurvey","surveyid not selected")
 		return surveyinfo()
 	
 	surveyID = request.form["surveyid"]
 
 	survey = Survey.query.filter_by(id=surveyID).first()	
 	if(survey==None):
-		errorMSG("routes.opensurvey","survey object is empty")
+		errorMSG("routes.addqsurvey","survey object is empty")
 		return surveyinfo()	
+
+
+
+	#check this staff member is authorised to add to this survey
+	#check that they are authorised to add the type of question
+
+
 
 	#this sorts and stores the questions into the survey
 	for question in survey_questions:
@@ -237,24 +321,27 @@ def addqsurvey():
 	return opensurvey()
 
 def removeqsurvey():
-	#get question to remove
-	print("remove question from survey")
+	if (current_user.is_authenticated)==False:
+		return redirect(url_for("login"))
 
+	if(current_user.role != 'admin' and current_user.role != 'staff'):
+		errorMSG("routes.removeqsurvey","unauthorised user attempted access:",current_user.id)
+		return render_template("home.html", user=current_user)
 	
 	if request.form.getlist('question')==[]:
-		errorMSG("routes.addqsurvey","no questions selected")
+		errorMSG("routes.removeqsurvey","no questions selected")
 		return opensurvey()
 
 	survey_question = request.form['question']
 
 	if (request.form.getlist("surveyid")==[]):
-		errorMSG("routes.opensurvey","surveyid not selected")
+		errorMSG("routes.removeqsurvey","surveyid not selected")
 		return surveyinfo()
 	
 	surveyID = request.form["surveyid"]
 	survey = Survey.query.filter_by(id=surveyID).first()	
 	if(survey==None):
-		errorMSG("routes.opensurvey","survey object is empty")
+		errorMSG("routes.removeqsurvey","survey object is empty")
 		return surveyinfo()	
 
 	#remove question from the survey
@@ -270,28 +357,87 @@ def removeqsurvey():
 	return opensurvey()
 
 def statussurvey():
-	print("changing survey status")
+	if (current_user.is_authenticated)==False:
+		return redirect(url_for("login"))
 
-	#check if they have authority to do this!
+	if(current_user.role == 'student'):
+		errorMSG("routes.statussurvey","unauthorised user attempted access:",current_user.id)
+		return render_template("home.html", user=current_user)
 
 	surveyID = request.form["surveyid"]
 
 	survey = Survey.query.filter_by(id=surveyID).first()	
 	if(survey==None):
-		errorMSG("routes.opensurvey","survey object is empty")
+		errorMSG("routes.statussurvey","survey object is empty")
 		return surveyinfo()	
 
+	course = Course.query.filter_by(id=survey.course_id).first()	
+	if(course==None):
+		errorMSG("routes.statussurvey","course object is empty")
+		return surveyinfo()
+
 	if survey.status == 0:
+		if(current_user.role != 'admin'):
+			errorMSG("routes.statussurvey","unauthorised user attempted access:",current_user.id)
+			return render_template("home.html", user=current_user)
 		survey.status = 1
+
+		staff = UniUser.query.filter_by(role='staff').all()	
+		if(staff==None):
+			errorMSG("routes.statussurvey","staff object list is empty")
+			return surveyinfo()
+
+		#give access to any staff members required
+		for s in staff:
+			if course not in s.courses:
+				staff.remove(s)
+
+		#set staff to the survey
+		survey.users=staff
+		#print("staff users:",survey.users)
+
+		#course.survey.append(survey)  #this doesnt work
+
+
+
 	elif survey.status == 1:
+
+
+
+		#NOTE: according to specs she wants staff not to see the survey when its in 
+		#"answer stage", but i have it they can see the survey just not do anything
+		#and they cannot view results
+		#reason for this is that staff wont know that there is a survey results coming soon
+		#and they can now use past surveys they were associated with to maybe better choose
+		#optional questions
+
+
+
 		survey.status = 2
+		students = UniUser.query.filter_by(role='student').all()	
+		if(students==None):
+			errorMSG("routes.statussurvey","student object list is empty")
+			return surveyinfo()
+
+		#give access to any students required
+		for s in students:
+			if course in s.courses:
+				survey.users.append(s)
+
+	elif survey.status == 2:
+		#anyone associated with the course will now have access to view its results
+		survey.status = 3
 	else:
+		#cannot go past status 3 for a survey - view survey results status
 		return viewsurvey()
 	db_session.commit()
 
 	return opensurvey()
 
 def viewsurvey():
+	if (current_user.is_authenticated)==False:
+		return redirect(url_for("login"))
+
 	print("view survey results now")
 
 	#temp
@@ -299,7 +445,12 @@ def viewsurvey():
 
 
 def answersurvey():
-	print("answering survey")
+	if (current_user.is_authenticated)==False:
+		return redirect(url_for("login"))
+
+	if(current_user.role != 'student'):
+		errorMSG("routes.answersurvey","unauthorised user attempted access:",current_user.id)
+		return render_template("home.html", user=current_user)
 
 	#check student answered all fields
 	surveyID = request.form["surveyid"]
@@ -313,8 +464,6 @@ def answersurvey():
 	if(course==None):
 		errorMSG("routes.answersurvey","course object is empty")
 		return surveyinfo()
-
-	print("length:",len(survey.gen_questions))
 
 	genResponseList = []
 	if len(survey.gen_questions)>0:
@@ -338,6 +487,7 @@ def answersurvey():
 			if (request.form.getlist(str(question.id))==[]):
 				errorMSG("routes.answersurvey","MultiChoice Questions not completed")
 				return opensurvey()
+
 			mcResponseList.append(request.form[str(question.id)])
 
 	mcResponseList = list(filter(None, mcResponseList))
@@ -346,57 +496,37 @@ def answersurvey():
 		errorMSG("routes.answersurvey","MultiChoice Questions not completed")
 		return opensurvey()
 
-	print("mcResponseList:",mcResponseList)
 
-
-		#TODOcheck that the responses have valid characters
-
-
-
-	#see if there is already a survey response 
+	#double check this person has not already responded? 
 
 	surveyResponse = SurveyResponse(survey.id)
 	db_session.add(surveyResponse)
 
 
-	#QuestionResponse(surveyResponse.id, mcquestionid, genquestionid,
-    #             answer)
-
-
-	#surveyResponse.id
-
-	#this sorts and stores the questions into the survey
+	#this sorts and stores the answers into the survey response based on type
 	for question,response in zip(survey.gen_questions,genResponseList):
-		print(response)
-
+		response = GeneralResponse(surveyResponse.id,question.id,response)
+		surveyResponse.gen_responses.append(response)
 
 	for question,response in zip(survey.mc_questions,mcResponseList):
-		print(response)
 		response = MCResponse(surveyResponse.id,question.id,response)
 		surveyResponse.mc_responses.append(response)
 
 
+	#remove the student from the survey list (so they cannont answer again)
+	survey.users.remove(current_user)
+
+	#commit the new survey response to this survey
 	db_session.commit()
 
 
 
-	#save all fields
 
-
-	#set survey to completed by this student to prevent resubmission
-
+	#TODO: set survey to completed by this student to prevent resubmission!
 
 
 
-
-
-
-
-
-	#temp
-	return surveyinfo()
-
-
+	return redirect(url_for("submit"))
 
 
 
@@ -447,7 +577,7 @@ def db_test():
 	# for user in q_users:
 	# 	print (user)
 
-	return render_template("home.html")
+	return render_template("home.html", user=current_user)
 
 
 #######################################################################
@@ -457,35 +587,49 @@ def db_test():
 @app.route('/questions', methods=["GET", "POST"])
 @login_required
 def questions():
+	if (current_user.is_authenticated)==False:
+		return redirect(url_for("login"))
+
+	if(current_user.role != 'admin'):
+		errorMSG("routes.questions","unauthorised user attempted access:",current_user.id)
+		return render_template("home.html", user=current_user)
+
 	if request.method == "GET":
 		return questioninfo()
-	else:
-		#check if an admin and if so, they are permitted to make new questions!
-		if(current_user.role == 'admin'):
-			questionform = request.form["questionformid"]
-			if questionform=='1':
-				return openquestion()
-			if questionform=='2':
-				return addquestion()
-			if questionform=='3':
-				return removequestion()
-			if questionform=='4':
-				return modifyquestion()
 
-		return questioninfo()
+	questionform = request.form["questionformid"]
+	if questionform=='1':
+		return openquestion()
+	if questionform=='2':
+		return addquestion()
+	if questionform=='3':
+		return removequestion()
+	if questionform=='4':
+		return modifyquestion()
+
+	return questioninfo()
 
 def questioninfo():
-	print("questioninfo")
-	admin = False
+	if (current_user.is_authenticated)==False:
+		return redirect(url_for("login"))
+
+	if(current_user.role != 'admin'):
+		errorMSG("routes.questioninfo","unauthorised user attempted access:",current_user.id)
+		return render_template("home.html", user=current_user)
 
 	#read in list of questions from db, filter out any not available to user or deleted
 	general = GeneralQuestion.query.all()
 	multi = MCQuestion.query.all()
-	return render_template("questions.html",admin=admin,multi=multi,general=general)
+	return render_template("questions.html",user=current_user,multi=multi,general=general)
 
 
 def openquestion():
-	print("open question")
+	if (current_user.is_authenticated)==False:
+		return redirect(url_for("login"))
+
+	if(current_user.role != 'admin'):
+		errorMSG("routes.openquestion","unauthorised user attempted access:",current_user.id)
+		return render_template("home.html", user=current_user)
 
 	if (request.form.getlist('question')==[]):
 		errorMSG("routes.openquestion","question not selected")
@@ -504,13 +648,16 @@ def openquestion():
 		errorMSG("routes.openquestion","This question does not exist")
 		return questioninfo()
 
-	return render_template("modifyquestion.html",questionObject=questionObject,questionType=questionType)
+	return render_template("modifyquestion.html",user=current_user,questionObject=questionObject,questionType=questionType)
 
 
 def addquestion():
-	if current_user.role != 'admin':
-		errorMSG("routes.addquestion","Unknown user attempted to add question")
-		return questioninfo()
+	if (current_user.is_authenticated)==False:
+		return redirect(url_for("login"))
+
+	if(current_user.role != 'admin'):
+		errorMSG("routes.addquestion","unauthorised user attempted access:",current_user.id)
+		return render_template("home.html", user=current_user)
 
 	question = request.form["question"]
 	status = 0
@@ -518,15 +665,6 @@ def addquestion():
 	#by default a question is mandatory unless optional is checked
 	if(request.form.getlist("optional")!=[]):
 		status = 1
-
-
-	#todo:
-	#create class to add general question, and mc questions
-	#class to clean a string passed to it and return 1/0 clean or unclean
-	#make this function use these new classes
-	#we need to add to db, that a question is set as optional/mandatory
-	#as per the specsheet
-
 
 	if(question==""):
 		errorMSG("append.question","No Question Provided")
@@ -575,23 +713,24 @@ def addquestion():
 
 
 def modifyquestion():
+	if (current_user.is_authenticated)==False:
+		return redirect(url_for("login"))
 
-	print("modify question")
+	if(current_user.role != 'admin'):
+		errorMSG("routes.modifyquestion","unauthorised user attempted access:",current_user.id)
+		return render_template("home.html", user=current_user)
 
-	oldType = request.form["oldType"]
+	oldType = request.form["oldType"] #old question type (was it MC or general?)
 	qID = request.form["qID"]
 	question = request.form["questiontitle"]
-
-
-	print("oldType:",oldType, "qID:",qID )
 
 	status = 0
 
 	if(request.form.getlist("optional")!=[]):
 		status = 1
 
+	#is the question getting deleted?
 	if(request.form["delete"]=='1'):
-		#im deleting this question
 		status = 2
 	else:
 		if(question==""):
@@ -603,14 +742,12 @@ def modifyquestion():
 				errorMSG("routes.modifyquestion","Invalid input in fields")
 				return openquestion()
 
-	#old question object being modified
+	#open the correct question objecttype
+	# 1 is MC, 2 is General
 	if(oldType=='2'):
-		print("im a general question modificiation")
 		qObject=GeneralQuestion.query.filter_by(id=qID).first()
 	else:
-		print("im a mc question modificiation")
 		qObject=MCQuestion.query.filter_by(id=qID).first()	
-
 
 	if(qObject==None):
 		errorMSG("routes.modifyquestion ","No question object Found")
@@ -618,7 +755,6 @@ def modifyquestion():
 
 	#is the question just getting deleted?
 	if(status==2):
-		print("Question ID:",qObject.id,"Title: ",qObject.question, "im getting deleted now")
 		qObject.status = status
 		db_session.commit()
 		return questioninfo()
@@ -638,10 +774,12 @@ def modifyquestion():
 			db_session.add(new)
 			
 		db_session.commit()	
+
 		return questioninfo()	
 
 
-	#multiple choice question
+	#only multiple choice questions will get past here!
+
 	answer_one = request.form["option_one"]
 	answer_two = request.form["option_two"]
 	answer_three = request.form["option_three"]
@@ -665,8 +803,8 @@ def modifyquestion():
 		errorMSG("routes.createsurvey","Only one answer provided for a mc question")
 		return openquestion()
 
+	#has by data type changed? If no, then I just update the MC fields
 	if(oldType=='1'):
-		#same mc question, just update all the fields
 		qObject.question = question
 		qObject.status = status
 		qObject.answerOne = answer_one
@@ -674,12 +812,13 @@ def modifyquestion():
 		qObject.answerThree = answer_three
 		qObject.answerFour = answer_four	
 	else:
-		#new mc question, set old question to deleted, and make new question
+		#new mc question, set old question to deleted, and make new general question type
 		qObject.status = 2
 		new = MCQuestion(question,answer_one,answer_two,answer_three,answer_four,status)
 		db_session.add(new)
 	
 	db_session.commit()
+
 	return questioninfo()
 
 
