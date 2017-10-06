@@ -171,8 +171,6 @@ def surveyinfo():
 		survey_list = current_user.surveys
 		course_list = current_user.courses
 
-		print("survey_list list:",survey_list)
-
 
 		#survey list needs to only hae surveys i can access at this time!
 
@@ -236,6 +234,9 @@ def newsurvey():
 
 	survey_name = request.form["svyname"]
 	courseID = request.form["svycourse"]
+
+
+	print("NEW COURSE ID:",courseID)
 
 
 	course = Course.query.filter_by(id=courseID).first()	
@@ -324,7 +325,7 @@ def removeqsurvey():
 	if (current_user.is_authenticated)==False:
 		return redirect(url_for("login"))
 
-	if(current_user.role != 'admin'):
+	if(current_user.role != 'admin' and current_user.role != 'staff'):
 		errorMSG("routes.removeqsurvey","unauthorised user attempted access:",current_user.id)
 		return render_template("home.html", user=current_user)
 	
@@ -389,12 +390,12 @@ def statussurvey():
 
 		#give access to any staff members required
 		for s in staff:
-			if course!=s.courses:
+			if course not in s.courses:
 				staff.remove(s)
 
 		#set staff to the survey
 		survey.users=staff
-		print("staff users:",survey.users)
+		#print("staff users:",survey.users)
 
 	elif survey.status == 1:
 
