@@ -118,14 +118,17 @@ def surveys():
 		if surveyform=='2':
 			return opensurvey()		
 
-		print("making surveys decision")
-
 		if(current_user.role == 'admin' or current_user.role == 'staff'):
 			if(current_user.role=='admin'):
 				if surveyform=='1':
 					return newsurvey()
+				if surveyform=='3':
+					return removeqsurvey()
+				if surveyform=='4':
+					return addqsurvey()
+				if surveyform=='5':
+					return statussurvey()
 
-			#check survey has been selected in list
 			if request.form.getlist("surveyid")==[]:
 				errorMSG("routes.surveys","survey doesnt exist")
 				return surveyinfo()	
@@ -137,8 +140,8 @@ def surveys():
 				return surveyinfo()	
 
 
-			#only admins and enrolled staff have access to modify surveys
-			if current_user.role == 'admin' or current_user in survey.users:
+			#enrolled staff have access to modify surveys
+			if current_user in survey.users and survey.status==1:
 				if surveyform=='3':
 					return removeqsurvey()
 				if surveyform=='4':
@@ -394,6 +397,17 @@ def statussurvey():
 		print("staff users:",survey.users)
 
 	elif survey.status == 1:
+
+
+
+		#NOTE: according to specs she wants staff not to see the survey when its in 
+		#"answer stage", but i have it they can see the survey just not do anything
+		#and they cannot view results
+		#reason for this is that staff wont know that there is a survey results coming soon
+		#and they can now use past surveys they were associated with to maybe better choose
+		#optional questions
+
+
 
 		survey.status = 2
 		students = UniUser.query.filter_by(role='student').all()	
