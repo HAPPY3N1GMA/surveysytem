@@ -50,14 +50,14 @@
                       <col width="10" align="center">{% if current_user.role=='admin' and survey.status==1 %}<col width="10" align="center">{% endif %}
                         <thead>
                         <tr>
-                         {% if survey.status==1 %}<th>Select</th>{% endif %}
-                         {% if current_user.role=='admin' %}<th>Optional</th>{% endif %}
+                        {% if survey.status==1 or current_user.role=='admin' %}<th>Select</th>{% endif %}
+                        {% if current_user.role=='admin' %}<th>Optional</th>{% endif %}               
                           <th>Question</th>      
                         </tr>
                         </thead>
                       <tr>
                       {% for question in surveygen -%}
-                        {% if survey.status==1 %}
+                        {% if survey.status==1 or current_user.role=='admin' and survey.status==0 %}
                         <td>
                         {% if question.status==1 or current_user.role=='admin' %}
                           <input type="radio" name="question" onclick="$('.surveymc').prop('checked', false);" value="{{1,question.id}}"/>
@@ -91,12 +91,12 @@
                 <div class="surveymc">
                   <div class="panel-body">
                     <table class="table table-hover">
-                      <col width="10" align="center">{% if admin and survey.status==1 %}<col width="10" align="center">{% endif %}
+                      <col width="10" align="center">{% if current_user.role=='admin' or survey.status==1 %}<col width="10" align="center">{% endif %}
                       <h4 align="center">Multiple Choice</h4>
                       <thead>
                       <tr>
-                        {% if survey.status==1 %}<th>Select</th>{% endif %}
-                        {% if current_user.role=='admin' %}<th>Optional</th>{% endif %}
+                        {% if survey.status==1 or current_user.role=='admin' %}<th>Select</th>{% endif %}
+                        {% if current_user.role=='admin' %}<th>Optional</th>{% endif %}                        
                         <th>Question</th>                     
                         <th>A</th>
                         <th>B</th>
@@ -106,9 +106,9 @@
                       </thead>
                         <tr>
                           {% for question in surveymc -%}
-                            {% if survey.status==1 %}
+                            {% if survey.status==1 or current_user.role=='admin'%}
                               <td>
-                                {% if question.status==1 or admin %}
+                                {% if question.status==1 or current_user.role=='admin' %}
                                   <input type="radio" name="question" onclick="$('.surveygen').prop('checked', false);" value="{{0,question.id}}"/>
                                 {% else %}
                                   <input type="radio" name="question" onclick="$('.surveygen').prop('checked', false);" value="{{0,question.id}}" disabled="disabled"/>
@@ -143,7 +143,7 @@
                 </div>
               </div>
 
-{% if survey.status == 0 or survey.status == 1 and surveymc or surveygen %}
+{% if current_user.role=='admin' or survey.status == 1 and surveymc or surveygen %}
 
                 <button type="submit" class="btn-primary" name="remove" >Remove Question</button>
 {% endif %}
@@ -179,12 +179,11 @@
                 <div class="multiChoiceList">
                   <div class="panel-body">
                     <table class="table table-hover">
-                      <col width="10" align="center">{% if current_user.role=='admin' %}<col width="10" align="center">{% endif %}
+                      <col width="10" align="center">
                       {% if multi %}  
                       <thead>
                       <tr>
                         <th>Select</th> 
-                        {% if current_user.role=='admin' %}<th>Optional</th>{% endif %}
                         <th>Question</th>                        
                         <th>A</th>
                         <th>B</th>
@@ -193,22 +192,13 @@
                       </tr>
                       </thead>
                         {% for question in multi -%}
-                          <tr>
-                            {% if question.status==1 or current_user.role=='admin' and question.status!=2 %}
+                        {% if current_user.role=='staff' and question.status==1 or current_user.role=='admin' and question.status==0 %}
+                        <tr>
+
                               <td>
                                 <input type="checkbox" name="question" value="{{0,question.id}}"/>
                               </td>
-                                {% if current_user.role=='admin' %}
-                                  <td>
-                                {% if question.status == 1 %}
-                                  <p>Yes<p>
-                                {% elif question.status == 2 %}
-                                  <p>DONOT SHOW<p>
-                                {% else %}    
-                                  <p>-<p>
-                                {% endif %}
-                                  </td>
-                                {% endif %}
+
                               <td>
                                 {{ question.question }}
                               </td>
@@ -216,8 +206,8 @@
                               <span style="float:right;"><td>{{question.answerTwo}}</td></span></span>
                               <span style="float:right;"><td>{{question.answerThree}}</td></span>
                               <span style="float:right;"><td>{{question.answerFour}}</td></span>
-                            {% endif %}
                           </tr> 
+                          {% endif %}
                         {%- endfor %}
                       {% else %}
                       <p> No Multiple Choice Questions Available <p>
@@ -232,33 +222,21 @@
                 <div class="genChoiceList">
                   <div class="panel-body">
                     <table class="table table-hover">
-                      <col width="10" align="center">{% if current_user.role=='admin' %}<col width="10" align="center">{% endif %}
+                      <col width="10" align="center">
                       {% if general %}  
                         <thead>
                         <tr>
                           <th>Select</th> 
-                         {% if current_user.role=='admin' %}<th>Optional</th>{% endif %}
                           <th>Question</th>      
                         </tr>
                         </thead>
                       <tr/>
                         {% for question in general -%}
-                        {% if question.status==1 or current_user.role=='admin' and question.status!=2 %}
+                        {% if current_user.role=='staff' and question.status==1 or current_user.role=='admin' and question.status==0 %}
                         <tr>
                           <td>
                           <input type="checkbox" name="question" value="{{1,question.id}}"/>
                           </td>
-                          {% if current_user.role=='admin' %}
-                            <td>
-                              {% if question.status == 1 %}
-                                <p>Yes<p>
-                                {% elif question.status == 2 %}
-                                  <p>DONOT SHOW<p>
-                                {% else %}   
-                                <p>-<p>
-                              {% endif %}
-                            </td>
-                          {% endif %}
                           <td>
                             {{ question.question }}
                           </td>
@@ -296,14 +274,14 @@
       {% if survey.status==0 %}
 
         {% if current_user.role=='admin' %}
-        <button type="submit" class="btn btn-primary btn-lg btn-block">Review Survey</button>
+        <button type="submit" class="btn btn-primary btn-lg btn-block">Staff Review</button>
         <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">Publish Survey</button>
         <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">View Results</button>
       {% endif %}
 
       {% elif survey.status==1 %}
 
-        {% if current_user.role=='admin' %}
+        {% if current_user.role=='admin' or current_user.role=='staff'%}
         <button type="submit" class="btn btn-primary btn-lg btn-block">Publish Survey</button>
         {% else %}
         <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">Publish Survey</button>

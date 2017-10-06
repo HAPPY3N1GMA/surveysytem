@@ -91,8 +91,8 @@ def test():
 @app.route("/logout")
 @login_required
 def logout():
-    logout_user()
-    return redirect("login")
+	logout_user()
+	return redirect("login")
 
 
 
@@ -118,17 +118,34 @@ def surveys():
 		if surveyform=='2':
 			return opensurvey()		
 
-		if(current_user.role == 'admin'):
-			if surveyform=='1':
-				return newsurvey()
-			if surveyform=='3':
-				return removeqsurvey()
-			if surveyform=='4':
-				return addqsurvey()
-			if surveyform=='5':
-				return statussurvey()
-		else:	
+		print("making surveys decision")
 
+		if(current_user.role == 'admin' or current_user.role == 'staff'):
+			if(current_user.role=='admin'):
+				if surveyform=='1':
+					return newsurvey()
+
+			#check survey has been selected in list
+			if request.form.getlist("surveyid")==[]:
+				errorMSG("routes.surveys","survey doesnt exist")
+				return surveyinfo()	
+
+			surveyID = request.form["surveyid"]
+			survey = Survey.query.filter_by(id=surveyID).first()	
+			if(survey==None):
+				errorMSG("routes.surveys","survey object is empty")
+				return surveyinfo()	
+
+
+			#only admins and enrolled staff have access to modify surveys
+			if current_user.role == 'admin' or current_user in survey.users:
+				if surveyform=='3':
+					return removeqsurvey()
+				if surveyform=='4':
+					return addqsurvey()
+				if surveyform=='5':
+					return statussurvey()
+		else:
 		#students can only answer the survey
 			if surveyform=='6':
 				return answersurvey()
@@ -141,17 +158,20 @@ def surveyinfo():
 		return redirect(url_for("login"))
 
 	#users only see the surveys/courses they are permitted to see!
-
-	course_list = current_user.courses
-	survey_list = current_user.surveys
-
-
-	for course in course_list:
-		print("testing:",course.survey)
-
 	if(current_user.role == 'admin'):
 		course_list = Course.query.all()
 		survey_list = Survey.query.all()
+
+	else:
+
+		#course_list = current_user.courses
+		survey_list = current_user.surveys
+		course_list = current_user.courses
+
+		print("survey_list list:",survey_list)
+
+
+		#survey list needs to only hae surveys i can access at this time!
 
 	return render_template("surveys.html",user=current_user,course_list=course_list,survey_list=survey_list)
 
@@ -176,12 +196,21 @@ def opensurvey():
 		return surveyinfo()
 
 
-	if current_user.role=='admin' or current_user.role=='staff':
+	if current_user.role == 'student':
 
-		#TODO does this staff member have access to this survey???
+		#TODO: check if student answered survey already here looking at survey.uniuser_id!
+		if survey.status==0:
+			return surveyinfo()
+		if survey.status==1:
+			return surveyinfo()
+		if survey.status==2:
+			return render_template("answersurvey.html",survey=survey,course=course)
+		if survey.status==3:
+			#open survey results
+			return surveyinfo()
 
+	if current_user.role=='admin' or current_user in survey.users:
 
-		#sort these based on who you are!
 		general = GeneralQuestion.query.all()
 		multi = MCQuestion.query.all()
 
@@ -189,16 +218,6 @@ def opensurvey():
 		surveymc = survey.mc_questions
 
 		return render_template("modifysurvey.html",user=current_user,surveygen=surveygen,surveymc=surveymc,survey=survey,course=course,general=general,multi=multi)
-
-
-	if current_user.role == 'student':
-
-		#TODO: check if student answered survey already here!
-		if survey.status==1:
-			return surveyinfo()
-
-		if survey.status==2:
-			return render_template("answersurvey.html",survey=survey,course=course)
 
 
 	return surveyinfo()
@@ -238,7 +257,7 @@ def newsurvey():
 		return surveyinfo()	
 
 	survey = Survey(survey_name,datetime.now(),courseID)
-	survey.staff=course.uniusers
+	#survey.users=course.uniusers --- add course useres to it when its not in draft mode
 
 	db_session.add(survey)
 	db_session.commit()
@@ -250,7 +269,11 @@ def addqsurvey():
 	if (current_user.is_authenticated)==False:
 		return redirect(url_for("login"))
 
-	if(current_user.role != 'admin' or current_user.role != 'staff'):
+
+
+	print("current_user.role:",current_user.role)
+
+	if(current_user.role != 'admin' and current_user.role != 'staff'):
 		errorMSG("routes.addqsurvey","unauthorised user attempted access:",current_user.id)
 		return render_template("home.html", user=current_user)
 
@@ -334,7 +357,7 @@ def statussurvey():
 	if (current_user.is_authenticated)==False:
 		return redirect(url_for("login"))
 
-	if(current_user.role != 'admin'):
+	if(current_user.role == 'student'):
 		errorMSG("routes.statussurvey","unauthorised user attempted access:",current_user.id)
 		return render_template("home.html", user=current_user)
 
@@ -342,14 +365,52 @@ def statussurvey():
 
 	survey = Survey.query.filter_by(id=surveyID).first()	
 	if(survey==None):
-		errorMSG("routes.opensurvey","survey object is empty")
+		errorMSG("routes.statussurvey","survey object is empty")
 		return surveyinfo()	
 
+	course = Course.query.filter_by(id=survey.course_id).first()	
+	if(course==None):
+		errorMSG("routes.statussurvey","course object is empty")
+		return surveyinfo()
+
 	if survey.status == 0:
+		if(current_user.role != 'admin'):
+			errorMSG("routes.statussurvey","unauthorised user attempted access:",current_user.id)
+			return render_template("home.html", user=current_user)
 		survey.status = 1
+
+		staff = UniUser.query.filter_by(role='staff').all()	
+		if(staff==None):
+			errorMSG("routes.statussurvey","staff object list is empty")
+			return surveyinfo()
+
+		#give access to any staff members required
+		for s in staff:
+			if course!=s.courses:
+				staff.remove(s)
+
+		#set staff to the survey
+		survey.users=staff
+		print("staff users:",survey.users)
+
 	elif survey.status == 1:
+
 		survey.status = 2
+		students = UniUser.query.filter_by(role='student').all()	
+		if(students==None):
+			errorMSG("routes.statussurvey","student object list is empty")
+			return surveyinfo()
+
+		#give access to any students required
+		for s in students:
+			if course in s.courses:
+				survey.users.append(s)
+
+	elif survey.status == 2:
+		#anyone associated with the course will now have access to view its results
+		survey.status = 3
 	else:
+		#cannot go past status 3 for a survey - view survey results status
 		return viewsurvey()
 	db_session.commit()
 
@@ -432,6 +493,10 @@ def answersurvey():
 	for question,response in zip(survey.mc_questions,mcResponseList):
 		response = MCResponse(surveyResponse.id,question.id,response)
 		surveyResponse.mc_responses.append(response)
+
+
+	#remove the student from the survey list (so they cannont answer again)
+	survey.users.remove(current_user)
 
 	#commit the new survey response to this survey
 	db_session.commit()

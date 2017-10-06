@@ -203,19 +203,19 @@ class Survey(Base):
     gen_questions = relationship("GeneralQuestion",
                                  secondary="genassociation",
                                  backref='survey')
-
-    staff = relationship("UniUser", secondary="usassociation",
+    #what users have accesss to this survey (both students and staff - can remove students then)
+    users = relationship("UniUser", secondary="usassociation",
                          backref="survey")
 
 
     def __init__(self, title=None, date=None, courseid=None,
-                 mcquestions=[], genquestions=[], _staff=[], status=0):
+                 mcquestions=[], genquestions=[], _users=[], status=0):
         self.title = title
         self.date = date
         self.course_id = courseid
         self.mc_questions = mcquestions
         self.gen_questions = genquestions
-        self.staff = _staff
+        self.users = _users
         self.status = status #1=open for edit, 2=open to answer, closed to edit, 3=closed
 
     def __repr__(self):
