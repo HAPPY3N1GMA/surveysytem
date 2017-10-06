@@ -252,6 +252,7 @@ class SurveyResponse(Base):
     def __repr__(self):
         return '<Response to %r>' % (self.survey_id)       
 
+
 class YNQuestion(Base):
     __tablename__ = 'ynquestion'
     id = Column(Integer, primary_key=True)
