@@ -401,9 +401,6 @@ def statussurvey():
 		survey.users=staff
 		#print("staff users:",survey.users)
 
-		#course.survey.append(survey)  #this doesnt work
-
-
 
 	elif survey.status == 1:
 
