@@ -236,7 +236,7 @@ class SurveyResponse(Base):
     def __repr__(self):
         return '<Response to %r>' % (self.survey_id)       
 
-class YNQuestion(Base):
+"""class YNQuestion(Base):
     __tablename__ = 'ynquestion'
     id = Column(Integer, primary_key=True)
     question = Column(String)
@@ -257,7 +257,7 @@ class YNQuestion(Base):
 
     def __repr__(self):
         return '%r - Yes/No' % (self.question)
-
+"""
 
 
 
@@ -277,12 +277,12 @@ mcassociation_table = Table('mcassociation', Base.metadata,
                                    ForeignKey('survey.id'))
                             )
 
-ynassociation_table = Table('ynassociation', Base.metadata,
+"""ynassociation_table = Table('ynassociation', Base.metadata,
                             Column('ynquestion_id', Integer,
                                    ForeignKey('ynquestion.id')),
                             Column('survey_id', Integer,
                                    ForeignKey('survey.id'))
-                            )
+                            )"""
 
 genassociation_table = Table('genassociation', Base.metadata,
                              Column('generalquestion_id', Integer,
