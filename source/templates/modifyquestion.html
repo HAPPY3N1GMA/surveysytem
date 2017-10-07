@@ -20,9 +20,12 @@
 		<!-- header Nav Start -->
 		<nav class="navbar navbar-default col-sm-10">
 				<ul class="nav navbar-nav navbar-right">
-     <li><a href="/admin">Home</a></li>
-     <li><a href="/surveys">Surveys</a></li>
-     <li><a href="/questions">Questions</a></li>
+     				<li><a href="/home">Home</a></li>
+     				<li><a href="/surveys">Surveys</a></li>
+                    {% if current_user.role=='admin'%}
+                    <li><a href="/questions">Questions</a></li>
+                    {% endif %}
+					<li><a href="/logout">Logout</a></li>
 				</ul>
 		</nav> 
 	 </div>
