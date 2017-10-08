@@ -256,35 +256,6 @@ class SurveyResponse(Base):
     def __repr__(self):
         return '<Response to %r>' % (self.survey_id)       
 
-<<<<<<< HEAD
-"""class YNQuestion(Base):
-=======
-
-class YNQuestion(Base):
->>>>>>> 4a37a1e2223f21fbeff3f0e154d84bafc6cbe8e1
-    __tablename__ = 'ynquestion'
-    id = Column(Integer, primary_key=True)
-    question = Column(String)
-    # If false, question is mandatory
-    # Boolean in SQLite are not True/False
-    # Stored as 1 for True, 0 False
-    optional = Column(Boolean)
-
-    surveys = relationship("Survey",
-                           secondary="ynassociation",
-                           backref="ynquestion")
-
-    def __init__(self, question=None):
-        self.question = question
-
-    #def __repr__(self):
-    #    return '<General Question %r>' % (self.question)    
-
-    def __repr__(self):
-        return '%r - Yes/No' % (self.question)
-"""
-
-
 
 
 
