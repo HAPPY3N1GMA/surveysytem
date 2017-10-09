@@ -392,18 +392,11 @@ def statussurvey():
 			errorMSG("routes.statussurvey","staff object list is empty")
 			return surveyinfo()
 
-		#give access to any staff members required
 		for s in staff:
-			if course not in s.courses:
-				staff.remove(s)
-
-		#set staff to the survey
-		survey.users=staff
-		#print("staff users:",survey.users)
-
+			if(course in s.courses):
+				survey.users.append(s)
 
 	elif survey.status == 1:
-
 
 
 		#NOTE: according to specs she wants staff not to see the survey when its in 
