@@ -52,16 +52,10 @@ has closed.
 changes to any csv file will be added to db automatically on startup!
  
 
-
-
 **our survey staff can still see the survey questions, but modifying/publishing is disabled**
 **see comment in routes.py line 400ish**
  Survey appears on the dashboard of all staff associated with the course offering, but as soon as
 one staff reviews it, it disappears from the dashboard of other staff associated with the course. 
-
-
-**does it satisfy this if the admin can go to questions tab and change its type?**
-When adding a question to the survey, admin can choose what type of response the question might have
 
 **atm ours is only set by the admin publishing it....and then ending the survey**
 reviewed by the staff-in-charge, the survey should be active (i.e. open to the
