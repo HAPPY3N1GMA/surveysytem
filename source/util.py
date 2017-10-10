@@ -115,15 +115,10 @@ class SurveyUtil(object):
 
         # add this survey to the course
         course.survey.append(survey)
-        staff_affected = course.uniusers
-        # print(staff_affected)
         db_session.add(survey)
         db_session.commit()
 
-        for user in staff_affected:
-            user.surveys.append(survey)
-
-        db_session.commit()
+        #note no users are added at this point
 
         return self.surveyinfo()
 
