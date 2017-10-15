@@ -36,6 +36,17 @@
         <h1 align="center"> {{survey.title}} </h1>
       </div>
     <div class="panel-body">
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class=flashes align="center" style="color:red">
+        {% for message in messages %}
+          <p> {{ message }}</p>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
         <div class="panel panel-default">
           <div class="panel-heading">
             <h3 align="center">Current Survey</h3>

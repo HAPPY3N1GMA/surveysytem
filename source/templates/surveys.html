@@ -55,8 +55,18 @@ $(function(){
         <h1 align="center">Surveys</h1>
       </div>
     <div class="panel-body">
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class=flashes align="center" style="color:red">
+        {% for message in messages %}
+          <p> {{ message }}</p>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
       {% if current_user.role=='admin' %}
-       <br></br>
       <form method="POST">
         <input type="hidden" name="surveyformid" id="surveyformid" value="1">       
         <div class="container">

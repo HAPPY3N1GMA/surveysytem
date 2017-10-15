@@ -1,6 +1,6 @@
 import copy
 from datetime import datetime
-from flask import redirect, render_template, request, url_for
+from flask import redirect, render_template, request, url_for, flash
 from server import errorMSG
 from functions import get
 from models import GeneralQuestion, MCQuestion, SurveyResponse,\
@@ -86,6 +86,10 @@ class SurveyUtil(object):
             return render_template("home.html", user=current_user)
 
         survey_name = request.form["svyname"]
+        if survey_name == "":
+            flash('Please Enter a Valid Survey Name')
+            return self.surveyinfo()  
+
         courseID = request.form["svycourse"]
         startdate = request.form["startdate"]
         enddate = request.form["enddate"]
@@ -95,6 +99,7 @@ class SurveyUtil(object):
             enddate = datetime.strptime(enddate, '%Y/%m/%d')
         except ValueError:
             errorMSG("routes.newsurvey", "Invalid Date Entered")  
+            flash('Please Enter a Start and Finish Date')
             return self.surveyinfo()  
         
 
@@ -155,6 +160,7 @@ class SurveyUtil(object):
 
         if survey_questions == []:
             errorMSG("routes.addqsurvey", "no questions selected")
+            flash('No questions added to Survey')
             return self.opensurvey()
 
         if (request.form.getlist("surveyid") == []):
@@ -271,22 +277,16 @@ class SurveyUtil(object):
             #and they can now use past surveys they were associated with to maybe better choose
             #optional questions
 
-
-
-            survey.status = 2
+            if survey.mc_questions == [] and survey.gen_questions == []:
+                flash('No questions added to Survey')
+                errorMSG("routes.statussurvey","Error adding students to survey") 
+                return self.viewsurvey()
 
             if survey.add_students() == False:
                 errorMSG("routes.statussurvey","Error adding students to survey")
+                return self.viewsurvey()
 
-            # students = UniUser.query.filter_by(role='student').all()	
-            # if(students==None):
-            #     errorMSG("routes.statussurvey","student object list is empty")
-            #     return self.surveyinfo()
-
-            # #give access to any students required
-            # for s in students:
-            #     if course in s.courses:
-            #         survey.users.append(s)
+            survey.status = 2
 
         elif survey.status == 2:
             #anyone associated with the course will now have access to view its results
@@ -336,11 +336,13 @@ class SurveyUtil(object):
 
             if len(survey.gen_questions)!=len(genResponseList):
                 errorMSG("routes.answersurvey","Extended Response Questions not completed")
+                flash('Please Complete All Extended Response Questions')
                 return self.opensurvey()
 
         for text in genResponseList:
             if (get.cleanString(str(text))==False):
                 errorMSG("routes.answersurvey","Invalid input in extended response")
+                flash('Invalid Characters Used In Extended Response')
                 return self.opensurvey()
 
 
@@ -349,6 +351,7 @@ class SurveyUtil(object):
             for question in survey.mc_questions:
                 if (request.form.getlist(str(question.id))==[]):
                     errorMSG("routes.answersurvey","MultiChoice Questions not completed")
+                    flash('Please Complete All Multiple Choice Questions')
                     return self.opensurvey()
 
                 mcResponseList.append(request.form[str(question.id)])
@@ -357,6 +360,7 @@ class SurveyUtil(object):
 
         if len(survey.mc_questions)!=len(mcResponseList):
             errorMSG("routes.answersurvey","MultiChoice Questions not completed")
+            flash('Please Complete All Multiple Choice Questions')
             return self.opensurvey()
 
 
@@ -410,6 +414,7 @@ class QuestionUtil(object):
             return render_template("home.html", user=current_user)
 
         if (request.form.getlist('question')==[]):
+            flash('No question selected')
             errorMSG("routes.openquestion","question not selected")
             return self.questioninfo()		
 
@@ -446,11 +451,13 @@ class QuestionUtil(object):
 
         if(question==""):
             errorMSG("append.question","No Question Provided")
+            flash('Please Enter A Valid Question')
             return self.questioninfo()
 
         for text in question:
             if (get.cleanString(str(text))==False):
                 errorMSG("routes.createsurvey","Invalid input in fields")
+                flash('Invalid characters in question')
                 return self.questioninfo()
 
 
@@ -475,12 +482,14 @@ class QuestionUtil(object):
         for text in validStrings:
             if (get.cleanString(str(text))==False):
                 errorMSG("routes.createsurvey","Invalid input in fields")
+                flash('Invalid characters in answers')
                 return self.questioninfo()
 
 
         #if only one answer provided then return with error msg (this is not a valid question)
         if(len(answers)<2):
             errorMSG("routes.createsurvey","Only one answer provided for a mc question")
+            flash("Multiple choice questions require atleast 2 answers")
             return self.questioninfo()
 
         new = MCQuestion(question,answer_one,answer_two,answer_three,answer_four,status)
@@ -513,11 +522,13 @@ class QuestionUtil(object):
         else:
             if(question==""):
                 errorMSG("append.question","No Question Provided")
+                flash('Please Enter A Valid Question')
                 return self.questioninfo()
 
             for text in question:
                 if (get.cleanString(str(text))==False):
                     errorMSG("routes.modifyquestion","Invalid input in fields")
+                    flash('Invalid characters in question')
                     return self.openquestion()
 
         #open the correct question objecttype
@@ -573,12 +584,14 @@ class QuestionUtil(object):
         for text in validStrings:
             if (get.cleanString(str(text))==False):
                 errorMSG("routes.createsurvey","Invalid input in fields")
+                flash('Invalid characters in answers')
                 return self.openquestion()
 
 
         #if only one answer provided then return with error msg (this is not a valid question)
         if(len(answers)<2):
-            errorMSG("routes.createsurvey","Only one answer provided for a mc question")
+            errorMSG("routes.createsurvey","Multiple choice questions require atleast 2 answers")
+            flash("Multiple choice questions require atleast 2 answers")
             return self.openquestion()
 
         #has by data type changed? If no, then I just update the MC fields

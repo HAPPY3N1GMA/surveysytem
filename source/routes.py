@@ -50,7 +50,7 @@ def login():
 
 		if password == user.password:
 			login_user(user)
-			flash('Logged in successfully.')
+			#flash('Logged in successfully.')
 			next = request.args.get('next')
 			return redirect(next or url_for('home'))
 		else:

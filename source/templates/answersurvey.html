@@ -28,6 +28,17 @@
 				<h1 align="center"> {{survey.title}} </h1>
 				<h2 align="center"> {{course.name}} </h2>
 				<div class="panel-body">
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class=flashes align="center" style="color:red">
+        {% for message in messages %}
+          <p> {{ message }}</p>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+					
 					<form method="POST">
 						<input type="hidden" name="surveyformid" id="surveyformid" value="6">
 						<input type="hidden" name="surveyid" id="surveyid" value="{{survey.id}}">

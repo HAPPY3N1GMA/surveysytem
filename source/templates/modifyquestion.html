@@ -38,6 +38,16 @@
 			</div>		
 		<div class="panel-heading">		
 
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class=flashes align="center" style="color:red">
+        {% for message in messages %}
+          <p> {{ message }}</p>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
 			<fieldset class="form-group">
 				<label for="questionType">Question Type</label>
 				<select class="form-control" id="TypeOfQuestion">
