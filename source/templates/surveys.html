@@ -48,7 +48,8 @@
               {%endif%}
             {%endfor%}
             </select>
-
+            <input name="svystart" placeholder="Start"style="width: 100px; height: 25px"/>
+            <input name="svyend" placeholder="Finish"style="width: 100px; height: 25px"/>
           {%endif%}
           <button type="submit" class="btn-primary" name="bt">Create New Survey</button>
         </div>
@@ -68,10 +69,12 @@
                       <tr>
                         <th>Select</th>
                         <th>Status</th> 
-                        <th>Title</th>
-                        <th>Date</th>
+                        <th>Title</th>               
                         <th>Course</th>
                         <th>Offering</th>
+                        <th>Created</th>
+                        <th>Start</th>
+                        <th>Finish</th>                                
                       </tr>
                       </thead>
                         <tr>
@@ -91,9 +94,6 @@
                             <td>
                             {{ survey.title }}
                             </td>
-                            <td>
-                            {{ survey.date }}
-                            </td>
                               {% for course in course_list %}
                                  {% if course.id == survey.course_id %}
                                   <td>
@@ -104,6 +104,15 @@
                                   </td>    
                                  {% endif %}
                               {% endfor %}  
+                            <td>
+                            {{ survey.date.date_created }}
+                            </td>
+                            <td>
+                            {{ survey.date.date_start }}
+                            </td>
+                            <td>
+                            {{ survey.date.date_end }}
+                            </td>                              
                           </tr> 
                         {%- endfor %}
                       {% else %}

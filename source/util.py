@@ -88,7 +88,7 @@ class SurveyUtil(object):
         survey_name = request.form["svyname"]
         courseID = request.form["svycourse"]
 
-        print("NEW COURSE ID:", courseID)
+        #print("NEW COURSE ID:", courseID)
 
         course = Course.query.filter_by(id=courseID).first()	
         if(course == None):
@@ -111,7 +111,12 @@ class SurveyUtil(object):
             errorMSG("routes.newsurvey", "survey already exists!")
             return self.surveyinfo()	
 
-        survey = Survey(survey_name, datetime.now(), courseID)
+        #date added here is the date the survey goes live
+   
+        # dateStart = datetime.now()
+        # dateEnd = datetime.now()
+
+        survey = Survey(survey_name, courseID)
 
         # add this survey to the course
         course.survey.append(survey)
@@ -219,10 +224,10 @@ class SurveyUtil(object):
             errorMSG("routes.statussurvey","survey object is empty")
             return self.surveyinfo()	
 
-        course = Course.query.filter_by(id=survey.course_id).first()	
-        if(course==None):
-            errorMSG("routes.statussurvey","course object is empty")
-            return self.surveyinfo()
+        # course = Course.query.filter_by(id=survey.course_id).first()	
+        # if(course==None):
+        #     errorMSG("routes.statussurvey","course object is empty")
+        #     return self.surveyinfo()
 
         if survey.status == 0:
             if(current_user.role != 'admin'):
@@ -230,14 +235,17 @@ class SurveyUtil(object):
                 return render_template("home.html", user=current_user)
             survey.status = 1
 
-            staff = UniUser.query.filter_by(role='staff').all()	
-            if(staff==None):
-                errorMSG("routes.statussurvey","staff object list is empty")
-                return self.surveyinfo()
 
-            for s in staff:
-                if(course in s.courses):
-                    survey.users.append(s)
+            survey.add_staff()
+
+            # staff = UniUser.query.filter_by(role='staff').all()	
+            # if(staff==None):
+            #     errorMSG("routes.statussurvey","staff object list is empty")
+            #     return self.surveyinfo()
+
+            # for s in staff:
+            #     if(course in s.courses):
+            #         survey.users.append(s)
 
         elif survey.status == 1:
 
@@ -252,15 +260,18 @@ class SurveyUtil(object):
 
 
             survey.status = 2
-            students = UniUser.query.filter_by(role='student').all()	
-            if(students==None):
-                errorMSG("routes.statussurvey","student object list is empty")
-                return self.surveyinfo()
 
-            #give access to any students required
-            for s in students:
-                if course in s.courses:
-                    survey.users.append(s)
+            survey.add_students()
+
+            # students = UniUser.query.filter_by(role='student').all()	
+            # if(students==None):
+            #     errorMSG("routes.statussurvey","student object list is empty")
+            #     return self.surveyinfo()
+
+            # #give access to any students required
+            # for s in students:
+            #     if course in s.courses:
+            #         survey.users.append(s)
 
         elif survey.status == 2:
             #anyone associated with the course will now have access to view its results

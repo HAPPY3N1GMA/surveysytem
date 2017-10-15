@@ -1,7 +1,9 @@
 from sqlalchemy import Integer, ForeignKey, String, Column, Date, Table, Boolean
 from sqlalchemy.orm import relationship
-from database import Base
+from database import Base, db_session
+from datetime import datetime
 import ast
+from flask_login import current_user
 
 
 class UniUser(Base):
@@ -60,6 +62,29 @@ class UniUser(Base):
         self.courses = courses
         self.surveys = surveys
 
+    def get_staff():
+        staff = UniUser.query.filter_by(role='staff').all() 
+        if(staff==None):
+            errorMSG("get_staff","staff object list is empty")
+            return False
+        return staff
+
+
+    def get_students():
+        students = UniUser.query.filter_by(role='student').all() 
+        if(students==None):
+            errorMSG("get_students","staff object list is empty")
+            return False
+        return students
+
+
+
+
+    def is_enrolled(self,course):
+        if course in self.courses:
+            return True
+        return False
+
     def __repr__(self):
         return '<UniUser Id: %r, Courses: %r>' % (self.id, self.courses)
 
@@ -103,6 +128,8 @@ csassociation_table = Table('csassociation', Base.metadata,
                             Column('survey_id', Integer,
                                    ForeignKey('survey.id'))
                             )
+
+
 
 #question status
 # 0 = Standard
@@ -203,12 +230,47 @@ class MCResponse(Base):
 
 
 
+#this is new and needs adding to diagrams
+
+class SurveyDate(Base):
+    __tablename__ = 'surveydate'
+    id = Column(Integer, primary_key=True)
+    survey_id = Column(Integer, ForeignKey('survey.id'))
+    survey = relationship("Survey", back_populates="date")
+    date_created = Column(Date)
+    date_start = Column(Date)
+    date_end = Column(Date)
+
+    def __init__(self, date_start=None, date_end = None):
+        self.date_created = datetime.now()
+        self.date_start = date_start
+        self.date_end = date_end
+
+    def is_active(self):
+        """Return true if the survey is active."""
+        current_time = datetime.now()
+        if self.date_start > current_time and self.date_end < current_time:
+            return True
+        return False
+
+    def set_start(self,date=None):
+        self.date_start = date
+        db_session.commit()
+
+    def set_end(self,date=None):
+        self.date_end = date
+        db_session.commit()
+
+
+
 class Survey(Base):
     __tablename__ = 'survey'
     id = Column(Integer, primary_key=True)
     status = Column(Integer)
     title = Column(String)
-    date = Column(Date)
+
+    date = relationship("SurveyDate", uselist=False, back_populates="survey")
+
     course_id = Column(Integer, ForeignKey('course.id'))
 
     #uniuser_id = Column(Integer, ForeignKey('uniuser.id'))
@@ -224,8 +286,13 @@ class Survey(Base):
                          backref="survey")
 
 
-    def __init__(self, title=None, date=None, courseid=None,
-                 mcquestions=[], genquestions=[], _users=[], status=0):
+    def __init__(self, title=None, courseid=None, mcquestions=[], genquestions=[], 
+                 _users=[], status=0):
+
+        date = SurveyDate()
+        db_session.add(date)
+        #db_session.commit()
+
         self.title = title
         self.date = date
         self.course_id = courseid
@@ -236,6 +303,40 @@ class Survey(Base):
 
     def __repr__(self):
         return '<Survey %r>' % (self.title)  
+
+
+    def get_course(self):
+        course = Course.query.filter_by(id=self.course_id).first()    
+        if(course==None):
+            errorMSG("get_course","course object is empty")
+        return course
+
+    def add_staff(self):
+        course = self.get_course()
+        staff = UniUser.get_staff()
+        return self.add_users(staff,course)
+
+    def add_students(self):
+        course = self.get_course()
+        students = UniUser.get_students()
+        return self.add_users(students,course)
+
+    def add_users(self,userList=[],course=None):
+        if userList == []:
+            errorMSG("add_users","userList is empty")
+            return False
+        if course == None:
+            errorMSG("add_users","course is empty")
+            return False
+
+        for user in userList:
+            if user.is_enrolled(course):
+                self.users.append(user)
+
+        db_session.commit()
+        return True
+
+
 
 
 class SurveyResponse(Base):
