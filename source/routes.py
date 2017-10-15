@@ -56,6 +56,9 @@ def login():
 			flash("Invalid Username or Password")
 			return render_template("login.html")
 
+	if (current_user.is_authenticated):
+		return redirect(url_for("home"))
+
 	return render_template("login.html")
 
 
@@ -88,7 +91,8 @@ def register():
 		return redirect(url_for("home"))
 
 	if request.method == 'POST':
-		print("register post")
+		util = SurveyUtil()
+		return util.registeruser()
 
 	course_list = Course.query.all()
 	return render_template("register.html",course_list=course_list)

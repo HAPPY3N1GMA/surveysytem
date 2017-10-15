@@ -11,6 +11,12 @@ from flask_login import current_user
 
 
 class SurveyUtil(object):
+
+    def registeruser(self):
+        print("registeruser")
+        course_list = Course.query.all()
+        return render_template("register.html",course_list=course_list)
+
     def surveyinfo(self):
         if (current_user.is_authenticated) == False:
             return redirect(url_for("login"))
