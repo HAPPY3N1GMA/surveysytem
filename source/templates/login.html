@@ -21,17 +21,24 @@
 	<body>
 		<div class="container login-form col-xs-10">
 			<h1></h1>
-			{% if invalid %}
-				<p align="center" style="color:red">Invalid Username or Password</p>
-			{% endif %}
+		    {% with messages = get_flashed_messages() %}
+		      {% if messages %}
+		        <ul class=flashes align="center" style="color:red">
+		        {% for message in messages %}
+		          <p> {{ message }}</p>
+		        {% endfor %}
+		        </ul>
+		      {% endif %}
+		    {% endwith %}
+
 			<div class="login-top">
 				<form method="POST">
 				<div class="login_box">
 					<i ></i>
 					<input 
 						type="text" id="username" name="username"
-						value="Username"onfocus="this.value = '';" 
-						onblur="if (this.value == '') {this.value = 'Username'}"
+						value="UserId"onfocus="this.value = '';" 
+						onblur="if (this.value == '') {this.value = 'UserId'}"
 					/>
 					<div class="clear"> </div>
 				</div>
@@ -49,6 +56,10 @@
 					<input type="submit"  value="Login" >
 				</div>
 				</form>
+
+				<br></br>
+				<p style="color:white">Are you a guest? Register <a href="/register" style="color:lightblue">Here</a></p>
+
 			</div>
 		</div>		
 	</body>

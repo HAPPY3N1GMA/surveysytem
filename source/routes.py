@@ -45,19 +45,18 @@ def login():
 		user = UniUser.query.get(id)
 
 		if user==None:
-			print("nouser")
-			return render_template("login.html", invalid=True)
+			flash("Invalid Username or Password")
+			return render_template("login.html")
 
 		if password == user.password:
 			login_user(user)
-			#flash('Logged in successfully.')
 			next = request.args.get('next')
 			return redirect(next or url_for('home'))
 		else:
-			print("incorrect password")
-			return render_template("login.html", invalid=True)
+			flash("Invalid Username or Password")
+			return render_template("login.html")
 
-	return render_template("login.html", invalid=False)
+	return render_template("login.html")
 
 
 @app.route("/logintest")
@@ -77,6 +76,23 @@ def test():
 def logout():
 	logout_user()
 	return redirect("login")
+
+
+#######################################################################
+######################## 		REGISTER 	    #######################
+#######################################################################
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+	if (current_user.is_authenticated):
+		return redirect(url_for("home"))
+
+	if request.method == 'POST':
+		print("register post")
+
+	course_list = Course.query.all()
+	return render_template("register.html",course_list=course_list)
+
 
 #######################################################################
 ########################## 	SURVEYS 	###############################

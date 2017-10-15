@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>Register</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+	<link rel= "stylesheet" type= "text/css" href= "static/styles/login.css">
+
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+	<meta name="keywords" content="" />
+
+
+	<!--Gives access to Google Fonts-->
+	<link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+
+	</head>
+
+	<body>
+		<div class="container login-form col-xs-10">
+			<h1></h1>
+	    {% with messages = get_flashed_messages() %}
+	      {% if messages %}
+	        <ul class=flashes align="center" style="color:red">
+	        {% for message in messages %}
+	          <p> {{ message }}</p>
+	        {% endfor %}
+	        </ul>
+	      {% endif %}
+	    {% endwith %}
+			<div class="login-top">
+				<form method="POST">
+				<div class="login_box">
+					<i ></i>
+					<input 
+						type="text" id="username" name="username"
+						value="Enter a UserId"onfocus="this.value = '';" 
+						onblur="if (this.value == '') {this.value = 'Enter a UserId'}"
+					/>
+					<div class="clear"> </div>
+				</div>
+				<div class="login_box">
+					<i class="icon"></i>
+					<input 
+						type="password" id="password" name="password" 
+						value="Password" onfocus="this.value = '';"
+						onblur="if (this.value == '') {this.value = 'Password'}"
+					/>
+					<div class="clear"> </div>
+				</div>
+
+				<div class="form-group">
+				  <select class="form-control" id="regcourse" name="regcourse" value="Choose Course">
+				    {%for course in course_list%}
+				      {%if course.survey==[] %}
+				        <option value="{{course.id}}">{{course.name}} - ({{course.offering}} )</option>
+				      {%endif%}
+				    {%endfor%}
+				  </select>
+				</div>
+				<div class="login-btn">
+					<input type="submit"  value="Register" >
+				</div>
+				</form>
+			<br>
+				<p style="color:white">Return to <a href="/login" style="color:lightblue">Login</a></p>
+
+			</div>
+		</div>		
+	</body>
+</html>
