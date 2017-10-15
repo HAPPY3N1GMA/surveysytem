@@ -6,6 +6,27 @@
   <link rel="stylesheet" type= "text/css" href="static/styles/font-awesome.min.css">
   <link rel="stylesheet" type= "text/css" href="static/styles/ionicons.min.css">
   <script src="static/js/bootstrap.min.js"></script>
+
+
+
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+  
+  <script>
+
+$(function(){
+        $("#enddate").datepicker({ dateFormat: 'yy/mm/dd' });
+        $("#startdate").datepicker({ dateFormat: 'yy/mm/dd' }).bind("change",function(){
+            var minValue = $(this).val();
+            minValue = $.datepicker.parseDate("yy-mm-dd", minValue);
+            minValue.setDate(minValue.getDate()+1);
+            $("#enddate").datepicker( "option", "minDate", minValue );
+        })
+    });
+
+  </script>
+
   <link rel="stylesheet" type= "text/css" href="static/styles/styles.css">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -39,17 +60,24 @@
       <form method="POST">
         <input type="hidden" name="surveyformid" id="surveyformid" value="1">       
         <div class="container">
-          <input name="svyname" placeholder="Enter survey name"style="width: 400px; height: 25px"/>
+          <input name="svyname" placeholder="Enter survey name" style="width: 400px; height: 25px"/>
           {%if course_list%}
-            <select name = "svycourse"style="width: 200px;height: 25px">
+            <select name = "svycourse" style="width: 200px;height: 25px">
             {%for course in course_list%}
               {%if course.survey==[] %}
                 <option value="{{course.id}}">{{course.name}} - ({{course.offering}} )</option>
               {%endif%}
             {%endfor%}
             </select>
-            <input name="svystart" placeholder="Start"style="width: 100px; height: 25px"/>
-            <input name="svyend" placeholder="Finish"style="width: 100px; height: 25px"/>
+
+
+<label for="startdate">From</label>
+<input type="text" id="startdate" name="startdate" style="width: 80px; height: 25px">
+<label for="to">to</label>
+<input type="text" id="enddate" name="enddate" style="width: 80px; height: 25px">
+
+
+
           {%endif%}
           <button type="submit" class="btn-primary" name="bt">Create New Survey</button>
         </div>
@@ -128,5 +156,6 @@
             </div>
           </form>  
         </div>
+
   </body>
  </html>

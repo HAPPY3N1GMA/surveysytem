@@ -87,6 +87,17 @@ class SurveyUtil(object):
 
         survey_name = request.form["svyname"]
         courseID = request.form["svycourse"]
+        startdate = request.form["startdate"]
+        enddate = request.form["enddate"]
+
+        try:
+            startdate = datetime.strptime(startdate, '%Y/%m/%d')
+            enddate = datetime.strptime(enddate, '%Y/%m/%d')
+        except ValueError:
+            errorMSG("routes.newsurvey", "Invalid Date Entered")  
+            return self.surveyinfo()  
+        
+
 
         #print("NEW COURSE ID:", courseID)
 
@@ -117,6 +128,9 @@ class SurveyUtil(object):
         # dateEnd = datetime.now()
 
         survey = Survey(survey_name, courseID)
+
+        survey.date.date_start = startdate
+        survey.date.date_end = enddate
 
         # add this survey to the course
         course.survey.append(survey)
@@ -236,8 +250,8 @@ class SurveyUtil(object):
             survey.status = 1
 
 
-            survey.add_staff()
-
+            if survey.add_staff() ==False:
+                errorMSG("routes.statussurvey","Error adding students to survey")
             # staff = UniUser.query.filter_by(role='staff').all()	
             # if(staff==None):
             #     errorMSG("routes.statussurvey","staff object list is empty")
@@ -261,7 +275,8 @@ class SurveyUtil(object):
 
             survey.status = 2
 
-            survey.add_students()
+            if survey.add_students() == False:
+                errorMSG("routes.statussurvey","Error adding students to survey")
 
             # students = UniUser.query.filter_by(role='student').all()	
             # if(students==None):
