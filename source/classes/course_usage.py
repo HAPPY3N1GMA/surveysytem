@@ -15,6 +15,6 @@ from abc import ABCMeta, abstractmethod
 class LoadCourse():
 	'loads a specific survey'
 
-	def load(self, id):
+	def load(id):
 		course = Course.query.filter_by(id=id).first()		
 		return course

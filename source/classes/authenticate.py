@@ -35,7 +35,6 @@ class Login:
 
 		return login_status.execute(user)		
 
-
 # abstract
 class LoginStatus:
 	__metaclass__ = ABCMeta

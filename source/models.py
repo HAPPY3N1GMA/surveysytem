@@ -5,7 +5,7 @@ from datetime import datetime
 import ast
 from flask_login import current_user
 from abc import ABCMeta, abstractmethod
-
+from flask import Flask, redirect, render_template, request, url_for, flash
 
 class UniUser(Base):
     __tablename__ = 'uniuser'
@@ -84,13 +84,13 @@ class UniUser(Base):
     def __repr__(self):
         return '<UniUser Id: %r, Courses: %r>' % (self.id, self.courses)
 
-
     @abstractmethod
     def AnswerSurvey(self,survey,course):
         pass
 
     @abstractmethod
     def ModifySurvey(self,survey,course):
+        print("ERRRRROOOORRRR")
         pass
 
     @abstractmethod
@@ -98,12 +98,14 @@ class UniUser(Base):
         pass
 
 class Admin(UniUser):
+
     def AnswerSurvey(self,survey,course):
         # run code for answering if applicable
         return  ListSurveys.show_list()
 
     def ModifySurvey(self,survey,course):
         # run code for modifying if applicable
+        print("1",course)
         general = GeneralQuestion.query.all()
         multi = MCQuestion.query.all()
 
