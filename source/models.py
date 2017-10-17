@@ -7,6 +7,7 @@ from flask_login import current_user
 from abc import ABCMeta, abstractmethod
 from flask import Flask, redirect, render_template, request, url_for, flash
 
+
 class UniUser(Base):
     __tablename__ = 'uniuser'
     id = Column(Integer,  primary_key=True)
@@ -81,6 +82,10 @@ class UniUser(Base):
         return '<UniUser Id: %r, Courses: %r>' % (self.id, self.courses)
 
     @abstractmethod
+    def CreateSurvey(self,courseId,surveyName,startDate,endDate):
+        pass
+
+    @abstractmethod
     def AnswerSurvey(self,survey,course):
         pass
 
@@ -98,19 +103,35 @@ class UniUser(Base):
         'polymorphic_identity':'uniuser'
     }
 
+
+
 class Admin(UniUser):
 
     __mapper_args__ = {
         'polymorphic_identity':'Admin'
     }
 
+    def CreateSurvey(self,courseId,surveyName,startDate,endDate):
+
+        survey = Survey(surveyName, courseId)
+        survey.set_dates(startDate,endDate)
+
+        course = Course.query.filter_by(id=courseId).first() 
+        course.survey.append(survey)
+
+        current_user.survey.append(survey)
+
+        db_session.add(survey)
+        db_session.commit()
+
+        return render_template("surveys.html",user=current_user)
+
     def AnswerSurvey(self,survey,course):
         # run code for answering if applicable
-        return  ListSurveys.show_list()
+        return render_template("surveys.html",user=current_user)
 
     def ModifySurvey(self,survey,course):
         # run code for modifying if applicable
-        print("1",course)
         general = GeneralQuestion.query.all()
         multi = MCQuestion.query.all()
 
@@ -123,7 +144,9 @@ class Admin(UniUser):
 
     def ViewSurveyResults(self,survey,course):
         # run code for viewing results if applicable
-        return  ListSurveys.show_list() # TODO impl
+        return render_template("surveys.html",user=current_user) # TODO impl
+
+
 
 class Staff(UniUser):
 
@@ -131,9 +154,12 @@ class Staff(UniUser):
         'polymorphic_identity':'Staff'
     }
 
+    def CreateSurvey(self,courseId,surveyName,startDate,endDate):
+        return render_template("surveys.html",user=current_user)
+
     def AnswerSurvey(self,survey,course):
         # run code for answering if applicable
-        return  ListSurveys.show_list()
+        return render_template("surveys.html",user=current_user)
 
     def ModifySurvey(self,survey,course):
         # run code for modifying if applicable
@@ -150,7 +176,9 @@ class Staff(UniUser):
 
     def ViewSurveyResults(self,survey,course):
         # run code for viewing results if applicable
-        return  ListSurveys.show_list()
+        return render_template("surveys.html",user=current_user)
+
+
 
 class Student(UniUser):
 
@@ -158,6 +186,9 @@ class Student(UniUser):
         'polymorphic_identity':'Student'
     }
 
+    def CreateSurvey(self,courseId,surveyName,startDate,endDate):
+        return render_template("surveys.html",user=current_user)
+
     def AnswerSurvey(self,survey,course):
         # run code for answering if applicable
         return render_template("answersurvey.html", survey=survey,
@@ -165,11 +196,14 @@ class Student(UniUser):
 
     def ModifySurvey(self,survey,course):
         # run code for modifying if applicable
-        return  ListSurveys.show_list()
+        return render_template("surveys.html",user=current_user)
 
     def ViewSurveyResults(self,survey,course):
         # run code for viewing results if applicable
-        return  ListSurveys.show_list()
+        return render_template("surveys.html",user=current_user)
+
+
+
 
 class Guest(UniUser):
 
@@ -177,6 +211,9 @@ class Guest(UniUser):
         'polymorphic_identity':'Guest'
     }
 
+    def CreateSurvey(self,courseId,surveyName,startDate,endDate):
+        return render_template("surveys.html",user=current_user)
+
     def AnswerSurvey(self,survey,course):
         # run code for answering if applicable
         return render_template("answersurvey.html", survey=survey,
@@ -184,11 +221,11 @@ class Guest(UniUser):
 
     def ModifySurvey(self,survey,course):
         # run code for modifying if applicable
-        return  ListSurveys.show_list()
+        return render_template("surveys.html",user=current_user)
 
     def ViewSurveyResults(self,survey,course):
         # run code for viewing results if applicable
-        return  ListSurveys.show_list()
+        return render_template("surveys.html",user=current_user)
 
 
 
@@ -426,6 +463,10 @@ class Survey(Base):
         course = self.get_course()
         students = UniUser.get_students()
         return self.add_users(students,course)
+
+    def set_dates(self,startDate,endDate):
+        self.date.set_start(startDate)
+        self.date.set_end(endDate)
 
     def add_users(self,userList=[],course=None):
         if userList == []:

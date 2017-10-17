@@ -100,13 +100,18 @@ def surveys():
 
 		#check if an admin and if so, they are permitted to make new surveys!
 		surveyform = request.form["surveyformid"]
+
+		if surveyform=='1':
+			return survey_usage.CreateSurvey().create_attempt()	
 		if surveyform=='2':
 			return survey_usage.OpenSurvey().open_attempt()		
 
+
+
 		if(current_user.role == 'Admin' or current_user.role == 'Staff'):
 			if(current_user.role=='Admin'):
-				if surveyform=='1':
-					return util.newsurvey()
+				# if surveyform=='1':
+				# 	return util.newsurvey()
 				if surveyform=='3':
 					return util.removeqsurvey()
 				if surveyform=='4':
