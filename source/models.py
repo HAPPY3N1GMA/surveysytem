@@ -90,23 +90,50 @@ class UniUser(Base):
         pass
 
 
+    __mapper_args__ = {
+        'polymorphic_on':role,
+        'polymorphic_identity':'uniuser'
+    }
+
+
+
 
 class Admin(UniUser):
+
+    __mapper_args__ = {
+        'polymorphic_identity':'Admin'
+    }
+
     def OpenSurvey(self,survey,course):
         pass
 
 
 class Staff(UniUser):
+
+    __mapper_args__ = {
+        'polymorphic_identity':'Staff'
+    }
+
     def OpenSurvey(self,survey,course):
         pass
 
 
 class Student(UniUser):
+
+    __mapper_args__ = {
+        'polymorphic_identity':'Student'
+    }
+
     def OpenSurvey(self,survey,course):
         pass
 
 
 class Guest(UniUser):
+
+    __mapper_args__ = {
+        'polymorphic_identity':'Guest'
+    }
+
     def OpenSurvey(self,survey,course):
         pass
 
