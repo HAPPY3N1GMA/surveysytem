@@ -6,7 +6,7 @@ from defines import debug
 from functions import get
 from models import GeneralQuestion, MCQuestion, SurveyResponse,\
 					GeneralResponse, MCResponse
-from models import Survey, Course, UniUser
+from models import Survey, Course, UniUser, Admin, Staff, Guest, Student
 from database import db_session, Base
 from flask_login import login_user, login_required, current_user, logout_user
 from util import SurveyUtil, QuestionUtil
@@ -20,8 +20,15 @@ class Login:
 		credentials.set_pass()
 
 		login_status = LoginFailure()
-
 		user = UniUser.query.get(credentials.get_user())
+
+		Role = None
+		try:
+			Role = eval(UniUser.query.get(credentials.get_user()).role)
+		except AttributeError:
+			print("DID NOT WORK")
+
+		user = Role.query.get(credentials.get_user())	
 		if user:
 			if credentials.get_pass() == user.password:
 				login_status = LoginSuccess()

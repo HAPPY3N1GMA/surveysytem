@@ -4,6 +4,7 @@ from database import Base, db_session
 from datetime import datetime
 import ast
 from flask_login import current_user
+from abc import ABCMeta, abstractmethod
 
 
 class UniUser(Base):
@@ -20,11 +21,6 @@ class UniUser(Base):
     surveys = relationship("Survey",
                            secondary="usassociation",
                            backref='uniuser')
-
-
-    def is_active(self):
-        """True, as all users are active."""
-        return True
 
     def get_id(self):
         """Return the id to satisfy Flask-Login's requirements."""
@@ -89,12 +85,42 @@ class UniUser(Base):
         return '<UniUser Id: %r, Courses: %r>' % (self.id, self.courses)
 
 
-ucassociation_table = Table('ucassociation', Base.metadata,
-                            Column('uniuser_id', Integer,
-                                   ForeignKey('uniuser.id')),
-                            Column('course_id', Integer,
-                                   ForeignKey('course.id'))
-                            )
+    @abstractmethod
+    def OpenSurvey(self,survey,course):
+        pass
+
+
+
+class Admin(UniUser):
+    def OpenSurvey(self,survey,course):
+        pass
+
+
+class Staff(UniUser):
+    def OpenSurvey(self,survey,course):
+        pass
+
+
+class Student(UniUser):
+    def OpenSurvey(self,survey,course):
+        pass
+
+
+class Guest(UniUser):
+    def OpenSurvey(self,survey,course):
+        pass
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -357,6 +383,17 @@ class SurveyResponse(Base):
     def __repr__(self):
         return '<Response to %r>' % (self.survey_id)       
 
+
+
+
+
+
+ucassociation_table = Table('ucassociation', Base.metadata,
+                            Column('uniuser_id', Integer,
+                                   ForeignKey('uniuser.id')),
+                            Column('course_id', Integer,
+                                   ForeignKey('course.id'))
+                            )
 
 
 
