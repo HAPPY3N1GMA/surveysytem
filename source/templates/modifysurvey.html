@@ -306,10 +306,12 @@
         {% else %}
         <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">End Survey</button>
         {% endif %}
-        <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">View Results</button>
+
+      </form>
+        <a href ="/results/{{ survey.id }}"><button type="button" class="btn btn-secondary btn-lg btn-block">View Results</button></a>
         {% else %}
-        <button type="submit" class="btn btn-primary btn-lg btn-block">View Results</button>
-      {% endif %}
+        <a href ="/results/{{ survey.id }}"><button type="button" class="btn btn-secondary btn-lg btn-block">View Results</button></a>        
+        {% endif %}
 
       </div>
   </div>
