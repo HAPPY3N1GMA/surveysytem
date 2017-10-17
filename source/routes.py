@@ -32,6 +32,39 @@ def submit():
 	if (current_user.is_authenticated):
 		return render_template("completed.html")
 
+#######################################################################
+##########################     Results   ##############################
+#######################################################################
+
+@app.route("/results/<id>")
+@login_required
+def results(id):
+	survey = Survey.query.get(id)
+	responses = survey.responses
+
+	mc_responses = []
+	for response in responses:
+		for mc_response in response.mc_responses:
+			mc_responses.append(mc_response)
+
+	list_of_lists = []
+	# for each question in survey
+	for question in survey.mc_questions:
+		question_res = []
+	# iterate through responses 
+		for response in mc_responses:
+			# find responses with same questionid
+			if question.id == response.question_id:
+				# add them to the question specific
+				question_res.append(response)
+		list_of_lists.append(question_res)
+
+	print(list_of_lists)
+
+	return render_template("results.html", list_of_lists=list_of_lists)
+
+
+
 
 #######################################################################
 ########################## 		LOGIN 	 ##############################

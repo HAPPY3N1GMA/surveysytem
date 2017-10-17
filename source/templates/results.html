@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+		<head>
+				<title>Home</title>
+                <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">				<link rel="stylesheet" type= "text/css" href="/source/static/styles/font-awesome.min.css">
+				<link rel="stylesheet" type= "text/css" href="/source/static/styles/ionicons.min.css">
+                <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+                <link rel="stylesheet" type= "text/css" href="/source/static/styles/styles.css">
+                <style>
+                    header .navbar {
+                        color:black;
+                        min-width: 100%;
+                        padding-right:150px;
+                    }
+
+                    .full-width {
+                        width: 105vw;
+                        overflow: hidden;
+                    }
+                    .panel .panel-body {
+                        margin:auto;
+                    }
+                    input {
+                        width: 100%;
+                    }
+                    </style>
+		</head>
+		<header>
+            <div class="container row full-width">
+                    <nav class="navbar navbar-default col-sm-10">
+                            <ul class="nav navbar-nav navbar-right">
+                                    <li><a href="/home">Home</a></li>
+                                    <li><a href="/surveys">Surveys</a></li>
+                                    {% if current_user.role=='admin'%}
+                                    <li><a href="/questions">Questions</a></li>
+                                    {% endif %}
+                                <li><a href="/logout">Logout</a></li>										
+                            </ul>
+                    </nav> 
+            </div>
+		</header>
+    
+    <div class="container">
+        <h1>Results for: {{ survey_name }}</h1>
+
+        
+        {% for list in list_of_lists %}
+            {% for response in list %}
+                ID: {{ response.question_id }} Response: {{ response.response }} <br>
+            {% endfor %}
+        {% endfor %}
+    </div>

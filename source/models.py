@@ -205,11 +205,8 @@ class GeneralResponse(Base):
         self.response = _response
 
     def __repr__(self):
-        return '<GeneralResponse to %r or %r for %r>' % (self.question_id,
-                                                  self.response_id)
-
-
-
+        return '<MCResponse to %r is %r>' % (self.question_id,
+                                             self.response_id)
 
 class MCResponse(Base):
     __tablename__ = 'mcresponse'
@@ -225,13 +222,10 @@ class MCResponse(Base):
         self.response = _response
 
     def __repr__(self):
-        return '<MCResponse to %r or %r for %r>' % (self.question_id,
-                                                  self.response_id)
-
-
+        return '<MCResponse to %r is %r>' % (self.question_id,
+                                             self.response_id)
 
 #this is new and needs adding to diagrams
-
 class SurveyDate(Base):
     __tablename__ = 'surveydate'
     id = Column(Integer, primary_key=True)
@@ -262,7 +256,6 @@ class SurveyDate(Base):
         db_session.commit()
 
 
-
 class Survey(Base):
     __tablename__ = 'survey'
     id = Column(Integer, primary_key=True)
@@ -273,7 +266,7 @@ class Survey(Base):
 
     course_id = Column(Integer, ForeignKey('course.id'))
 
-    #uniuser_id = Column(Integer, ForeignKey('uniuser.id'))
+    # uniuser_id = Column(Integer, ForeignKey('uniuser.id'))
 
     mc_questions = relationship("MCQuestion",
                                 secondary="mcassociation",
@@ -285,10 +278,11 @@ class Survey(Base):
     users = relationship("UniUser", secondary="usassociation",
                          backref="survey")
 
+    responses = relationship("SurveyResponse", backref='survey')
+
 
     def __init__(self, title=None, courseid=None, mcquestions=[], genquestions=[], 
                  _users=[], status=0):
-
         date = SurveyDate()
         db_session.add(date)
         #db_session.commit()
@@ -337,8 +331,6 @@ class Survey(Base):
         return True
 
 
-
-
 class SurveyResponse(Base):
     __tablename__ = 'surveyresponse'
     id = Column(Integer, primary_key=True)
@@ -353,13 +345,9 @@ class SurveyResponse(Base):
         self.mc_responses = _mc_responses
         self.gen_responses = _gen_responses
 
-
     def __repr__(self):
-        return '<Response to %r>' % (self.survey_id)       
-
-
-
-
+        return '<Response to %r>' % (self.survey_id,
+                                     )
 
 usassociation_table = Table('usassociation', Base.metadata,
                             Column('uniuser_id', Integer,
