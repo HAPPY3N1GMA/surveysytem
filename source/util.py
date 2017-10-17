@@ -12,30 +12,34 @@ from flask_login import current_user
 
 class SurveyUtil(object):
 
-    def registeruser(self):
-        print("registeruser")
-        course_list = Course.query.all()
-        return render_template("register.html",course_list=course_list)
 
     def surveyinfo(self):
-        if (current_user.is_authenticated) == False:
-            return redirect(url_for("login"))
 
         # users only see the surveys/courses they are permitted to see!
-        if(current_user.role == 'admin'):
-            course_list = Course.query.all()
-            survey_list = Survey.query.all()
 
-        else:
-            # course_list = current_user.courses
-            survey_list = current_user.surveys
-            course_list = current_user.courses
+
+        #current_user.get_courses()
+
+
+        # course_list = current_user.courses
+        survey_list = current_user.surveys
+        course_list = current_user.courses
 
             # survey list needs to only hae surveys i can access at this time!
 
         return render_template("surveys.html", user=current_user,
                                course_list=course_list,
                                survey_list=survey_list)
+
+
+
+
+
+
+
+
+
+
 
     def opensurvey(self):
         if (current_user.is_authenticated) == False:
@@ -146,6 +150,10 @@ class SurveyUtil(object):
         # add this survey to the course
         course.survey.append(survey)
         db_session.add(survey)
+
+
+        current_user.survey.append(survey)
+
         db_session.commit()
 
         #note no users are added at this point

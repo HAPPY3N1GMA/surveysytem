@@ -6,14 +6,15 @@ from database import db_session
 class DB_Loader(object):
 
     def db_load(self):
-        self.admin_load()
         self.course_load()
         self.user_load()
         self.enrolment_load()
+        self.admin_load()
 
     def admin_load(self):
         admin = UniUser(1, '1', 'admin', [], [])
         db_session.add(admin)
+        admin.courses = Course.query.all()
         db_session.commit()
         print('Admin loaded...')
 
@@ -46,6 +47,7 @@ class DB_Loader(object):
                     filter_by(name=row[1]).first()
                 u = db_session.query(UniUser).get(row[0])
                 u.courses.append(course)
+
         db_session.commit()
         # q_users = db_session.query(UniUser).all()
         # for user in q_users:
