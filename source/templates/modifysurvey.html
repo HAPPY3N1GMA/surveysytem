@@ -203,7 +203,7 @@
                       </tr>
                       </thead>
                         {% for question in multi -%}
-                        {% if current_user.role=='staff' and question.status==1 or current_user.role=='Admin' and question.status==0 %}
+                        {% if current_user.role=='Staff' and question.status==1 or current_user.role=='Admin' and question.status==0 %}
                         <tr>
 
                               <td>
@@ -243,7 +243,7 @@
                         </thead>
                       <tr/>
                         {% for question in general -%}
-                        {% if current_user.role=='staff' and question.status==1 or current_user.role=='Admin' and question.status==0 %}
+                        {% if current_user.role=='Staff' and question.status==1 or current_user.role=='Admin' and question.status==0 %}
                         <tr>
                           <td>
                           <input type="checkbox" name="question" value="{{1,question.id}}"/>
@@ -292,7 +292,7 @@
 
       {% elif survey.status==1 %}
 
-        {% if current_user.role=='Admin' or current_user.role=='staff'%}
+        {% if current_user.role=='Admin' or current_user.role=='Staff'%}
         <button type="submit" class="btn btn-primary btn-lg btn-block">Publish Survey</button>
         {% else %}
         <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">Publish Survey</button>
