@@ -15,21 +15,7 @@ class SurveyUtil(object):
 
     def surveyinfo(self):
 
-        # users only see the surveys/courses they are permitted to see!
-
-
-        #current_user.get_courses()
-
-
-        # course_list = current_user.courses
-        survey_list = current_user.surveys
-        course_list = current_user.courses
-
-            # survey list needs to only hae surveys i can access at this time!
-
-        return render_template("surveys.html", user=current_user,
-                               course_list=course_list,
-                               survey_list=survey_list)
+        return render_template("surveys.html",user=current_user)
 
 
 
