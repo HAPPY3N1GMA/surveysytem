@@ -12,13 +12,6 @@ from flask_login import login_user, login_required, current_user, logout_user
 from abc import ABCMeta, abstractmethod
 from classes import course_usage
 
-# needs to;
-# Handles who does what with a survey
-# 1. load up a particular survey
-# 2. load up the course that relates to the survey
-# 3. user dependent (abstract)
-#   student : depending on survey status either pass or taken to answer page or to results
-#   anyone else in course who isnt student : taken to modify page 
 
 class ListSurveys:
     def show_list():
