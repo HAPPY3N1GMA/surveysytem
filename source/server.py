@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_login import LoginManager
-from models import UniUser
+from models import UniUser, Admin, Staff, Student, Guest
+
 
 
 app = Flask(__name__)
@@ -15,7 +16,9 @@ login_manager.login_view = "login"
 
 @login_manager.user_loader
 def load_user(userid):
-	return UniUser.query.get(userid)
+	user = UniUser.query.get(userid)
+	Role = eval(user.role)
+	return Role.query.get(userid)
 
 
 def errorMSG(filename="",msg="",other=""):
