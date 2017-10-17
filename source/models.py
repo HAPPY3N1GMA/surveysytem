@@ -97,7 +97,16 @@ class UniUser(Base):
     def ViewSurveyResults(self,survey,course):
         pass
 
+    __mapper_args__ = {
+        'polymorphic_on':role,
+        'polymorphic_identity':'uniuser'
+    }
+
 class Admin(UniUser):
+
+    __mapper_args__ = {
+        'polymorphic_identity':'Admin'
+    }
 
     def AnswerSurvey(self,survey,course):
         # run code for answering if applicable
@@ -121,6 +130,11 @@ class Admin(UniUser):
         return  ListSurveys.show_list() # TODO impl
 
 class Staff(UniUser):
+
+    __mapper_args__ = {
+        'polymorphic_identity':'Staff'
+    }
+
     def AnswerSurvey(self,survey,course):
         # run code for answering if applicable
         return  ListSurveys.show_list()
@@ -143,6 +157,11 @@ class Staff(UniUser):
         return  ListSurveys.show_list()
 
 class Student(UniUser):
+
+    __mapper_args__ = {
+        'polymorphic_identity':'Student'
+    }
+
     def AnswerSurvey(self,survey,course):
         # run code for answering if applicable
         return render_template("answersurvey.html", survey=survey,
@@ -157,6 +176,11 @@ class Student(UniUser):
         return  ListSurveys.show_list()
 
 class Guest(UniUser):
+
+    __mapper_args__ = {
+        'polymorphic_identity':'Guest'
+    }
+
     def AnswerSurvey(self,survey,course):
         # run code for answering if applicable
         return render_template("answersurvey.html", survey=survey,

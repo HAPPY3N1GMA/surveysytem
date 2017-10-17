@@ -20,15 +20,8 @@ class Login:
 		credentials.set_pass()
 
 		login_status = LoginFailure()
+
 		user = UniUser.query.get(credentials.get_user())
-
-		Role = None
-		try:
-			Role = eval(UniUser.query.get(credentials.get_user()).role)
-		except AttributeError:
-			return login_status.execute(user)	
-
-		user = Role.query.get(credentials.get_user())	
 		if user:
 			if credentials.get_pass() == user.password:
 				login_status = LoginSuccess()
