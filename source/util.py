@@ -49,12 +49,15 @@ class SurveyUtil(object):
 
         course = Course.query.filter_by(id=survey.course_id).first()	
 
-        
+
         if(course == None):
             errorMSG("routes.opensurvey","course object is empty")
             return self.surveyinfo()
 
-        if current_user.role == 'student':
+
+
+
+
 
             # todo: check if student answered survey already here looking at survey.uniuser_id!
             if survey.status == 2:
@@ -82,7 +85,7 @@ class SurveyUtil(object):
         if (current_user.is_authenticated) == False:
             return redirect(url_for("login"))
 
-        if(current_user.role != 'admin'):
+        if(current_user.role != 'Admin'):
             errorMSG("routes.newsurvey", "unauthorised user attempted access:",current_user.id)
             return render_template("home.html", user=current_user)
 
@@ -155,7 +158,7 @@ class SurveyUtil(object):
         if (current_user.is_authenticated)==False:
             return redirect(url_for("login"))
 
-        if(current_user.role != 'admin' and current_user.role != 'staff'):
+        if(current_user.role != 'Admin' and current_user.role != 'staff'):
             errorMSG("routes.addqsurvey", "unauthorised user attempted access:",
                      current_user.id)
             return render_template("home.html", user=current_user)
@@ -200,7 +203,7 @@ class SurveyUtil(object):
         if (current_user.is_authenticated) == False:
             return redirect(url_for("login"))
 
-        if(current_user.role != 'admin' and current_user.role != 'staff'):
+        if(current_user.role != 'Admin' and current_user.role != 'staff'):
             errorMSG("routes.removeqsurvey",
                      "unauthorised user attempted access:",
                      current_user.id)
@@ -255,7 +258,7 @@ class SurveyUtil(object):
         #     return self.surveyinfo()
 
         if survey.status == 0:
-            if(current_user.role != 'admin'):
+            if(current_user.role != 'Admin'):
                 errorMSG("routes.statussurvey","unauthorised user attempted access:",current_user.id)
                 return render_template("home.html", user=current_user)
             survey.status = 1
@@ -400,7 +403,7 @@ class QuestionUtil(object):
         if (current_user.is_authenticated)==False:
             return redirect(url_for("login"))
 
-        if(current_user.role != 'admin'):
+        if(current_user.role != 'Admin'):
             errorMSG("routes.questioninfo","unauthorised user attempted access:",current_user.id)
             return render_template("home.html", user=current_user)
 
@@ -414,7 +417,7 @@ class QuestionUtil(object):
         if (current_user.is_authenticated)==False:
             return redirect(url_for("login"))
 
-        if(current_user.role != 'admin'):
+        if(current_user.role != 'Admin'):
             errorMSG("routes.openquestion","unauthorised user attempted access:",current_user.id)
             return render_template("home.html", user=current_user)
 
@@ -443,7 +446,7 @@ class QuestionUtil(object):
         if (current_user.is_authenticated)==False:
             return redirect(url_for("login"))
 
-        if(current_user.role != 'admin'):
+        if(current_user.role != 'Admin'):
             errorMSG("routes.addquestion","unauthorised user attempted access:",current_user.id)
             return render_template("home.html", user=current_user)
 
@@ -508,7 +511,7 @@ class QuestionUtil(object):
         if (current_user.is_authenticated)==False:
             return redirect(url_for("login"))
 
-        if(current_user.role != 'admin'):
+        if(current_user.role != 'Admin'):
             errorMSG("routes.modifyquestion","unauthorised user attempted access:",current_user.id)
             return render_template("home.html", user=current_user)
 

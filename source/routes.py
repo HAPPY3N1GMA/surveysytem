@@ -103,8 +103,8 @@ def surveys():
 		if surveyform=='2':
 			return survey.OpenSurvey.open_attempt()		
 
-		if(current_user.role == 'admin' or current_user.role == 'staff'):
-			if(current_user.role=='admin'):
+		if(current_user.role == 'Admin' or current_user.role == 'Staff'):
+			if(current_user.role=='Admin'):
 				if surveyform=='1':
 					return util.newsurvey()
 				if surveyform=='3':
@@ -152,7 +152,7 @@ def questions():
 	if (current_user.is_authenticated)==False:
 		return redirect(url_for("login"))
 
-	if(current_user.role != 'admin'):
+	if(current_user.role != 'Admin'):
 		errorMSG("routes.questions","unauthorised user attempted access:",current_user.id)
 		return render_template("home.html", user=current_user)
 
