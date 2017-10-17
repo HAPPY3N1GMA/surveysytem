@@ -1,5 +1,5 @@
 import ast, os, time, copy
-from classes import authenticate
+from classes import authenticate, survey, course
 from datetime import datetime
 from flask import Flask, redirect, render_template, request, url_for, flash
 from server import app, errorMSG
@@ -101,7 +101,7 @@ def surveys():
 		#check if an admin and if so, they are permitted to make new surveys!
 		surveyform = request.form["surveyformid"]
 		if surveyform=='2':
-			return util.opensurvey()		
+			return survey.OpenSurvey.open_attempt()		
 
 		if(current_user.role == 'admin' or current_user.role == 'staff'):
 			if(current_user.role=='admin'):

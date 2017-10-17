@@ -86,29 +86,87 @@ class UniUser(Base):
 
 
     @abstractmethod
-    def OpenSurvey(self,survey,course):
+    def AnswerSurvey(self,survey,course):
         pass
 
+    @abstractmethod
+    def ModifySurvey(self,survey,course):
+        pass
 
+    @abstractmethod
+    def ViewSurveyResults(self,survey,course):
+        pass
 
 class Admin(UniUser):
-    def OpenSurvey(self,survey,course):
-        pass
+    def AnswerSurvey(self,survey,course):
+        # run code for answering if applicable
+        return  ListSurveys.show_list()
 
+    def ModifySurvey(self,survey,course):
+        # run code for modifying if applicable
+        general = GeneralQuestion.query.all()
+        multi = MCQuestion.query.all()
+
+        surveygen = survey.gen_questions
+        surveymc = survey.mc_questions
+
+        return render_template("modifysurvey.html",user=current_user,
+            surveygen=surveygen,surveymc=surveymc,survey=survey,
+            course=course,general=general,multi=multi)
+
+    def ViewSurveyResults(self,survey,course):
+        # run code for viewing results if applicable
+        return  ListSurveys.show_list() # TODO impl
 
 class Staff(UniUser):
-    def OpenSurvey(self,survey,course):
-        pass
+    def AnswerSurvey(self,survey,course):
+        # run code for answering if applicable
+        return  ListSurveys.show_list()
 
+    def ModifySurvey(self,survey,course):
+        # run code for modifying if applicable
+        general = GeneralQuestion.query.all()
+        multi = MCQuestion.query.all()
+
+        surveygen = survey.gen_questions
+        surveymc = survey.mc_questions
+
+        return render_template("modifysurvey.html",user=current_user,
+            surveygen=surveygen,surveymc=surveymc,survey=survey,
+            course=course,general=general,multi=multi)
+
+
+    def ViewSurveyResults(self,survey,course):
+        # run code for viewing results if applicable
+        return  ListSurveys.show_list()
 
 class Student(UniUser):
-    def OpenSurvey(self,survey,course):
-        pass
+    def AnswerSurvey(self,survey,course):
+        # run code for answering if applicable
+        return render_template("answersurvey.html", survey=survey,
+                                       course=course)
 
+    def ModifySurvey(self,survey,course):
+        # run code for modifying if applicable
+        return  ListSurveys.show_list()
+
+    def ViewSurveyResults(self,survey,course):
+        # run code for viewing results if applicable
+        return  ListSurveys.show_list()
 
 class Guest(UniUser):
-    def OpenSurvey(self,survey,course):
-        pass
+    def AnswerSurvey(self,survey,course):
+        # run code for answering if applicable
+        return render_template("answersurvey.html", survey=survey,
+                                       course=course)
+
+    def ModifySurvey(self,survey,course):
+        # run code for modifying if applicable
+        return  ListSurveys.show_list()
+
+    def ViewSurveyResults(self,survey,course):
+        # run code for viewing results if applicable
+        return  ListSurveys.show_list()
 
 
 

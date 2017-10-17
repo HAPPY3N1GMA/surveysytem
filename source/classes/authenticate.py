@@ -26,7 +26,7 @@ class Login:
 		try:
 			Role = eval(UniUser.query.get(credentials.get_user()).role)
 		except AttributeError:
-			print("DID NOT WORK")
+			return login_status.execute(user)	
 
 		user = Role.query.get(credentials.get_user())	
 		if user:
