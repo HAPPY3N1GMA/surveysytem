@@ -8,7 +8,7 @@ from models import GeneralQuestion, MCQuestion, SurveyResponse,\
 from models import Survey, Course, UniUser
 from database import db_session
 from flask_login import current_user
-
+from classes import survey_usage
 
 class SurveyUtil(object):
 
@@ -105,7 +105,7 @@ class SurveyUtil(object):
         if survey_questions == []:
             errorMSG("routes.addqsurvey", "no questions selected")
             flash('No questions added to Survey')
-            return self.opensurvey()
+            return survey_usage.OpenSurvey().open_attempt()	
 
         if (request.form.getlist("surveyid") == []):
             errorMSG("routes.addqsurvey", "surveyid not selected")
@@ -133,7 +133,7 @@ class SurveyUtil(object):
         db_session.commit()
 
         # reload page
-        return self.opensurvey()
+        return survey_usage.OpenSurvey().open_attempt()	
 
     def removeqsurvey(self):
         if (current_user.is_authenticated) == False:
@@ -147,7 +147,7 @@ class SurveyUtil(object):
 
         if request.form.getlist('question')==[]:
             errorMSG("routes.removeqsurvey","no questions selected")
-            return self.opensurvey()
+            return survey_usage.OpenSurvey().open_attempt()	
 
         survey_question = request.form['question']
 
@@ -171,7 +171,7 @@ class SurveyUtil(object):
 
         db_session.commit()
 
-        return self.opensurvey()
+        return survey_usage.OpenSurvey().open_attempt()	
 
     def statussurvey(self):
         if (current_user.is_authenticated)==False:
@@ -240,7 +240,7 @@ class SurveyUtil(object):
             return self.viewsurvey()
         db_session.commit()
 
-        return self.opensurvey()
+        return survey_usage.OpenSurvey().open_attempt()	
 
     def viewsurvey(self):
         if (current_user.is_authenticated)==False:
@@ -249,7 +249,7 @@ class SurveyUtil(object):
         print("view survey results now")
 
         #temp
-        return self.opensurvey()
+        return survey_usage.OpenSurvey().open_attempt()	
 
     def answersurvey(self):
         if (current_user.is_authenticated)==False:
@@ -281,13 +281,13 @@ class SurveyUtil(object):
             if len(survey.gen_questions)!=len(genResponseList):
                 errorMSG("routes.answersurvey","Extended Response Questions not completed")
                 flash('Please Complete All Extended Response Questions')
-                return self.opensurvey()
+                return survey_usage.OpenSurvey().open_attempt()	
 
         for text in genResponseList:
             if (get.cleanString(str(text))==False):
                 errorMSG("routes.answersurvey","Invalid input in extended response")
                 flash('Invalid Characters Used In Extended Response')
-                return self.opensurvey()
+                return survey_usage.OpenSurvey().open_attempt()	
 
 
         mcResponseList = []
@@ -296,7 +296,7 @@ class SurveyUtil(object):
                 if (request.form.getlist(str(question.id))==[]):
                     errorMSG("routes.answersurvey","MultiChoice Questions not completed")
                     flash('Please Complete All Multiple Choice Questions')
-                    return self.opensurvey()
+                    return survey_usage.OpenSurvey().open_attempt()	
 
                 mcResponseList.append(request.form[str(question.id)])
 
@@ -305,7 +305,7 @@ class SurveyUtil(object):
         if len(survey.mc_questions)!=len(mcResponseList):
             errorMSG("routes.answersurvey","MultiChoice Questions not completed")
             flash('Please Complete All Multiple Choice Questions')
-            return self.opensurvey()
+            return survey_usage.OpenSurvey().open_attempt()	
 
 
         #double check this person has not already responded? 

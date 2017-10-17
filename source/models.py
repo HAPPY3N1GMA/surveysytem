@@ -61,20 +61,16 @@ class UniUser(Base):
     def get_staff():
         staff = UniUser.query.filter_by(role='staff').all() 
         if(staff==None):
-            errorMSG("get_staff","staff object list is empty")
+            print("get_staff","staff object list is empty")
             return False
         return staff
-
 
     def get_students():
         students = UniUser.query.filter_by(role='student').all() 
         if(students==None):
-            errorMSG("get_students","staff object list is empty")
+            print("get_students","staff object list is empty")
             return False
         return students
-
-
-
 
     def is_enrolled(self,course):
         if course in self.courses:
@@ -418,7 +414,7 @@ class Survey(Base):
     def get_course(self):
         course = Course.query.filter_by(id=self.course_id).first()    
         if(course==None):
-            errorMSG("get_course","course object is empty")
+            print("get_course","course object is empty")
         return course
 
     def add_staff(self):
@@ -433,10 +429,10 @@ class Survey(Base):
 
     def add_users(self,userList=[],course=None):
         if userList == []:
-            errorMSG("add_users","userList is empty")
+            print("add_users","userList is empty")
             return False
         if course == None:
-            errorMSG("add_users","course is empty")
+            print("add_users","course is empty")
             return False
 
         for user in userList:

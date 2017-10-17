@@ -9,7 +9,6 @@ from models import GeneralQuestion, MCQuestion, SurveyResponse,\
 from models import Survey, Course, UniUser
 from database import db_session, Base
 from flask_login import login_user, login_required, current_user, logout_user
-from util import SurveyUtil, QuestionUtil
 from abc import ABCMeta, abstractmethod
 
 class LoadCourse():
