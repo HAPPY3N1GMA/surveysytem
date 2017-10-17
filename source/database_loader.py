@@ -7,14 +7,15 @@ from database import db_session
 class DB_Loader(object):
 
     def db_load(self):
-        self.admin_load()
         self.course_load()
         self.user_load()
         self.enrolment_load()
+        self.admin_load()
 
     def admin_load(self):
-        admin = UniUser(1, '1', 'admin', [], [])
+        admin = UniUser(1, '1', 'Admin', [], [])
         db_session.add(admin)
+        admin.courses = Course.query.all()
         db_session.commit()
         print('Admin loaded...')
 
@@ -22,7 +23,7 @@ class DB_Loader(object):
         csv_in = open('passwords.csv', 'r')
         reader = csv.reader(csv_in)
         for row in reader:
-            new = UniUser(row[0], row[1], row[2], [], [])
+            new = UniUser(row[0], row[1], row[2].capitalize(), [], [])
             db_session.add(new)
         db_session.commit()
         print('Users loaded...')
@@ -47,6 +48,7 @@ class DB_Loader(object):
                     filter_by(name=row[1]).first()
                 u = db_session.query(UniUser).get(row[0])
                 u.courses.append(course)
+
         db_session.commit()
         # q_users = db_session.query(UniUser).all()
         # for user in q_users:

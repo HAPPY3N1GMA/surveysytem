@@ -4,7 +4,8 @@ from database import Base, db_session
 from datetime import datetime
 import ast
 from flask_login import current_user
-
+from abc import ABCMeta, abstractmethod
+from flask import Flask, redirect, render_template, request, url_for, flash
 
 class UniUser(Base):
     __tablename__ = 'uniuser'
@@ -20,11 +21,6 @@ class UniUser(Base):
     surveys = relationship("Survey",
                            secondary="usassociation",
                            backref='uniuser')
-
-
-    def is_active(self):
-        """True, as all users are active."""
-        return True
 
     def get_id(self):
         """Return the id to satisfy Flask-Login's requirements."""
@@ -65,20 +61,16 @@ class UniUser(Base):
     def get_staff():
         staff = UniUser.query.filter_by(role='staff').all() 
         if(staff==None):
-            errorMSG("get_staff","staff object list is empty")
+            print("get_staff","staff object list is empty")
             return False
         return staff
-
 
     def get_students():
         students = UniUser.query.filter_by(role='student').all() 
         if(students==None):
-            errorMSG("get_students","staff object list is empty")
+            print("get_students","staff object list is empty")
             return False
         return students
-
-
-
 
     def is_enrolled(self,course):
         if course in self.courses:
@@ -88,13 +80,127 @@ class UniUser(Base):
     def __repr__(self):
         return '<UniUser Id: %r, Courses: %r>' % (self.id, self.courses)
 
+    @abstractmethod
+    def AnswerSurvey(self,survey,course):
+        pass
 
-ucassociation_table = Table('ucassociation', Base.metadata,
-                            Column('uniuser_id', Integer,
-                                   ForeignKey('uniuser.id')),
-                            Column('course_id', Integer,
-                                   ForeignKey('course.id'))
-                            )
+    @abstractmethod
+    def ModifySurvey(self,survey,course):
+        print("ERRRRROOOORRRR")
+        pass
+
+    @abstractmethod
+    def ViewSurveyResults(self,survey,course):
+        pass
+
+    __mapper_args__ = {
+        'polymorphic_on':role,
+        'polymorphic_identity':'uniuser'
+    }
+
+class Admin(UniUser):
+
+    __mapper_args__ = {
+        'polymorphic_identity':'Admin'
+    }
+
+    def AnswerSurvey(self,survey,course):
+        # run code for answering if applicable
+        return  ListSurveys.show_list()
+
+    def ModifySurvey(self,survey,course):
+        # run code for modifying if applicable
+        print("1",course)
+        general = GeneralQuestion.query.all()
+        multi = MCQuestion.query.all()
+
+        surveygen = survey.gen_questions
+        surveymc = survey.mc_questions
+
+        return render_template("modifysurvey.html",user=current_user,
+            surveygen=surveygen,surveymc=surveymc,survey=survey,
+            course=course,general=general,multi=multi)
+
+    def ViewSurveyResults(self,survey,course):
+        # run code for viewing results if applicable
+        return  ListSurveys.show_list() # TODO impl
+
+class Staff(UniUser):
+
+    __mapper_args__ = {
+        'polymorphic_identity':'Staff'
+    }
+
+    def AnswerSurvey(self,survey,course):
+        # run code for answering if applicable
+        return  ListSurveys.show_list()
+
+    def ModifySurvey(self,survey,course):
+        # run code for modifying if applicable
+        general = GeneralQuestion.query.all()
+        multi = MCQuestion.query.all()
+
+        surveygen = survey.gen_questions
+        surveymc = survey.mc_questions
+
+        return render_template("modifysurvey.html",user=current_user,
+            surveygen=surveygen,surveymc=surveymc,survey=survey,
+            course=course,general=general,multi=multi)
+
+
+    def ViewSurveyResults(self,survey,course):
+        # run code for viewing results if applicable
+        return  ListSurveys.show_list()
+
+class Student(UniUser):
+
+    __mapper_args__ = {
+        'polymorphic_identity':'Student'
+    }
+
+    def AnswerSurvey(self,survey,course):
+        # run code for answering if applicable
+        return render_template("answersurvey.html", survey=survey,
+                                       course=course)
+
+    def ModifySurvey(self,survey,course):
+        # run code for modifying if applicable
+        return  ListSurveys.show_list()
+
+    def ViewSurveyResults(self,survey,course):
+        # run code for viewing results if applicable
+        return  ListSurveys.show_list()
+
+class Guest(UniUser):
+
+    __mapper_args__ = {
+        'polymorphic_identity':'Guest'
+    }
+
+    def AnswerSurvey(self,survey,course):
+        # run code for answering if applicable
+        return render_template("answersurvey.html", survey=survey,
+                                       course=course)
+
+    def ModifySurvey(self,survey,course):
+        # run code for modifying if applicable
+        return  ListSurveys.show_list()
+
+    def ViewSurveyResults(self,survey,course):
+        # run code for viewing results if applicable
+        return  ListSurveys.show_list()
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -302,7 +408,7 @@ class Survey(Base):
     def get_course(self):
         course = Course.query.filter_by(id=self.course_id).first()    
         if(course==None):
-            errorMSG("get_course","course object is empty")
+            print("get_course","course object is empty")
         return course
 
     def add_staff(self):
@@ -317,10 +423,10 @@ class Survey(Base):
 
     def add_users(self,userList=[],course=None):
         if userList == []:
-            errorMSG("add_users","userList is empty")
+            print("add_users","userList is empty")
             return False
         if course == None:
-            errorMSG("add_users","course is empty")
+            print("add_users","course is empty")
             return False
 
         for user in userList:
@@ -348,6 +454,17 @@ class SurveyResponse(Base):
     def __repr__(self):
         return '<Response to %r>' % (self.survey_id,
                                      )
+
+
+ucassociation_table = Table('ucassociation', Base.metadata,
+                            Column('uniuser_id', Integer,
+                                   ForeignKey('uniuser.id')),
+                            Column('course_id', Integer,
+                                   ForeignKey('course.id'))
+                            )
+
+
+
 
 usassociation_table = Table('usassociation', Base.metadata,
                             Column('uniuser_id', Integer,

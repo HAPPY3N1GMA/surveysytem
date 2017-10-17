@@ -18,7 +18,7 @@
 		  <ul class="nav navbar-nav navbar-right">
         <li><a href="/home">Home</a></li>
         <li><a href="/surveys">Surveys</a></li>
-        {% if current_user.role=='admin'%}
+        {% if current_user.role=='Admin'%}
         <li><a href="/questions">Questions</a></li>
         {% endif %}
       <li><a href="/logout">Logout</a></li>
@@ -121,12 +121,12 @@
                 <div class="multiChoiceList">
                   <div class="panel-body">
                     <table class="table table-hover">
-                      <col width="10" align="center">{% if current_user.role=='admin' %}<col width="10" align="center">{% endif %}
+                      <col width="10" align="center">{% if current_user.role=='Admin' %}<col width="10" align="center">{% endif %}
                       {% if multi %}  
                       <thead>
                       <tr>
                         <th>Select</th> 
-                        {% if current_user.role=='admin' %}<th>Optional</th>{% endif %}
+                        {% if current_user.role=='Admin' %}<th>Optional</th>{% endif %}
                         <th>Question</th>                        
                         <th>A</th>
                         <th>B</th>
@@ -137,11 +137,11 @@
                         {% for question in multi -%}
                           <tr>
                             <!--dont show deleted questions to anyone! and staff only see optional questions!"""-->
-                            {% if question.status==1 or current_user.role=='admin' and question.status!=2%}
+                            {% if question.status==1 or current_user.role=='Admin' and question.status!=2%}
                               <td>
                                 <input type="radio" name="question" onclick="$('.genChoiceList').prop('checked', false);" value="{{0,question.id}}"/>
                               </td>
-                                {% if current_user.role=='admin' %}
+                                {% if current_user.role=='Admin' %}
                                   <td>
                                 {% if question.status == 1 %}
                                   <p>Yes<p>
@@ -175,24 +175,24 @@
                 <div class="genChoiceList">
                   <div class="panel-body">
                     <table class="table table-hover">
-                      <col width="10" align="center">{% if current_user.role=='admin' %}<col width="10" align="center">{% endif %}
+                      <col width="10" align="center">{% if current_user.role=='Admin' %}<col width="10" align="center">{% endif %}
                       {% if general %}  
                         <thead>
                         <tr>
                           <th>Select</th> 
-                         {% if current_user.role=='admin' %}<th>Optional</th>{% endif %}
+                         {% if current_user.role=='Admin' %}<th>Optional</th>{% endif %}
                           <th>Question</th>      
                         </tr>
                         </thead>
                       <tr/>
                         {% for question in general -%}
                         <!--dont show deleted questions to anyone! and staff only see optional questions!"""-->
-                        {% if question.status==1 or current_user.role=='admin' and question.status!=2 %}
+                        {% if question.status==1 or current_user.role=='Admin' and question.status!=2 %}
                         <tr>
                           <td>
                           <input type="radio" name="question" onclick="$('.multiChoiceList').prop('checked', false);" value="{{1,question.id}}"/>
                           </td>
-                          {% if current_user.role=='admin' %}
+                          {% if current_user.role=='Admin' %}
                             <td>
                           {% if question.status == 1 %}
                             <p>Yes<p>

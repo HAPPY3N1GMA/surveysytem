@@ -8,86 +8,20 @@ from models import GeneralQuestion, MCQuestion, SurveyResponse,\
 from models import Survey, Course, UniUser
 from database import db_session
 from flask_login import current_user
-
+from classes import survey_usage
 
 class SurveyUtil(object):
 
-    def registeruser(self):
-        print("registeruser")
-        course_list = Course.query.all()
-        return render_template("register.html",course_list=course_list)
 
     def surveyinfo(self):
-        if (current_user.is_authenticated) == False:
-            return redirect(url_for("login"))
 
-        # users only see the surveys/courses they are permitted to see!
-        if(current_user.role == 'admin'):
-            course_list = Course.query.all()
-            survey_list = Survey.query.all()
-
-        else:
-            # course_list = current_user.courses
-            survey_list = current_user.surveys
-            course_list = current_user.courses
-
-            # survey list needs to only hae surveys i can access at this time!
-
-        return render_template("surveys.html", user=current_user,
-                               course_list=course_list,
-                               survey_list=survey_list)
-
-    def opensurvey(self):
-        if (current_user.is_authenticated) == False:
-            return redirect(url_for("login"))
-
-        if (request.form.getlist("surveyid") == []):
-            errorMSG("routes.opensurvey", "surveyid not selected")
-            return self.surveyinfo()
-
-        surveyID = request.form["surveyid"]
-
-        survey = Survey.query.filter_by(id=surveyID).first()	
-        if(survey == None):
-            errorMSG("routes.opensurvey", "survey object is empty")
-            return self.surveyinfo()	
-
-        course = Course.query.filter_by(id=survey.course_id).first()	
-        if(course == None):
-            errorMSG("routes.opensurvey","course object is empty")
-            return self.surveyinfo()
-
-        if current_user.role == 'student':
-
-            # todo: check if student answered survey already here looking at survey.uniuser_id!
-            if survey.status == 0:
-                return self.surveyinfo()
-            if survey.status == 1:
-                return self.surveyinfo()
-            if survey.status == 2:
-                return render_template("answersurvey.html", survey=survey,
-                                       course=course)
-            if survey.status == 3:
-                #open survey results
-                return self.selfsurveyinfo()
-
-        if current_user.role == 'admin' or current_user in survey.users:
-
-            general = GeneralQuestion.query.all()
-            multi = MCQuestion.query.all()
-
-            surveygen = survey.gen_questions
-            surveymc = survey.mc_questions
-
-            return render_template("modifysurvey.html",user=current_user,surveygen=surveygen,surveymc=surveymc,survey=survey,course=course,general=general,multi=multi)
-
-        return self.surveyinfo()
+        return render_template("surveys.html",user=current_user)
 
     def newsurvey(self):
         if (current_user.is_authenticated) == False:
             return redirect(url_for("login"))
 
-        if(current_user.role != 'admin'):
+        if(current_user.role != 'Admin'):
             errorMSG("routes.newsurvey", "unauthorised user attempted access:",current_user.id)
             return render_template("home.html", user=current_user)
 
@@ -146,6 +80,10 @@ class SurveyUtil(object):
         # add this survey to the course
         course.survey.append(survey)
         db_session.add(survey)
+
+
+        current_user.survey.append(survey)
+
         db_session.commit()
 
         #note no users are added at this point
@@ -156,7 +94,7 @@ class SurveyUtil(object):
         if (current_user.is_authenticated)==False:
             return redirect(url_for("login"))
 
-        if(current_user.role != 'admin' and current_user.role != 'staff'):
+        if(current_user.role != 'Admin' and current_user.role != 'staff'):
             errorMSG("routes.addqsurvey", "unauthorised user attempted access:",
                      current_user.id)
             return render_template("home.html", user=current_user)
@@ -167,7 +105,7 @@ class SurveyUtil(object):
         if survey_questions == []:
             errorMSG("routes.addqsurvey", "no questions selected")
             flash('No questions added to Survey')
-            return self.opensurvey()
+            return survey_usage.OpenSurvey().open_attempt()	
 
         if (request.form.getlist("surveyid") == []):
             errorMSG("routes.addqsurvey", "surveyid not selected")
@@ -195,13 +133,13 @@ class SurveyUtil(object):
         db_session.commit()
 
         # reload page
-        return self.opensurvey()
+        return survey_usage.OpenSurvey().open_attempt()	
 
     def removeqsurvey(self):
         if (current_user.is_authenticated) == False:
             return redirect(url_for("login"))
 
-        if(current_user.role != 'admin' and current_user.role != 'staff'):
+        if(current_user.role != 'Admin' and current_user.role != 'staff'):
             errorMSG("routes.removeqsurvey",
                      "unauthorised user attempted access:",
                      current_user.id)
@@ -209,7 +147,7 @@ class SurveyUtil(object):
 
         if request.form.getlist('question')==[]:
             errorMSG("routes.removeqsurvey","no questions selected")
-            return self.opensurvey()
+            return survey_usage.OpenSurvey().open_attempt()	
 
         survey_question = request.form['question']
 
@@ -233,7 +171,7 @@ class SurveyUtil(object):
 
         db_session.commit()
 
-        return self.opensurvey()
+        return survey_usage.OpenSurvey().open_attempt()	
 
     def statussurvey(self):
         if (current_user.is_authenticated)==False:
@@ -256,7 +194,7 @@ class SurveyUtil(object):
         #     return self.surveyinfo()
 
         if survey.status == 0:
-            if(current_user.role != 'admin'):
+            if(current_user.role != 'Admin'):
                 errorMSG("routes.statussurvey","unauthorised user attempted access:",current_user.id)
                 return render_template("home.html", user=current_user)
             survey.status = 1
@@ -302,7 +240,7 @@ class SurveyUtil(object):
             return self.viewsurvey()
         db_session.commit()
 
-        return self.opensurvey()
+        return survey_usage.OpenSurvey().open_attempt()	
 
     def viewsurvey(self):
         if (current_user.is_authenticated)==False:
@@ -311,7 +249,7 @@ class SurveyUtil(object):
         print("view survey results now")
 
         #temp
-        return self.opensurvey()
+        return survey_usage.OpenSurvey().open_attempt()	
 
     def answersurvey(self):
         if (current_user.is_authenticated)==False:
@@ -343,13 +281,13 @@ class SurveyUtil(object):
             if len(survey.gen_questions)!=len(genResponseList):
                 errorMSG("routes.answersurvey","Extended Response Questions not completed")
                 flash('Please Complete All Extended Response Questions')
-                return self.opensurvey()
+                return survey_usage.OpenSurvey().open_attempt()	
 
         for text in genResponseList:
             if (get.cleanString(str(text))==False):
                 errorMSG("routes.answersurvey","Invalid input in extended response")
                 flash('Invalid Characters Used In Extended Response')
-                return self.opensurvey()
+                return survey_usage.OpenSurvey().open_attempt()	
 
 
         mcResponseList = []
@@ -358,7 +296,7 @@ class SurveyUtil(object):
                 if (request.form.getlist(str(question.id))==[]):
                     errorMSG("routes.answersurvey","MultiChoice Questions not completed")
                     flash('Please Complete All Multiple Choice Questions')
-                    return self.opensurvey()
+                    return survey_usage.OpenSurvey().open_attempt()	
 
                 mcResponseList.append(request.form[str(question.id)])
 
@@ -367,7 +305,7 @@ class SurveyUtil(object):
         if len(survey.mc_questions)!=len(mcResponseList):
             errorMSG("routes.answersurvey","MultiChoice Questions not completed")
             flash('Please Complete All Multiple Choice Questions')
-            return self.opensurvey()
+            return survey_usage.OpenSurvey().open_attempt()	
 
 
         #double check this person has not already responded? 
@@ -401,7 +339,7 @@ class QuestionUtil(object):
         if (current_user.is_authenticated)==False:
             return redirect(url_for("login"))
 
-        if(current_user.role != 'admin'):
+        if(current_user.role != 'Admin'):
             errorMSG("routes.questioninfo","unauthorised user attempted access:",current_user.id)
             return render_template("home.html", user=current_user)
 
@@ -415,7 +353,7 @@ class QuestionUtil(object):
         if (current_user.is_authenticated)==False:
             return redirect(url_for("login"))
 
-        if(current_user.role != 'admin'):
+        if(current_user.role != 'Admin'):
             errorMSG("routes.openquestion","unauthorised user attempted access:",current_user.id)
             return render_template("home.html", user=current_user)
 
@@ -444,7 +382,7 @@ class QuestionUtil(object):
         if (current_user.is_authenticated)==False:
             return redirect(url_for("login"))
 
-        if(current_user.role != 'admin'):
+        if(current_user.role != 'Admin'):
             errorMSG("routes.addquestion","unauthorised user attempted access:",current_user.id)
             return render_template("home.html", user=current_user)
 
@@ -509,7 +447,7 @@ class QuestionUtil(object):
         if (current_user.is_authenticated)==False:
             return redirect(url_for("login"))
 
-        if(current_user.role != 'admin'):
+        if(current_user.role != 'Admin'):
             errorMSG("routes.modifyquestion","unauthorised user attempted access:",current_user.id)
             return render_template("home.html", user=current_user)
 
