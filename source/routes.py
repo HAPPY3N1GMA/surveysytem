@@ -1,4 +1,5 @@
 import ast, os, time, copy
+from classes import authenticate
 from datetime import datetime
 from flask import Flask, redirect, render_template, request, url_for, flash
 from server import app, errorMSG
@@ -40,24 +41,8 @@ def submit():
 @app.route("/login", methods=["GET", "POST"])
 def login():
 	if request.method == 'POST':
-		id = request.form['username']
-		password = request.form['password']
-		user = UniUser.query.get(id)
-
-		if user==None:
-			flash("Invalid Username or Password")
-			return render_template("login.html")
-
-		if password == user.password:
-			login_user(user)
-			next = request.args.get('next')
-			return redirect(next or url_for('home'))
-		else:
-			flash("Invalid Username or Password")
-			return render_template("login.html")
-
-	if (current_user.is_authenticated):
-		return redirect(url_for("home"))
+		attempt = authenticate.Login()
+		return attempt.login_attempt()
 
 	return render_template("login.html")
 
