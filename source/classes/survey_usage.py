@@ -48,7 +48,6 @@ class CreateSurvey:
 
         if LoadSurvey.load(request.form.getlist('surveyid')):
             errorMSG("routes.newsurvey", "survey already exists!")
-            session.pop('_flashes', None)
             return False
 
         return True
@@ -67,7 +66,13 @@ class OpenSurvey:
                 if survey.status == 2:
                     return current_user.AnswerSurvey(survey, course)
                 if survey.status == 3:
-                    return current_user.ViewSurveyResults(survey, course)
+                    if current_user.role == 'Student' or current_user.role == 'Guest':
+                        return current_user.ViewSurveyResults(survey, course)
+                    else:
+                        #staff and admin go to an overview page still
+                        return current_user.ModifySurvey(survey, course)
+        else:
+            flash("Please Select a Survey to Open")
         return common.Render.surveys()
 
 class LoadSurvey:
@@ -80,7 +85,6 @@ class LoadSurvey:
 
     def err_check(surveyID=[]):
         if surveyID == []:
-            flash("Please Select a Survey to Open")
             return False
         return True
 
@@ -96,9 +100,9 @@ class StatusSurvey:
             if survey.status == 0:
                 return current_user.PushSurvey(survey,course)
             if survey.status == 1:    
-                return current_user.EndSurvey(survey,course)
-            if survey.status == 2:
                 return current_user.PublishSurvey(survey,course)
+            if survey.status == 2:
+                return current_user.EndSurvey(survey,course)
             if survey.status == 3:
                 return current_user.ViewSurveyResults(survey,course) 
 

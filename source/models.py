@@ -143,7 +143,7 @@ class Admin(UniUser):
 
     def AnswerSurvey(self,survey,course):
         # run code for answering if applicable
-        return common.Render.surveys()
+        return current_user.ModifySurvey(survey, course)
 
 
     def ModifySurvey(self,survey,course):
@@ -159,6 +159,7 @@ class Admin(UniUser):
 
     def ViewSurveyResults(self,survey,course):
         # run code for viewing results if applicable
+        flash('model.py - Admin will get redirected to survey results page')
         return common.Render.surveys()
 
 
@@ -204,7 +205,7 @@ class Staff(UniUser):
 
 
     def AnswerSurvey(self,survey,course):
-        return common.Render.home()
+        return current_user.ModifySurvey(survey, course)
 
 
     def ModifySurvey(self,survey,course):
@@ -219,6 +220,7 @@ class Staff(UniUser):
 
     def ViewSurveyResults(self,survey,course):
         # run code for viewing results if applicable
+        flash('model.py - Staff will get redirected to survey results page')
         return common.Render.surveys()
 
 
@@ -267,6 +269,7 @@ class Student(UniUser):
 
     def ViewSurveyResults(self,survey,course):
         # run code for viewing results if applicable
+        flash('model.py - Student will get redirected to survey results page')
         return common.Render.surveys()
 
 
@@ -306,6 +309,7 @@ class Guest(UniUser):
 
     def ViewSurveyResults(self,survey,course):
         # run code for viewing results if applicable
+        flash('model.py - Guest will get redirected to survey results page')
         return common.Render.surveys()
 
 

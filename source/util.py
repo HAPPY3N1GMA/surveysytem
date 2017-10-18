@@ -20,7 +20,7 @@ class SurveyUtil(object):
         if (current_user.is_authenticated)==False:
             return redirect(url_for("login"))
 
-        if(current_user.role != 'Admin' and current_user.role != 'staff'):
+        if(current_user.role != 'Admin' and current_user.role != 'Staff'):
             common.Debug.errorMSG("routes.addqsurvey", "unauthorised user attempted access:",
                      current_user.id)
             return render_template("home.html", user=current_user)
@@ -65,7 +65,7 @@ class SurveyUtil(object):
         if (current_user.is_authenticated) == False:
             return redirect(url_for("login"))
 
-        if(current_user.role != 'Admin' and current_user.role != 'staff'):
+        if(current_user.role != 'Admin' and current_user.role != 'Staff'):
             common.Debug.errorMSG("routes.removeqsurvey",
                      "unauthorised user attempted access:",
                      current_user.id)
@@ -115,7 +115,7 @@ class SurveyUtil(object):
         if (current_user.is_authenticated)==False:
             return redirect(url_for("login"))
 
-        if(current_user.role != 'student'):
+        if(current_user.role != 'Student'):
             common.Debug.errorMSG("routes.answersurvey","unauthorised user attempted access:",current_user.id)
             return render_template("home.html", user=current_user)
 

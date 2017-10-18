@@ -40,6 +40,12 @@ def submit():
 @app.route("/results/<id>")
 @login_required
 def results(id):
+
+	# all this can be redirected and run by:
+	# return current_user.ViewSurveyResults()
+	# or via survey_usage..... something or other to make it abstracted and constant with others
+
+
 	survey = Survey.query.get(id)
 	responses = survey.responses
 
