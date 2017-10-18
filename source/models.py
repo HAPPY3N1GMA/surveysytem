@@ -6,6 +6,7 @@ import ast
 from flask_login import current_user
 from abc import ABCMeta, abstractmethod
 from flask import Flask, redirect, render_template, request, url_for, flash
+from classes import common
 
 
 class UniUser(Base):
@@ -60,14 +61,14 @@ class UniUser(Base):
         self.surveys = surveys
 
     def get_staff():
-        staff = UniUser.query.filter_by(role='staff').all() 
+        staff = UniUser.query.filter_by(role='Staff').all() 
         if(staff==None):
             print("get_staff","staff object list is empty")
             return False
         return staff
 
     def get_students():
-        students = UniUser.query.filter_by(role='student').all() 
+        students = UniUser.query.filter_by(role='Student').all() 
         if(students==None):
             print("get_students","staff object list is empty")
             return False
@@ -90,13 +91,25 @@ class UniUser(Base):
         pass
 
     @abstractmethod
-    def ModifySurvey(self,survey,course):
-        print("ERRRRROOOORRRR")
+    def ModifySurvey(self,survey,course): 
         pass
 
     @abstractmethod
-    def ViewSurveyResults(self,survey,course):
+    def ViewSurveyResults(self,survey):
         pass
+
+    @abstractmethod
+    def PushSurvey(self,survey,course): 
+        pass
+
+    @abstractmethod
+    def EndSurvey(self,survey,course): 
+        pass
+
+    @abstractmethod
+    def PublishSurvey(self,survey,course): 
+        pass
+
 
     __mapper_args__ = {
         'polymorphic_on':role,
@@ -111,6 +124,7 @@ class Admin(UniUser):
         'polymorphic_identity':'Admin'
     }
 
+
     def CreateSurvey(self,courseId,surveyName,startDate,endDate):
 
         survey = Survey(surveyName, courseId)
@@ -124,11 +138,13 @@ class Admin(UniUser):
         db_session.add(survey)
         db_session.commit()
 
-        return render_template("surveys.html",user=current_user)
+        return common.Render.surveys()
+
 
     def AnswerSurvey(self,survey,course):
         # run code for answering if applicable
-        return render_template("surveys.html",user=current_user)
+        return common.Render.surveys()
+
 
     def ModifySurvey(self,survey,course):
         # run code for modifying if applicable
@@ -138,13 +154,42 @@ class Admin(UniUser):
         surveygen = survey.gen_questions
         surveymc = survey.mc_questions
 
-        return render_template("modifysurvey.html",user=current_user,
-            surveygen=surveygen,surveymc=surveymc,survey=survey,
-            course=course,general=general,multi=multi)
+        return common.Render.modify_survey(surveygen,surveymc,survey,course,general,multi)
+
 
     def ViewSurveyResults(self,survey,course):
         # run code for viewing results if applicable
-        return render_template("surveys.html",user=current_user) # TODO impl
+        return common.Render.surveys()
+
+
+    def PushSurvey(self,survey,course):       
+        'Update survey status to editable by staff members'
+        if survey.add_staff():
+            survey.status = 1
+            db_session.commit()
+        else:
+            flash("Error Adding Staff to Survey")
+        return current_user.ModifySurvey(survey, course)
+
+
+    def PublishSurvey(self,survey,course): 
+        if survey.mc_questions == [] and survey.gen_questions == []:
+            flash('No questions added to Survey')
+        elif survey.add_students() == False:
+            flash('Error Adding Students to Survey')
+        else:
+            survey.status = 2
+            db_session.commit()
+
+        return current_user.ModifySurvey(survey, course)
+
+
+    def EndSurvey(self,survey,course): 
+        survey.status = 3
+        db_session.commit()
+        return current_user.ModifySurvey(survey, course)
+
+
 
 
 
@@ -155,29 +200,50 @@ class Staff(UniUser):
     }
 
     def CreateSurvey(self,courseId,surveyName,startDate,endDate):
-        return render_template("surveys.html",user=current_user)
+        return common.Render.home()
+
 
     def AnswerSurvey(self,survey,course):
-        # run code for answering if applicable
-        return render_template("surveys.html",user=current_user)
+        return common.Render.home()
+
 
     def ModifySurvey(self,survey,course):
-        # run code for modifying if applicable
         general = GeneralQuestion.query.all()
         multi = MCQuestion.query.all()
 
         surveygen = survey.gen_questions
         surveymc = survey.mc_questions
 
-        return render_template("modifysurvey.html",user=current_user,
-            surveygen=surveygen,surveymc=surveymc,survey=survey,
-            course=course,general=general,multi=multi)
+        return common.Render.modify_survey(surveygen,surveymc,survey,course,general,multi)
 
 
     def ViewSurveyResults(self,survey,course):
         # run code for viewing results if applicable
-        return render_template("surveys.html",user=current_user)
+        return common.Render.surveys()
 
+
+    def PushSurvey(self,survey,course): 
+        common.Debug.errorMSG("routes.statussurvey","unauthorised user attempted access:",current_user.id)
+        return common.Render.home()
+
+
+    def EndSurvey(self,survey,course): 
+        survey.status = 3
+        db_session.commit()
+        return current_user.ModifySurvey(survey, course)
+
+
+    def PublishSurvey(self,survey,course): 
+
+        if survey.mc_questions == [] and survey.gen_questions == []:
+            flash('No questions added to Survey')
+        elif survey.add_students() == False:
+            flash('Error Adding Students to Survey')
+        else:
+            survey.status = 2
+            db_session.commit()
+
+        return current_user.ModifySurvey(survey, course)
 
 
 class Student(UniUser):
@@ -187,7 +253,8 @@ class Student(UniUser):
     }
 
     def CreateSurvey(self,courseId,surveyName,startDate,endDate):
-        return render_template("surveys.html",user=current_user)
+        return common.Render.home()
+
 
     def AnswerSurvey(self,survey,course):
         # run code for answering if applicable
@@ -195,12 +262,25 @@ class Student(UniUser):
                                        course=course)
 
     def ModifySurvey(self,survey,course):
-        # run code for modifying if applicable
-        return render_template("surveys.html",user=current_user)
+        return common.Render.home()
+
 
     def ViewSurveyResults(self,survey,course):
         # run code for viewing results if applicable
-        return render_template("surveys.html",user=current_user)
+        return common.Render.surveys()
+
+
+    def PushSurvey(self,survey,course): 
+        return common.Render.home()
+
+
+    def PublishSurvey(self,survey,course): 
+        return common.Render.home()        
+
+
+    def EndSurvey(self,survey,course): 
+        return common.Render.home()
+
 
 
 
@@ -212,7 +292,8 @@ class Guest(UniUser):
     }
 
     def CreateSurvey(self,courseId,surveyName,startDate,endDate):
-        return render_template("surveys.html",user=current_user)
+        return common.Render.home()
+
 
     def AnswerSurvey(self,survey,course):
         # run code for answering if applicable
@@ -220,16 +301,24 @@ class Guest(UniUser):
                                        course=course)
 
     def ModifySurvey(self,survey,course):
-        # run code for modifying if applicable
-        return render_template("surveys.html",user=current_user)
+        return common.Render.home()
+
 
     def ViewSurveyResults(self,survey,course):
         # run code for viewing results if applicable
-        return render_template("surveys.html",user=current_user)
+        return common.Render.surveys()
 
 
+    def PushSurvey(self,survey,course): 
+        return common.Render.home()
 
 
+    def PublishSurvey(self,survey,course): 
+        return common.Render.home()        
+
+
+    def EndSurvey(self,survey,course): 
+        return common.Render.home()
 
 
 

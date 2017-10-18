@@ -1,21 +1,11 @@
 import ast, os, time, copy
 from datetime import datetime
-from flask import Flask, redirect, render_template, request, url_for, flash
-from server import app, errorMSG
-from defines import debug
+from flask import Flask, request, flash
 from functions import get
-from models import GeneralQuestion, MCQuestion, SurveyResponse,\
-                    GeneralResponse, MCResponse
 from models import Survey, Course, UniUser, Admin, Staff, Student, Guest
-from database import db_session, Base
 from flask_login import login_user, login_required, current_user, logout_user
 from abc import ABCMeta, abstractmethod
-from classes import course_usage
-
-
-class ListSurveys:
-    def show_list():
-        return render_template("surveys.html",user=current_user)
+from classes import course_usage, common
 
 
 class CreateSurvey:
@@ -31,7 +21,7 @@ class CreateSurvey:
             endDate = datetime.strptime(endDate, '%Y/%m/%d')
             return current_user.CreateSurvey(courseId,surveyName,startDate,endDate)
 
-        return ListSurveys.show_list()
+        return common.Render.surveys()
 
 
     def err_check(courseId='',surveyName='',startDate='',endDate=''):
@@ -42,10 +32,6 @@ class CreateSurvey:
 
         if (get.cleanString(str(surveyName)) == False):
             errorMSG("routes.newsurvey", "Invalid Characters in survey name")
-            return False
-
-        if (courseId == ''):
-            errorMSG("routes.newsurvey", "No course ID selected")
             return False
 
         try:
@@ -60,8 +46,9 @@ class CreateSurvey:
             errorMSG("routes.newsurvey", "course object is empty")
             return False
 
-        if(Survey.query.filter_by(course_id=courseId).first() != None):
+        if LoadSurvey.load(request.form.getlist('surveyid')):
             errorMSG("routes.newsurvey", "survey already exists!")
+            session.pop('_flashes', None)
             return False
 
         return True
@@ -70,7 +57,8 @@ class CreateSurvey:
 class OpenSurvey:
     'opens a specific survey to required page'
     def open_attempt(self):
-        survey = LoadSurvey.load(request.form["surveyid"])
+
+        survey = LoadSurvey.load(request.form.getlist('surveyid'))
         if survey:
             course = course_usage.LoadCourse.load(survey.course_id)  
             if course:
@@ -80,19 +68,42 @@ class OpenSurvey:
                     return current_user.AnswerSurvey(survey, course)
                 if survey.status == 3:
                     return current_user.ViewSurveyResults(survey, course)
-        return ListSurveys.show_list()
+        return common.Render.surveys()
 
 class LoadSurvey:
     'loads a specific survey'
-    def load(surveyID=None):
-        if LoadSurvey.err_check():
-            survey = Survey.query.filter_by(id=surveyID).first()    
+    def load(surveyID=[]):
+        if LoadSurvey.err_check(surveyID):
+            survey = Survey.query.filter_by(id=surveyID[0]).first()    
             return survey
         return None
 
-    def err_check():
-        if (request.form.getlist("surveyid") == []):
-            errorMSG("routes.opensurvey", "surveyid not selected")
+    def err_check(surveyID=[]):
+        if surveyID == []:
+            flash("Please Select a Survey to Open")
             return False
         return True
+
+
+class StatusSurvey:
+    'updates the status of the survey'
+    def update_attempt(self):
+        surveyID = request.form.getlist("surveyid")
+        survey = LoadSurvey.load(request.form.getlist('surveyid'))
+        course = course_usage.LoadCourse.load(survey.course_id)  
         
+        if survey and course: 
+            if survey.status == 0:
+                return current_user.PushSurvey(survey,course)
+            if survey.status == 1:    
+                return current_user.EndSurvey(survey,course)
+            if survey.status == 2:
+                return current_user.PublishSurvey(survey,course)
+            if survey.status == 3:
+                return current_user.ViewSurveyResults(survey,course) 
+
+        return survey_usage.OpenSurvey().open_attempt() 
+
+    
+
+

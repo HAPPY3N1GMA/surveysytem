@@ -1,7 +1,7 @@
 import ast, os, time, copy
 from datetime import datetime
 from flask import Flask, redirect, render_template, request, url_for, flash
-from server import app, errorMSG
+from server import app
 from defines import debug
 from functions import get
 from models import GeneralQuestion, MCQuestion, SurveyResponse,\
@@ -11,6 +11,7 @@ from database import db_session, Base
 from flask_login import login_user, login_required, current_user, logout_user
 from util import SurveyUtil, QuestionUtil
 from abc import ABCMeta, abstractmethod
+from classes import common
 
 class Login:
 

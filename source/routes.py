@@ -2,7 +2,7 @@ import ast, os, time, copy
 from classes import authenticate, survey_usage, course_usage
 from datetime import datetime
 from flask import Flask, redirect, render_template, request, url_for, flash
-from server import app, errorMSG
+from server import app
 from defines import debug
 from functions import get
 from models import GeneralQuestion, MCQuestion, SurveyResponse,\
@@ -11,6 +11,7 @@ from models import Survey, Course, UniUser
 from database import db_session, Base
 from flask_login import login_user, login_required, current_user, logout_user
 from util import SurveyUtil, QuestionUtil
+from classes import common
 
 @app.route("/")
 def index():
@@ -130,15 +131,19 @@ def surveys():
 	if request.method == "GET":
 		return util.surveyinfo()
 	else:
+		surveyform = request.form.getlist("surveyformid")
+		if surveyform == []:
+			return redirect(url_for("home"))
 
-		#check if an admin and if so, they are permitted to make new surveys!
-		surveyform = request.form["surveyformid"]
-
+		surveyform = surveyform[0]
+			
 		if surveyform=='1':
 			return survey_usage.CreateSurvey().create_attempt()	
 		if surveyform=='2':
 			return survey_usage.OpenSurvey().open_attempt()		
 
+		if surveyform=='5':
+			return survey_usage.StatusSurvey().update_attempt()	
 
 
 		if(current_user.role == 'Admin' or current_user.role == 'Staff'):
@@ -149,17 +154,16 @@ def surveys():
 					return util.removeqsurvey()
 				if surveyform=='4':
 					return util.addqsurvey()
-				if surveyform=='5':
-					return util.statussurvey()
+				
 
 			if request.form.getlist("surveyid")==[]:
-				errorMSG("routes.surveys","survey doesnt exist")
+				common.Debug.errorMSG("routes.surveys","survey doesnt exist")
 				return util.surveyinfo()	
 
 			surveyID = request.form["surveyid"]
 			survey = Survey.query.filter_by(id=surveyID).first()	
 			if(survey==None):
-				errorMSG("routes.surveys","survey object is empty")
+				common.Debug.errorMSG("routes.surveys","survey object is empty")
 				return util.surveyinfo()	
 
 
@@ -191,7 +195,7 @@ def questions():
 		return redirect(url_for("login"))
 
 	if(current_user.role != 'Admin'):
-		errorMSG("routes.questions","unauthorised user attempted access:",current_user.id)
+		common.Debug.errorMSG("routes.questions","unauthorised user attempted access:",current_user.id)
 		return render_template("home.html", user=current_user)
 
 	if request.method == "GET":

@@ -1,14 +1,13 @@
 import copy
 from datetime import datetime
 from flask import redirect, render_template, request, url_for, flash
-from server import errorMSG
 from functions import get
 from models import GeneralQuestion, MCQuestion, SurveyResponse,\
 					GeneralResponse, MCResponse
 from models import Survey, Course, UniUser
 from database import db_session
 from flask_login import current_user
-from classes import survey_usage
+from classes import survey_usage, common, course_usage
 
 class SurveyUtil(object):
 
@@ -22,7 +21,7 @@ class SurveyUtil(object):
             return redirect(url_for("login"))
 
         if(current_user.role != 'Admin' and current_user.role != 'staff'):
-            errorMSG("routes.addqsurvey", "unauthorised user attempted access:",
+            common.Debug.errorMSG("routes.addqsurvey", "unauthorised user attempted access:",
                      current_user.id)
             return render_template("home.html", user=current_user)
 
@@ -30,19 +29,19 @@ class SurveyUtil(object):
         survey_questions = request.form.getlist('question')
 
         if survey_questions == []:
-            errorMSG("routes.addqsurvey", "no questions selected")
+            common.Debug.errorMSG("routes.addqsurvey", "no questions selected")
             flash('No questions added to Survey')
             return survey_usage.OpenSurvey().open_attempt()	
 
         if (request.form.getlist("surveyid") == []):
-            errorMSG("routes.addqsurvey", "surveyid not selected")
+            common.Debug.errorMSG("routes.addqsurvey", "surveyid not selected")
             return self.surveyinfo()
 
         surveyID = request.form["surveyid"]
 
         survey = Survey.query.filter_by(id=surveyID).first()	
         if(survey == None):
-            errorMSG("routes.addqsurvey", "survey object is empty")
+            common.Debug.errorMSG("routes.addqsurvey", "survey object is empty")
             return self.surveyinfo()	
 
         # check this staff member is authorised to add to this survey
@@ -67,25 +66,25 @@ class SurveyUtil(object):
             return redirect(url_for("login"))
 
         if(current_user.role != 'Admin' and current_user.role != 'staff'):
-            errorMSG("routes.removeqsurvey",
+            common.Debug.errorMSG("routes.removeqsurvey",
                      "unauthorised user attempted access:",
                      current_user.id)
             return render_template("home.html", user=current_user)
 
         if request.form.getlist('question')==[]:
-            errorMSG("routes.removeqsurvey","no questions selected")
+            common.Debug.errorMSG("routes.removeqsurvey","no questions selected")
             return survey_usage.OpenSurvey().open_attempt()	
 
         survey_question = request.form['question']
 
         if (request.form.getlist("surveyid")==[]):
-            errorMSG("routes.removeqsurvey","surveyid not selected")
+            common.Debug.errorMSG("routes.removeqsurvey","surveyid not selected")
             return self.surveyinfo()
 
         surveyID = request.form["surveyid"]
         survey = Survey.query.filter_by(id=surveyID).first()	
         if(survey == None):
-            errorMSG("routes.removeqsurvey","survey object is empty")
+            common.Debug.errorMSG("routes.removeqsurvey","survey object is empty")
             return self.surveyinfo()	
 
         # remove question from the survey
@@ -100,74 +99,8 @@ class SurveyUtil(object):
 
         return survey_usage.OpenSurvey().open_attempt()	
 
-    def statussurvey(self):
-        if (current_user.is_authenticated)==False:
-            return redirect(url_for("login"))
-
-        if(current_user.role == 'student'):
-            errorMSG("routes.statussurvey","unauthorised user attempted access:",current_user.id)
-            return render_template("home.html", user=current_user)
-
-        surveyID = request.form["surveyid"]
-
-        survey = Survey.query.filter_by(id=surveyID).first()	
-        if(survey==None):
-            errorMSG("routes.statussurvey","survey object is empty")
-            return self.surveyinfo()	
-
-        # course = Course.query.filter_by(id=survey.course_id).first()	
-        # if(course==None):
-        #     errorMSG("routes.statussurvey","course object is empty")
-        #     return self.surveyinfo()
-
-        if survey.status == 0:
-            if(current_user.role != 'Admin'):
-                errorMSG("routes.statussurvey","unauthorised user attempted access:",current_user.id)
-                return render_template("home.html", user=current_user)
-            survey.status = 1
 
 
-            if survey.add_staff() ==False:
-                errorMSG("routes.statussurvey","Error adding students to survey")
-            # staff = UniUser.query.filter_by(role='staff').all()	
-            # if(staff==None):
-            #     errorMSG("routes.statussurvey","staff object list is empty")
-            #     return self.surveyinfo()
-
-            # for s in staff:
-            #     if(course in s.courses):
-            #         survey.users.append(s)
-
-        elif survey.status == 1:
-
-
-            #note: according to specs she wants staff not to see the survey when its in 
-            #"answer stage", but i have it they can see the survey just not do anything
-            #and they cannot view results
-            #reason for this is that staff wont know that there is a survey results coming soon
-            #and they can now use past surveys they were associated with to maybe better choose
-            #optional questions
-
-            if survey.mc_questions == [] and survey.gen_questions == []:
-                flash('No questions added to Survey')
-                errorMSG("routes.statussurvey","Error adding students to survey") 
-                return self.viewsurvey()
-
-            if survey.add_students() == False:
-                errorMSG("routes.statussurvey","Error adding students to survey")
-                return self.viewsurvey()
-
-            survey.status = 2
-
-        elif survey.status == 2:
-            #anyone associated with the course will now have access to view its results
-            survey.status = 3
-        else:
-            #cannot go past status 3 for a survey - view survey results status
-            return self.viewsurvey()
-        db_session.commit()
-
-        return survey_usage.OpenSurvey().open_attempt()	
 
     def viewsurvey(self):
         if (current_user.is_authenticated)==False:
@@ -183,7 +116,7 @@ class SurveyUtil(object):
             return redirect(url_for("login"))
 
         if(current_user.role != 'student'):
-            errorMSG("routes.answersurvey","unauthorised user attempted access:",current_user.id)
+            common.Debug.errorMSG("routes.answersurvey","unauthorised user attempted access:",current_user.id)
             return render_template("home.html", user=current_user)
 
         #check student answered all fields
@@ -191,12 +124,12 @@ class SurveyUtil(object):
 
         survey = Survey.query.filter_by(id=surveyID).first()	
         if(survey==None):
-            errorMSG("routes.answersurvey","survey object is empty")
+            common.Debug.errorMSG("routes.answersurvey","survey object is empty")
             return self.surveyinfo()	
 
         course = Course.query.filter_by(id=survey.course_id).first()	
         if(course==None):
-            errorMSG("routes.answersurvey","course object is empty")
+            common.Debug.errorMSG("routes.answersurvey","course object is empty")
             return self.surveyinfo()
 
         genResponseList = []
@@ -206,13 +139,13 @@ class SurveyUtil(object):
             genResponseList = list(filter(None, genResponseList))
 
             if len(survey.gen_questions)!=len(genResponseList):
-                errorMSG("routes.answersurvey","Extended Response Questions not completed")
+                common.Debug.errorMSG("routes.answersurvey","Extended Response Questions not completed")
                 flash('Please Complete All Extended Response Questions')
                 return survey_usage.OpenSurvey().open_attempt()	
 
         for text in genResponseList:
             if (get.cleanString(str(text))==False):
-                errorMSG("routes.answersurvey","Invalid input in extended response")
+                common.Debug.errorMSG("routes.answersurvey","Invalid input in extended response")
                 flash('Invalid Characters Used In Extended Response')
                 return survey_usage.OpenSurvey().open_attempt()	
 
@@ -221,7 +154,7 @@ class SurveyUtil(object):
         if len(survey.mc_questions)>0:
             for question in survey.mc_questions:
                 if (request.form.getlist(str(question.id))==[]):
-                    errorMSG("routes.answersurvey","MultiChoice Questions not completed")
+                    common.Debug.errorMSG("routes.answersurvey","MultiChoice Questions not completed")
                     flash('Please Complete All Multiple Choice Questions')
                     return survey_usage.OpenSurvey().open_attempt()	
 
@@ -230,7 +163,7 @@ class SurveyUtil(object):
         mcResponseList = list(filter(None, mcResponseList))
 
         if len(survey.mc_questions)!=len(mcResponseList):
-            errorMSG("routes.answersurvey","MultiChoice Questions not completed")
+            common.Debug.errorMSG("routes.answersurvey","MultiChoice Questions not completed")
             flash('Please Complete All Multiple Choice Questions')
             return survey_usage.OpenSurvey().open_attempt()	
 
@@ -267,7 +200,7 @@ class QuestionUtil(object):
             return redirect(url_for("login"))
 
         if(current_user.role != 'Admin'):
-            errorMSG("routes.questioninfo","unauthorised user attempted access:",current_user.id)
+            common.Debug.errorMSG("routes.questioninfo","unauthorised user attempted access:",current_user.id)
             return render_template("home.html", user=current_user)
 
         #read in list of questions from db, filter out any not available to user or deleted
@@ -281,12 +214,12 @@ class QuestionUtil(object):
             return redirect(url_for("login"))
 
         if(current_user.role != 'Admin'):
-            errorMSG("routes.openquestion","unauthorised user attempted access:",current_user.id)
+            common.Debug.errorMSG("routes.openquestion","unauthorised user attempted access:",current_user.id)
             return render_template("home.html", user=current_user)
 
         if (request.form.getlist('question')==[]):
             flash('No question selected')
-            errorMSG("routes.openquestion","question not selected")
+            common.Debug.errorMSG("routes.openquestion","question not selected")
             return self.questioninfo()		
 
         qID = request.form['question']
@@ -299,7 +232,7 @@ class QuestionUtil(object):
             questionObject = GeneralQuestion.query.filter_by(id=int(qID[4:5])).first()
             questionType = 2 #so we know if question type was modified in form
         if (questionObject==None):
-            errorMSG("routes.openquestion","This question does not exist")
+            common.Debug.errorMSG("routes.openquestion","This question does not exist")
             return self.questioninfo()
 
         return render_template("modifyquestion.html",user=current_user,questionObject=questionObject,questionType=questionType)
@@ -310,7 +243,7 @@ class QuestionUtil(object):
             return redirect(url_for("login"))
 
         if(current_user.role != 'Admin'):
-            errorMSG("routes.addquestion","unauthorised user attempted access:",current_user.id)
+            common.Debug.errorMSG("routes.addquestion","unauthorised user attempted access:",current_user.id)
             return render_template("home.html", user=current_user)
 
         question = request.form["question"]
@@ -321,13 +254,13 @@ class QuestionUtil(object):
             status = 1
 
         if(question==""):
-            errorMSG("append.question","No Question Provided")
+            common.Debug.errorMSG("append.question","No Question Provided")
             flash('Please Enter A Valid Question')
             return self.questioninfo()
 
         for text in question:
             if (get.cleanString(str(text))==False):
-                errorMSG("routes.createsurvey","Invalid input in fields")
+                common.Debug.errorMSG("routes.createsurvey","Invalid input in fields")
                 flash('Invalid characters in question')
                 return self.questioninfo()
 
@@ -352,14 +285,14 @@ class QuestionUtil(object):
 
         for text in validStrings:
             if (get.cleanString(str(text))==False):
-                errorMSG("routes.createsurvey","Invalid input in fields")
+                common.Debug.errorMSG("routes.createsurvey","Invalid input in fields")
                 flash('Invalid characters in answers')
                 return self.questioninfo()
 
 
         #if only one answer provided then return with error msg (this is not a valid question)
         if(len(answers)<2):
-            errorMSG("routes.createsurvey","Only one answer provided for a mc question")
+            common.Debug.errorMSG("routes.createsurvey","Only one answer provided for a mc question")
             flash("Multiple choice questions require atleast 2 answers")
             return self.questioninfo()
 
@@ -375,7 +308,7 @@ class QuestionUtil(object):
             return redirect(url_for("login"))
 
         if(current_user.role != 'Admin'):
-            errorMSG("routes.modifyquestion","unauthorised user attempted access:",current_user.id)
+            common.Debug.errorMSG("routes.modifyquestion","unauthorised user attempted access:",current_user.id)
             return render_template("home.html", user=current_user)
 
         oldType = request.form["oldType"] #old question type (was it MC or general?)
@@ -392,13 +325,13 @@ class QuestionUtil(object):
             status = 2
         else:
             if(question==""):
-                errorMSG("append.question","No Question Provided")
+                common.Debug.errorMSG("append.question","No Question Provided")
                 flash('Please Enter A Valid Question')
                 return self.questioninfo()
 
             for text in question:
                 if (get.cleanString(str(text))==False):
-                    errorMSG("routes.modifyquestion","Invalid input in fields")
+                    common.Debug.errorMSG("routes.modifyquestion","Invalid input in fields")
                     flash('Invalid characters in question')
                     return self.openquestion()
 
@@ -410,7 +343,7 @@ class QuestionUtil(object):
             qObject=MCQuestion.query.filter_by(id=qID).first()	
 
         if(qObject==None):
-            errorMSG("routes.modifyquestion ","No question object Found")
+            common.Debug.errorMSG("routes.modifyquestion ","No question object Found")
             return self.questioninfo()
 
         #is the question just getting deleted?
@@ -454,14 +387,14 @@ class QuestionUtil(object):
 
         for text in validStrings:
             if (get.cleanString(str(text))==False):
-                errorMSG("routes.createsurvey","Invalid input in fields")
+                common.Debug.errorMSG("routes.createsurvey","Invalid input in fields")
                 flash('Invalid characters in answers')
                 return self.openquestion()
 
 
         #if only one answer provided then return with error msg (this is not a valid question)
         if(len(answers)<2):
-            errorMSG("routes.createsurvey","Multiple choice questions require atleast 2 answers")
+            common.Debug.errorMSG("routes.createsurvey","Multiple choice questions require atleast 2 answers")
             flash("Multiple choice questions require atleast 2 answers")
             return self.openquestion()
 

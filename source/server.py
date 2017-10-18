@@ -18,5 +18,4 @@ def load_user(userid):
 	return UniUser.query.get(userid)
 
 
-def errorMSG(filename="",msg="",other=""):
-	print("\033[91m {}\033[00m" .format("Server Error:"+" ("+filename+") "+str(msg)+str(other)))
+
