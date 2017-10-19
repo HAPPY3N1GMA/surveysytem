@@ -1,6 +1,7 @@
 import csv
 from datetime import datetime, timedelta
-from models import UniUser, Course
+#from models import users_model.UniUser, courses_model.Course
+from models import users_model, courses_model
 from database import db_session
 
 
@@ -13,9 +14,9 @@ class DB_Loader(object):
         self.admin_load()
 
     def admin_load(self):
-        admin = UniUser(1, '1', 'Admin', [], [])
+        admin = users_model.UniUser(1, '1', 'Admin', [], [])
         db_session.add(admin)
-        admin.courses = Course.query.all()
+        admin.courses = courses_model.Course.query.all()
         db_session.commit()
         print('Admin loaded...')
 
@@ -23,11 +24,11 @@ class DB_Loader(object):
         csv_in = open('passwords.csv', 'r')
         reader = csv.reader(csv_in)
         for row in reader:
-            new = UniUser(row[0], row[1], row[2].capitalize(), [], [])
+            new = users_model.UniUser(row[0], row[1], row[2].capitalize(), [], [])
             db_session.add(new)
         db_session.commit()
         print('Users loaded...')
-        # users = UniUser.query.all()
+        # users = users_model.UniUser.query.all()
         # for user in users:
         #     print (user)
 
@@ -35,7 +36,7 @@ class DB_Loader(object):
         with open('courses.csv', 'r') as csv_in:
             reader = csv.reader(csv_in)
             for row in reader:
-                new = Course(row[0], row[1])
+                new = courses_model.Course(row[0], row[1])
                 db_session.add(new)
         db_session.commit()
         print ('Courses loaded...')
@@ -44,13 +45,13 @@ class DB_Loader(object):
         with open('enrolments.csv', 'r') as csv_in:
             reader = csv.reader(csv_in)
             for row in reader:
-                course = Course.query.filter_by(offering=row[2]).\
+                course = courses_model.Course.query.filter_by(offering=row[2]).\
                     filter_by(name=row[1]).first()
-                u = db_session.query(UniUser).get(row[0])
+                u = db_session.query(users_model.UniUser).get(row[0])
                 u.courses.append(course)
 
         db_session.commit()
-        # q_users = db_session.query(UniUser).all()
+        # q_users = db_session.query(users_model.UniUser).all()
         # for user in q_users:
         #     print(user)
         print ('Database load complete - starting app...')

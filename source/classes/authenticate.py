@@ -4,9 +4,12 @@ from flask import Flask, redirect, render_template, request, url_for, flash
 from server import app
 from defines import debug
 from functions import get
-from models import GeneralQuestion, MCQuestion, SurveyResponse,\
-					GeneralResponse, MCResponse
-from models import Survey, Course, UniUser, Admin, Staff, Guest, Student
+
+
+from models import users_model, surveys_model, questions_model, courses_model
+#from classes import Survey, Course, UniUser, Admin, Staff, Guest, Student
+
+
 from database import db_session, Base
 from flask_login import login_user, login_required, current_user, logout_user
 from util import SurveyUtil, QuestionUtil
@@ -22,7 +25,7 @@ class Login:
 
 		login_status = LoginFailure()
 
-		user = UniUser.query.get(credentials.get_user())
+		user = users_model.UniUser.query.get(credentials.get_user())
 		if user:
 			if credentials.get_pass() == user.password:
 				login_status = LoginSuccess()

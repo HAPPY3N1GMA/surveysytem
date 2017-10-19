@@ -2,9 +2,12 @@ import copy
 from datetime import datetime
 from flask import redirect, render_template, request, url_for, flash
 from functions import get
-from models import GeneralQuestion, MCQuestion, SurveyResponse,\
-					GeneralResponse, MCResponse
-from models import Survey, Course, UniUser
+# from models import questions_model.GeneralQuestion, questions_model.MCQuestion, surveys_model.SurveyResponse,\
+# 					questions_model.GeneralResponse, questions_model.MCResponse
+#from models import surveys_model.Survey, courses_model.Course, users_model.UniUser
+
+from models import users_model, surveys_model, questions_model, courses_model
+
 from database import db_session
 from flask_login import current_user
 from classes import survey_usage, common, course_usage
@@ -13,8 +16,10 @@ class SurveyUtil(object):
 
 
     def surveyinfo(self):
-
         return render_template("surveys.html",user=current_user)
+
+
+
 
     def addqsurvey(self):
         if (current_user.is_authenticated)==False:
@@ -39,7 +44,7 @@ class SurveyUtil(object):
 
         surveyID = request.form["surveyid"]
 
-        survey = Survey.query.filter_by(id=surveyID).first()	
+        survey = surveys_model.Survey.query.filter_by(id=surveyID).first()	
         if(survey == None):
             common.Debug.errorMSG("routes.addqsurvey", "survey object is empty")
             return self.surveyinfo()	
@@ -50,10 +55,10 @@ class SurveyUtil(object):
         # this sorts and stores the questions into the survey
         for question in survey_questions:
             if (question[1:2]=='0'):	
-                question = MCQuestion.query.filter_by(id=int(question[4:5])).first()
+                question = questions_model.MCQuestion.query.filter_by(id=int(question[4:5])).first()
                 survey.mc_questions.append(question)
             elif (question[1:2]=='1'):
-                question = GeneralQuestion.query.filter_by(id=int(question[4:5])).first()
+                question = questions_model.GeneralQuestion.query.filter_by(id=int(question[4:5])).first()
                 survey.gen_questions.append(question)
 
         db_session.commit()
@@ -82,17 +87,17 @@ class SurveyUtil(object):
             return self.surveyinfo()
 
         surveyID = request.form["surveyid"]
-        survey = Survey.query.filter_by(id=surveyID).first()	
+        survey = surveys_model.Survey.query.filter_by(id=surveyID).first()	
         if(survey == None):
             common.Debug.errorMSG("routes.removeqsurvey","survey object is empty")
             return self.surveyinfo()	
 
         # remove question from the survey
         if (survey_question[1:2] == '0'):
-            question = MCQuestion.query.filter_by(id=int(survey_question[4:5])).first()
+            question = questions_model.MCQuestion.query.filter_by(id=int(survey_question[4:5])).first()
             survey.mc_questions.remove(question)
         elif (survey_question[1:2]=='1'):
-            question = GeneralQuestion.query.filter_by(id=int(survey_question[4:5])).first()
+            question = questions_model.GeneralQuestion.query.filter_by(id=int(survey_question[4:5])).first()
             survey.gen_questions.remove(question)
 
         db_session.commit()
@@ -122,12 +127,12 @@ class SurveyUtil(object):
         #check student answered all fields
         surveyID = request.form["surveyid"]
 
-        survey = Survey.query.filter_by(id=surveyID).first()	
+        survey = surveys_model.Survey.query.filter_by(id=surveyID).first()	
         if(survey==None):
             common.Debug.errorMSG("routes.answersurvey","survey object is empty")
             return self.surveyinfo()	
 
-        course = Course.query.filter_by(id=survey.course_id).first()	
+        course = courses_model.Course.query.filter_by(id=survey.course_id).first()	
         if(course==None):
             common.Debug.errorMSG("routes.answersurvey","course object is empty")
             return self.surveyinfo()
@@ -170,17 +175,17 @@ class SurveyUtil(object):
 
         #double check this person has not already responded? 
 
-        surveyResponse = SurveyResponse(survey.id)
+        surveyResponse = surveys_model.SurveyResponse(survey.id)
         db_session.add(surveyResponse)
 
 
         #this sorts and stores the answers into the survey response based on type
         for question,response in zip(survey.gen_questions,genResponseList):
-            response = GeneralResponse(surveyResponse.id,question.id,response)
+            response = questions_model.GeneralResponse(surveyResponse.id,question.id,response)
             surveyResponse.gen_responses.append(response)
 
         for question,response in zip(survey.mc_questions,mcResponseList):
-            response = MCResponse(surveyResponse.id,question.id,response)
+            response = questions_model.MCResponse(surveyResponse.id,question.id,response)
             surveyResponse.mc_responses.append(response)
 
 
@@ -204,8 +209,8 @@ class QuestionUtil(object):
             return render_template("home.html", user=current_user)
 
         #read in list of questions from db, filter out any not available to user or deleted
-        general = GeneralQuestion.query.all()
-        multi = MCQuestion.query.all()
+        general = questions_model.GeneralQuestion.query.all()
+        multi = questions_model.MCQuestion.query.all()
         return render_template("questions.html",user=current_user,multi=multi,general=general)
 
 
@@ -227,9 +232,9 @@ class QuestionUtil(object):
 
         #load up the question from db
         if (qID[1:2]=='0'):	
-            questionObject = MCQuestion.query.filter_by(id=int(qID[4:5])).first()
+            questionObject = questions_model.MCQuestion.query.filter_by(id=int(qID[4:5])).first()
         elif (qID[1:2]=='1'):
-            questionObject = GeneralQuestion.query.filter_by(id=int(qID[4:5])).first()
+            questionObject = questions_model.GeneralQuestion.query.filter_by(id=int(qID[4:5])).first()
             questionType = 2 #so we know if question type was modified in form
         if (questionObject==None):
             common.Debug.errorMSG("routes.openquestion","This question does not exist")
@@ -266,7 +271,7 @@ class QuestionUtil(object):
 
 
         if(request.form["qtype"]=='0'):
-            new = GeneralQuestion(question,status)
+            new = questions_model.GeneralQuestion(question,status)
             db_session.add(new)
             db_session.commit()
             return self.questioninfo()
@@ -296,7 +301,7 @@ class QuestionUtil(object):
             flash("Multiple choice questions require atleast 2 answers")
             return self.questioninfo()
 
-        new = MCQuestion(question,answer_one,answer_two,answer_three,answer_four,status)
+        new = questions_model.MCQuestion(question,answer_one,answer_two,answer_three,answer_four,status)
         db_session.add(new)
         db_session.commit()
 
@@ -338,9 +343,9 @@ class QuestionUtil(object):
         #open the correct question objecttype
         # 1 is MC, 2 is General
         if(oldType=='2'):
-            qObject=GeneralQuestion.query.filter_by(id=qID).first()
+            qObject=questions_model.GeneralQuestion.query.filter_by(id=qID).first()
         else:
-            qObject=MCQuestion.query.filter_by(id=qID).first()	
+            qObject=questions_model.MCQuestion.query.filter_by(id=qID).first()	
 
         if(qObject==None):
             common.Debug.errorMSG("routes.modifyquestion ","No question object Found")
@@ -363,7 +368,7 @@ class QuestionUtil(object):
             else:
                 #change of question type - delete old type, and make new type
                 qObject.status = 2
-                new = GeneralQuestion(question,status)
+                new = questions_model.GeneralQuestion(question,status)
                 db_session.add(new)
                 
             db_session.commit()	
@@ -409,7 +414,7 @@ class QuestionUtil(object):
         else:
             #new mc question, set old question to deleted, and make new general question type
             qObject.status = 2
-            new = MCQuestion(question,answer_one,answer_two,answer_three,answer_four,status)
+            new = questions_model.MCQuestion(question,answer_one,answer_two,answer_three,answer_four,status)
             db_session.add(new)
         
         db_session.commit()

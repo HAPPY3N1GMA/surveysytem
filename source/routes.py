@@ -5,9 +5,9 @@ from flask import Flask, redirect, render_template, request, url_for, flash
 from server import app
 from defines import debug
 from functions import get
-from models import GeneralQuestion, MCQuestion, SurveyResponse,\
-					GeneralResponse, MCResponse
-from models import Survey, Course, UniUser
+#from models import GeneralQuestion, MCQuestion, SurveyResponse,\
+#					GeneralResponse, MCResponse
+from models import users_model, surveys_model, questions_model, courses_model
 from database import db_session, Base
 from flask_login import login_user, login_required, current_user, logout_user
 from util import SurveyUtil, QuestionUtil
@@ -46,7 +46,11 @@ def results(id):
 	# or via survey_usage..... something or other to make it abstracted and constant with others
 
 
-	survey = Survey.query.get(id)
+	#also note: view results currently work sfor staff at any point as its a link always enabled!!!! 
+	#button should be disabled in the html
+
+
+	survey = surveys_model.Survey.query.get(id)
 	responses = survey.responses
 
 	mc_responses = []
@@ -119,7 +123,7 @@ def register():
 		util = SurveyUtil()
 		return util.registeruser()
 
-	course_list = Course.query.all()
+	course_list = courses_model.Course.query.all()
 	return render_template("register.html",course_list=course_list)
 
 
@@ -167,7 +171,7 @@ def surveys():
 				return util.surveyinfo()	
 
 			surveyID = request.form["surveyid"]
-			survey = Survey.query.filter_by(id=surveyID).first()	
+			survey = surveys_model.Survey.query.filter_by(id=surveyID).first()	
 			if(survey==None):
 				common.Debug.errorMSG("routes.surveys","survey object is empty")
 				return util.surveyinfo()	

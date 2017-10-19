@@ -2,7 +2,11 @@ import ast, os, time, copy
 from datetime import datetime
 from flask import Flask, request, flash
 from functions import get
-from models import Survey, Course, UniUser, Admin, Staff, Student, Guest
+
+#from models import Survey, Course, UniUser, Admin, Staff, Student, Guest
+from models import surveys_model, courses_model
+
+
 from flask_login import login_user, login_required, current_user, logout_user
 from abc import ABCMeta, abstractmethod
 from classes import course_usage, common
@@ -41,7 +45,7 @@ class CreateSurvey:
             flash('Please Enter a Start and Finish Date')
             return False
         
-        course = Course.query.filter_by(id=courseId).first()    
+        course = courses_model.Course.query.filter_by(id=courseId).first()    
         if(course == None):
             errorMSG("routes.newsurvey", "course object is empty")
             return False
@@ -79,7 +83,7 @@ class LoadSurvey:
     'loads a specific survey'
     def load(surveyID=[]):
         if LoadSurvey.err_check(surveyID):
-            survey = Survey.query.filter_by(id=surveyID[0]).first()    
+            survey = surveys_model.Survey.query.filter_by(id=surveyID[0]).first()    
             return survey
         return None
 

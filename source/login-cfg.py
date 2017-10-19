@@ -1,5 +1,5 @@
 from flask_login import LoginManager
-from models import UniUser
+from models import users_model
 
 
 class LoginConfig(object):
@@ -14,4 +14,4 @@ class LoginConfig(object):
 
     @login_manager.user_loader
     def load_user(userid):
-        return UniUser(userid)
+        return users_model.UniUser(userid)
