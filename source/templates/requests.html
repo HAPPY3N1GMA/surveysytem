@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+	<head>
+			<title>Home</title>
+			<link rel="stylesheet" type= "text/css" href="static/styles/bootstrap.min.css">
+			<link rel="stylesheet" type= "text/css" href="static/styles/font-awesome.min.css">
+			<link rel="stylesheet" type= "text/css" href="static/styles/ionicons.min.css">
+			<script src="static/js/bootstrap.min.js"></script>
+			<link rel="stylesheet" type= "text/css" href="static/styles/styles.css">
+	</head>
+	<header>
+			<div class="container row full-width">
+					<nav class="navbar navbar-default col-sm-10">
+						 <ul class="nav navbar-nav navbar-right">
+									<li><a href="/home">Home</a></li>
+									<li><a href="/surveys">Surveys</a></li>
+									{% if current_user.role=='Admin'%}
+									<li><a href="/questions">Questions</a></li>
+									<li><a href="/requests">Requests</a></li>
+									{% endif %}
+								<li><a href="/logout">Logout</a></li>										
+						 </ul>
+					</nav> 
+			</div>
+	</header>
+	<body>
+		{% if current_user.role=='Admin' %}
+				<br></br>
+				<div class="container">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 align="center"> Requests Awaiting Review </h3>
+						</div>
+						<div class="panel-body">
+						<br></br>
+						<form method="POST" class="form-horizontal">
+								<div class="panel panel-default">
+									<div class="panel-body">
+										{% with messages = get_flashed_messages() %}
+											{% if messages %}
+												<ul class=flashes align="center" style="color:red">
+												{% for message in messages %}
+													<p> {{ message }}</p>
+												{% endfor %}
+												</ul>
+											{% endif %}
+										{% endwith %}
+										{% if current_user.reg_requests %}
+											<table class="table table-hover">
+												<col width="100">
+													<thead>
+													<tr>
+														<th>Select</th>
+														<th>UserId</th> 
+														<th>Course</th>  
+														<th>Offering</th>                                          
+													</tr>
+													</thead>
+													{% for request in current_user.reg_requests %}
+													<tr>
+														<td><input type="radio" name="reqid" value="{{request.id}}"/></td>
+															<td>
+																{{request.userId}}
+															</td>
+															{% for course in current_user.courses %}
+																 {% if course.id == request.course_id %}
+																	<td>
+																		{{course.name}}
+																	</td>        
+																	<td>
+																		{{course.offering}}
+																	</td>    
+																{% endif %}
+													{% endfor %}                              
+													</tr> 
+												{%- endfor %}
+											</table>
+										{% else %}
+										<p> No Requests At This Time<p>
+										{% endif %}
+									</div> 
+								</div>
+							{% if current_user.reg_requests %}
+								<button type="submit" class="btn-primary" id="open" ="btn-primary" name="open">Approve</button>
+							{%endif%}
+						</form>  
+						{% endif %}
+						</div>
+					</div>
+				</div>
+		</body>
+</html>

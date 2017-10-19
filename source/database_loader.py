@@ -14,7 +14,7 @@ class DB_Loader(object):
         self.admin_load()
 
     def admin_load(self):
-        admin = users_model.UniUser(1, '1', 'Admin', [], [])
+        admin = users_model.Admin(1, '1', 'Admin', [], [])
         db_session.add(admin)
         admin.courses = courses_model.Course.query.all()
         db_session.commit()

@@ -14,7 +14,7 @@ from database import db_session, Base
 from flask_login import login_user, login_required, current_user, logout_user
 from util import SurveyUtil, QuestionUtil
 from abc import ABCMeta, abstractmethod
-from classes import common
+from classes import common, course_usage
 
 class Login:
 
@@ -84,44 +84,96 @@ class Register:
 		credentials.set_pass()
 
 		password = credentials.get_pass()
-		userId = credentials.get_user()
+		userId = credentials.get_user() 
 
 		register_status = RegisterFailure()
 		user = users_model.UniUser.query.get(userId)
+		course = course_usage.LoadCourse.load(request.form["regcourse"]) 
 		if not user:
 			if userId.isdigit():
-				if len(password) > 4 and password != 'Password':
-					print(len(password),password)
-					register_status = RegisterSuccess()
-					user = users_model.Guest(userId,password,'Guest')
+				if len(password) > 3 and password != 'Password':
+					if course:
+						register_status = RegisterSuccess()
 				else:
 					flash("Please Enter a Password of Minimum 4 Characters")	
 			else:
 				flash("Please Enter a Valid UserId Using Numbers 0-9")
 		else:
 			flash ('User already registered. Please try another UserId')
-		return register_status.execute(user)
+		return register_status.execute(userId,password,course)
+
+
+
+
+	def register_approve(self):
+		'approve a guest request to answer survey'
+		register_status = RegisterApproveFailure()
+		
+		regId = request.form.getlist("reqid")
+		if regId != []:
+			registration = users_model.RegistrationRequest.query.get(regId[0])
+			if registration:
+				course = course_usage.LoadCourse.load(registration.course_id)
+				if course:
+					register_status = RegisterApproveSuccess()
+		else:
+			flash("Please Select a Request")
+
+		return register_status.execute(registration)
 
 
 class RegisterStatus:
 	__metaclass__ = ABCMeta
 
 	@abstractmethod
-	def execute(user):
+	def execute(self,credentials,course):
 		pass
 
-class RegisterSuccess(LoginStatus):
+class RegisterSuccess(RegisterStatus):
 	'purpose: handles case of being a user with correct pass'
 
-	def execute(self, user=None):
-		db_session.add(user)
-		db_session.commit()
-		flash ('Registration Successful. Please wait for an Admin to review your request!')
-		return render_template("login.html")
+	def execute(self, userId=None, password=None, course=None):
+		request = users_model.RegistrationRequest(userId,password,course.id)
+		db_session.add(request)
+		admin = users_model.UniUser.get_admin()
+		admin.reg_requests.append(request)
 
-class RegisterFailure(LoginStatus):
+		db_session.commit()
+
+		flash ('Registration Successful. Please wait for an Admin to approve your request!')
+		return redirect("login")
+
+class RegisterFailure(RegisterStatus):
 	'purpose: handles any bad registration'
 
-	def execute(self, user=None):
+	def execute(self, userId=None, password=None, course=None):
 		course_list = courses_model.Course.query.all()
 		return render_template("register.html",course_list=course_list)
+
+
+class RegisterApproveFailure(RegisterStatus):
+	'purpose: handles any bad registration'
+
+	def execute(self, userId=None, password=None, course=None):
+		return render_template("requests.html")
+
+class RegisterApproveSuccess(RegisterStatus):
+	'purpose: adds new user to db, and adds user to course surveys'
+
+	def execute(self, registration):
+		user = users_model.Guest(registration.userId,registration.password,'Guest')
+		db_session.add(user)
+
+		course = course_usage.LoadCourse.load(registration.course_id)
+		user.courses.append(course)
+
+		for survey in course.survey:
+			survey.users.append(user)
+		
+		#remove request
+		#request = users_model.RegistrationRequest(userId,password,course.id)
+
+		db_session.delete(registration)
+		db_session.commit()
+
+		return render_template("requests.html")

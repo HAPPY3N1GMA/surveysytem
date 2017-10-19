@@ -116,13 +116,17 @@ class SurveyUtil(object):
         #temp
         return survey_usage.OpenSurvey().open_attempt()	
 
+
+
     def answersurvey(self):
         if (current_user.is_authenticated)==False:
             return redirect(url_for("login"))
 
-        if(current_user.role != 'Student'):
-            common.Debug.errorMSG("routes.answersurvey","unauthorised user attempted access:",current_user.id)
-            return render_template("home.html", user=current_user)
+        #this is tempn
+        if current_user.role != 'Student':
+            if current_user.role != 'Guest':
+                common.Debug.errorMSG("routes.answersurvey","unauthorised user attempted access:",current_user.id)
+                return render_template("home.html", user=current_user)
 
         #check student answered all fields
         surveyID = request.form["surveyid"]
@@ -131,6 +135,10 @@ class SurveyUtil(object):
         if(survey==None):
             common.Debug.errorMSG("routes.answersurvey","survey object is empty")
             return self.surveyinfo()	
+
+        #check user is in survey list
+        if current_user not in survey.users:
+            return render_template("home.html", user=current_user)
 
         course = courses_model.Course.query.filter_by(id=survey.course_id).first()	
         if(course==None):

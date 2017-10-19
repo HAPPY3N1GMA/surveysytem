@@ -33,6 +33,9 @@ class Course(Base):
     def __repr__(self):
         return '<CourseName %r>' % (self.name)
 
+
+
+
 csassociation_table = Table('csassociation', Base.metadata,
                             Column('course_id', Integer,
                                    ForeignKey('course.id')),
@@ -40,3 +43,9 @@ csassociation_table = Table('csassociation', Base.metadata,
                                    ForeignKey('survey.id'))
                             )
 
+ucassociation_table = Table('ucassociation', Base.metadata,
+                            Column('uniuser_id', Integer,
+                                   ForeignKey('uniuser.id')),
+                            Column('course_id', Integer,
+                                   ForeignKey('course.id'))
+                            )

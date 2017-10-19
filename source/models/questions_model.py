@@ -96,3 +96,19 @@ class MCResponse(Base):
     def __repr__(self):
         return '<MCResponse to %r is %r>' % (self.question_id,
                                              self.response_id)
+
+
+
+mcassociation_table = Table('mcassociation', Base.metadata,
+                            Column('mcquestion_id', Integer,
+                                   ForeignKey('mcquestion.id')),
+                            Column('survey_id', Integer,
+                                   ForeignKey('survey.id'))
+                            )
+
+genassociation_table = Table('genassociation', Base.metadata,
+                             Column('generalquestion_id', Integer,
+                                    ForeignKey('generalquestion.id')),
+                             Column('survey_id', Integer,
+                                    ForeignKey('survey.id'))
+                             )

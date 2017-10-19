@@ -142,12 +142,7 @@ class SurveyResponse(Base):
                                      )
 
 
-ucassociation_table = Table('ucassociation', Base.metadata,
-                            Column('uniuser_id', Integer,
-                                   ForeignKey('uniuser.id')),
-                            Column('course_id', Integer,
-                                   ForeignKey('course.id'))
-                            )
+
 
 
 
@@ -160,24 +155,4 @@ usassociation_table = Table('usassociation', Base.metadata,
                             )
 
 
-mcassociation_table = Table('mcassociation', Base.metadata,
-                            Column('mcquestion_id', Integer,
-                                   ForeignKey('mcquestion.id')),
-                            Column('survey_id', Integer,
-                                   ForeignKey('survey.id'))
-                            )
-
-"""ynassociation_table = Table('ynassociation', Base.metadata,
-                            Column('ynquestion_id', Integer,
-                                   ForeignKey('ynquestion.id')),
-                            Column('survey_id', Integer,
-                                   ForeignKey('survey.id'))
-                            )"""
-
-genassociation_table = Table('genassociation', Base.metadata,
-                             Column('generalquestion_id', Integer,
-                                    ForeignKey('generalquestion.id')),
-                             Column('survey_id', Integer,
-                                    ForeignKey('survey.id'))
-                             )
 

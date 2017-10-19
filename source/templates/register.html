@@ -54,9 +54,7 @@
 				<div class="form-group">
 				  <select class="form-control" id="regcourse" name="regcourse" value="Choose Course">
 				    {%for course in course_list%}
-				      {%if course.survey==[] %}
 				        <option value="{{course.id}}">{{course.name}} - ({{course.offering}} )</option>
-				      {%endif%}
 				    {%endfor%}
 				  </select>
 				</div>

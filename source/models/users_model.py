@@ -14,6 +14,7 @@ from models import surveys_model, questions_model, courses_model
 class UniUser(Base):
     __tablename__ = 'uniuser'
     id = Column(Integer,  primary_key=True)
+
     password = Column(String)
     role = Column(String)
     courses = relationship("courses_model.Course",
@@ -61,6 +62,13 @@ class UniUser(Base):
         self.role = role
         self.courses = courses
         self.surveys = surveys
+
+    def get_admin():
+        admin = UniUser.query.filter_by(role='Admin').first() 
+        if(admin==None):
+            print("get_admin","admin object list is empty")
+            return False
+        return admin
 
     def get_staff():
         staff = UniUser.query.filter_by(role='Staff').all() 
@@ -120,7 +128,19 @@ class UniUser(Base):
 
 
 
+
 class Admin(UniUser):
+    reg_requests = relationship("RegistrationRequest", backref='uniuser')
+
+    def __init__(self, id, password, role, courses=[],
+                 surveys=[],reg_requests=[]):
+        print("creating an admin user")
+        self.id = id
+        self.password = password
+        self.role = role
+        self.courses = courses
+        self.surveys = surveys
+        self.reg_requests = reg_requests
 
     __mapper_args__ = {
         'polymorphic_identity':'Admin'
@@ -327,6 +347,25 @@ class Guest(UniUser):
         return common.Render.home()
 
 
+
+
+class RegistrationRequest(Base):
+    __tablename__ = 'regrequest'
+    id = Column(Integer, primary_key=True)
+    userId = Column(Integer)
+    password = Column(String)
+    course_id = Column(Integer, ForeignKey('course.id'))
+    admin = Column(Integer, ForeignKey('uniuser.id'))
+
+    def __init__(self, userId=None, password="",
+                 course_id=""):
+        self.userId = userId
+        self.password = password
+        self.course_id = course_id
+
+    def __repr__(self):
+        return '<RegistrationRequest for %r and  %r>' % (self.userId,
+                                             self.course_id)
 
 
 

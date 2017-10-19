@@ -127,6 +127,37 @@ def register():
 	return render_template("register.html",course_list=course_list)
 
 
+
+#######################################################################
+######################## 		REGISTER 	    #######################
+#######################################################################
+
+@app.route("/requests", methods=["GET", "POST"])
+def requests():
+	if (current_user.is_authenticated):
+		if(current_user.role == 'Admin'):
+			if request.method == 'POST':
+				attempt = authenticate.Register()
+				return attempt.register_approve()
+			else:
+				return render_template("requests.html")
+
+	return redirect(url_for("home"))
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
 #######################################################################
 ########################## 	SURVEYS 	###############################
 #######################################################################
