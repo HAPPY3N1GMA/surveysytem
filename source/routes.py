@@ -120,8 +120,8 @@ def register():
 		return redirect(url_for("home"))
 
 	if request.method == 'POST':
-		util = SurveyUtil()
-		return util.registeruser()
+		attempt = authenticate.Register()
+		return attempt.register_attempt()
 
 	course_list = courses_model.Course.query.all()
 	return render_template("register.html",course_list=course_list)

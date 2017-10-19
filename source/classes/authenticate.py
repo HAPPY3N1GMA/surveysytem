@@ -72,3 +72,56 @@ class Credentials(object):
 
 	def get_pass(self):
 		return self._password
+
+
+
+
+class Register:
+
+	def register_attempt(self):
+		credentials = Credentials()
+		credentials.set_user()
+		credentials.set_pass()
+
+		password = credentials.get_pass()
+		userId = credentials.get_user()
+
+		register_status = RegisterFailure()
+		user = users_model.UniUser.query.get(userId)
+		if not user:
+			if userId.isdigit():
+				if len(password) > 4 and password != 'Password':
+					print(len(password),password)
+					register_status = RegisterSuccess()
+					user = users_model.Guest(userId,password,'Guest')
+				else:
+					flash("Please Enter a Password of Minimum 4 Characters")	
+			else:
+				flash("Please Enter a Valid UserId Using Numbers 0-9")
+		else:
+			flash ('User already registered. Please try another UserId')
+		return register_status.execute(user)
+
+
+class RegisterStatus:
+	__metaclass__ = ABCMeta
+
+	@abstractmethod
+	def execute(user):
+		pass
+
+class RegisterSuccess(LoginStatus):
+	'purpose: handles case of being a user with correct pass'
+
+	def execute(self, user=None):
+		db_session.add(user)
+		db_session.commit()
+		flash ('Registration Successful. Please wait for an Admin to review your request!')
+		return render_template("login.html")
+
+class RegisterFailure(LoginStatus):
+	'purpose: handles any bad registration'
+
+	def execute(self, user=None):
+		course_list = courses_model.Course.query.all()
+		return render_template("register.html",course_list=course_list)
