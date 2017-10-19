@@ -6,6 +6,7 @@
 				<link rel="stylesheet" type= "text/css" href="/source/static/styles/ionicons.min.css">
                 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
                 <link rel="stylesheet" type= "text/css" href="/source/static/styles/styles.css">
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.min.js"></script>
                 <style>
                     header .navbar {
                         color:black;
@@ -41,12 +42,36 @@
 		</header>
     
     <div class="container">
-        <h1>Results for: {{ survey_name }}</h1>
+        <h1>Results for: {{ survey.title }} - {{ question.question }}</h1>
+        <div class="container">
+            <canvas id="myChart" width="600" height="400"></canvas>
+        </div>
 
-        
-        {% for list in list_of_lists %}
-            {% for response in list %}
-                ID: {{ response.question_id }} Response: {{ response.response }} <br>
-            {% endfor %}
-        {% endfor %}
     </div>
+            <script>
+            var chartData = {
+                labels : [{% for item in labels %}
+                        "{{item}}",
+                        {% endfor %}],
+                datasets : [{
+                    data : [{% for item in data %}
+                            {{item}},
+                            {% endfor %}
+                        ],
+                    backgroundColor: [
+                        "#0074D9", "#FF4136", "#2ECC40", "#FF851B"
+                    ]
+                }]
+            }
+             
+                // get chart canvas
+                var ctx = document.getElementById("myChart").getContext("2d");
+
+                // create the chart using the chart canvas
+                var myChart = new Chart(ctx, {
+                type: 'pie',
+                data: chartData
+                });
+             
+            </script>
+            </body></html>

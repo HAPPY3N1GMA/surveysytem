@@ -41,7 +41,7 @@ def submit():
 @login_required
 def results(id):
 
-	# all this can be redirected and run by:
+# all this can be redirected and run by:
 	# return current_user.ViewSurveyResults()
 	# or via survey_usage..... something or other to make it abstracted and constant with others
 
@@ -51,28 +51,72 @@ def results(id):
 
 
 	survey = surveys_model.Survey.query.get(id)
+	question = questions_model.MCQuestion.query.get(qid)
 	responses = survey.responses
+	num_responses = len(responses)
+	print(num_responses)
 
 	mc_responses = []
 	for response in responses:
-		for mc_response in response.mc_responses:
-			mc_responses.append(mc_response)
+			for mc_response in response.mc_responses:
+				if str(mc_response.question_id) == qid:
+					mc_responses.append(mc_response)
 
 	list_of_lists = []
+	print(mc_responses)
 	# for each question in survey
-	for question in survey.mc_questions:
-		question_res = []
-	# iterate through responses 
-		for response in mc_responses:
-			# find responses with same questionid
-			if question.id == response.question_id:
-				# add them to the question specific
-				question_res.append(response)
-		list_of_lists.append(question_res)
+	# for question in survey.mc_questions:
+	# 	question_res = []
+	# # iterate through responses 
+	# 	for response in mc_responses:
+	# 		# find responses with same questionid
+	# 		if question.id == response.question_id:
+	# 			# add them to the question specific
+	# 			question_res.append(response)
+	# 	list_of_lists.append(question_res)
 
-	print(list_of_lists)
+	# print(list_of_lists)
 
-	return render_template("results.html", list_of_lists=list_of_lists)
+	colours = []
+	labels = []
+	data = []  # the above list in percentages
+	# for each group of question responses
+	a_one = 0
+	a_two = 0
+	a_th = 0
+	a_four = 0
+	for resp in mc_responses:
+		print("Question id" + str(resp.question_id))
+		print("   Response: " + resp.response)
+		if resp.response == '1':
+			a_one += 1
+		if resp.response == '2':
+			a_two += 1
+		if resp.response == '3':
+			a_th += 1
+		if resp.response == '4':
+			a_four += 1
+	data.append(a_one/num_responses)
+	data.append(a_two/num_responses)
+	data.append(a_th/num_responses)
+	data.append(a_four/num_responses)
+	labels.append(question.answerOne)
+	labels.append(question.answerTwo)
+	labels.append(question.answerThree)
+	labels.append(question.answerFour)
+	colours.append("red")
+	colours.append("green")
+	colours.append("blue")
+	colours.append("yellow")
+	
+	print(data)
+
+	return render_template("results.html", qid=qid,
+										   data=data,
+										   labels=labels,
+										   survey=survey,
+										   responses=responses,
+										   question=question)
 
 
 
