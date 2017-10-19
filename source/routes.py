@@ -37,9 +37,9 @@ def submit():
 ##########################     Results   ##############################
 #######################################################################
 
-@app.route("/results/<id>")
+@app.route("/results/<id>/<qid>")
 @login_required
-def results(id):
+def results(id, qid):
 
 # all this can be redirected and run by:
 	# return current_user.ViewSurveyResults()
