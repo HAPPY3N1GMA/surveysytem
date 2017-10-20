@@ -72,9 +72,9 @@
                         {% if survey.status==1 or current_user.role=='Admin' and survey.status!=3 %}
                         <td>
                         {% if question.status==1 or current_user.role=='Admin' and survey.status!=3 %}
-                          <input type="radio" name="question" onclick="$('.surveymc').prop('checked', false);" value="{{1,question.id}}"/>
+                          <input type="radio" name="question" onclick="$('.surveymc').prop('checked', false);" value="'1','{{question.id}}'"/>
                         {% else %}
-                          <input type="radio" name="question" onclick="$('.surveymc').prop('checked', false);" value="{{1,question.id}}" disabled="disabled"/>
+                          <input type="radio" name="question" onclick="$('.surveymc').prop('checked', false);" value="'1','{{question.id}}'" disabled="disabled"/>
                         {% endif %}
                         </td>
                         {% endif %}
@@ -121,9 +121,9 @@
                             {% if survey.status==1 or current_user.role=='Admin' and survey.status!=3%}
                               <td>
                                 {% if question.status==1 or current_user.role=='Admin' %}
-                                  <input type="radio" name="question" onclick="$('.surveygen').prop('checked', false);" value="{{0,question.id}}"/>
+                                  <input type="radio" name="question" onclick="$('.surveygen').prop('checked', false);" value="'0','{{question.id}}'"/>
                                 {% else %}
-                                  <input type="radio" name="question" onclick="$('.surveygen').prop('checked', false);" value="{{0,question.id}}" disabled="disabled"/>
+                                  <input type="radio" name="question" onclick="$('.surveygen').prop('checked', false);" value="'0','{{question.id}}'" disabled="disabled"/>
                                 {% endif %}
                               </td>
                             {% endif %}

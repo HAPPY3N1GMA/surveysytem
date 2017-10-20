@@ -79,18 +79,16 @@ class OpenSurvey:
             flash("Please Select a Survey to Open")
         return common.Render.surveys()
 
+
+
 class LoadSurvey:
     'loads a specific survey'
     def load(surveyID=[]):
-        if LoadSurvey.err_check(surveyID):
+        if surveyID:
             survey = surveys_model.Survey.query.filter_by(id=surveyID[0]).first()    
             return survey
         return None
 
-    def err_check(surveyID=[]):
-        if surveyID == []:
-            return False
-        return True
 
 
 class StatusSurvey:
@@ -110,8 +108,42 @@ class StatusSurvey:
             if survey.status == 3:
                 return current_user.ViewSurveyResults(survey,course) 
 
-        return survey_usage.OpenSurvey().open_attempt() 
-
-    
+        return OpenSurvey().open_attempt() 
 
 
+
+class AddQuestionSurvey:
+    'adds questions to surveys'
+    def add_attempt(self):
+
+        survey_questions = request.form.getlist('question')
+        surveyID = request.form.getlist("surveyid")
+        survey = LoadSurvey.load(request.form.getlist('surveyid'))
+        course = course_usage.LoadCourse.load(survey.course_id)  
+
+        if survey_questions:
+            if survey:
+                survey_questions = ast.literal_eval(str(survey_questions)[1:-1])
+                print(survey_questions)
+                return current_user.AddQuestionSurvey(survey_questions,survey,course)
+        else:
+            flash('No questions selected')
+        return OpenSurvey().open_attempt() 
+
+
+
+class RemoveQuestionSurvey:
+    'removes a question from a survey'
+    def remove_attempt(self):
+        survey_question = request.form.getlist('question')
+        surveyID = request.form.getlist("surveyid")
+        survey = LoadSurvey.load(request.form.getlist('surveyid'))
+        course = course_usage.LoadCourse.load(survey.course_id)  
+        if survey_question:
+            survey_question = request.form['question']
+            if survey:
+                survey_question = ast.literal_eval(survey_question)
+                return current_user.RemoveQuestionSurvey(survey_question,survey,course)
+        else:
+            flash('No questions selected')
+        return OpenSurvey().open_attempt()         

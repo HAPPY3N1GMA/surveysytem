@@ -214,7 +214,7 @@ def surveys():
 		return redirect(url_for("login"))
 
 	if request.method == "GET":
-		return util.surveyinfo()
+		return common.Render.surveys()
 	else:
 		surveyform = request.form.getlist("surveyformid")
 		if surveyform == []:
@@ -225,47 +225,17 @@ def surveys():
 		if surveyform=='1':
 			return survey_usage.CreateSurvey().create_attempt()	
 		if surveyform=='2':
-			return survey_usage.OpenSurvey().open_attempt()		
-
+			return survey_usage.OpenSurvey().open_attempt()	
+		if surveyform=='3':
+			return survey_usage.RemoveQuestionSurvey().remove_attempt()
+		if surveyform=='4':
+			return survey_usage.AddQuestionSurvey().add_attempt()
 		if surveyform=='5':
 			return survey_usage.StatusSurvey().update_attempt()	
+		if surveyform=='6':
+			return util.answersurvey()
 
-
-		if(current_user.role == 'Admin' or current_user.role == 'Staff'):
-			if(current_user.role=='Admin'):
-				# if surveyform=='1':
-				# 	return util.newsurvey()
-				if surveyform=='3':
-					return util.removeqsurvey()
-				if surveyform=='4':
-					return util.addqsurvey()
-				
-
-			if request.form.getlist("surveyid")==[]:
-				common.Debug.errorMSG("routes.surveys","survey doesnt exist")
-				return util.surveyinfo()	
-
-			surveyID = request.form["surveyid"]
-			survey = surveys_model.Survey.query.filter_by(id=surveyID).first()	
-			if(survey==None):
-				common.Debug.errorMSG("routes.surveys","survey object is empty")
-				return util.surveyinfo()	
-
-
-			#enrolled staff have access to modify surveys
-			if current_user in survey.users and survey.status==1:
-				if surveyform=='3':
-					return util.removeqsurvey()
-				if surveyform=='4':
-					return util.addqsurvey()
-				if surveyform=='5':
-					return util.statussurvey()
-		else:
-		#students can only answer the survey
-			if surveyform=='6':
-				return util.answersurvey()
-
-		return util.surveyinfo()
+		return common.Render.surveys()
 
 
 #######################################################################
