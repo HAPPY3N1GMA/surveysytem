@@ -97,10 +97,6 @@ class UniUser(Base):
         pass
 
     @abstractmethod
-    def AnswerSurvey(self,survey,course):
-        pass
-
-    @abstractmethod
     def ModifySurvey(self,survey,course): 
         pass
 
@@ -135,6 +131,12 @@ class UniUser(Base):
     @abstractmethod
     def OpenQuestions(self):
         pass
+
+
+    @abstractmethod
+    def AnswerSurvey(self,survey,mc_response=[],gen_response=[]):
+        pass
+
 
 
     __mapper_args__ = {
@@ -176,11 +178,6 @@ class Admin(UniUser):
         db_session.commit()
 
         return common.Render.surveys()
-
-
-    def AnswerSurvey(self,survey,course):
-        # run code for answering if applicable
-        return current_user.ModifySurvey(survey, course)
 
 
     def ModifySurvey(self,survey,course):
@@ -243,6 +240,7 @@ class Admin(UniUser):
         return current_user.ModifySurvey(survey, course)
 
     def OpenPublishedSurvey(self,survey,course):
+        print("open survey thats been published")
         return current_user.ModifySurvey(survey, course)
 
 
@@ -250,6 +248,13 @@ class Admin(UniUser):
         general = questions_model.GeneralQuestion.query.all()
         multi = questions_model.MCQuestion.query.all()
         return render_template("questions.html",user=current_user,multi=multi,general=general)
+
+    def AnswerSurvey(self,survey,mc_response=[],gen_response=[]):
+        return render_template("home.html", user=current_user)
+
+
+
+
 
 class Staff(UniUser):
 
@@ -259,10 +264,6 @@ class Staff(UniUser):
 
     def CreateSurvey(self,courseId,surveyName,startDate,endDate):
         return common.Render.home()
-
-
-    def AnswerSurvey(self,survey,course):
-        return current_user.ModifySurvey(survey, course)
 
 
     def ModifySurvey(self,survey,course):
@@ -325,6 +326,13 @@ class Staff(UniUser):
         common.Debug.errorMSG("routes.questioninfo","unauthorised user attempted access:",current_user.id)
         return render_template("home.html", user=current_user)
 
+
+    def AnswerSurvey(self,survey,mc_response=[],gen_response=[]):
+        return render_template("home.html", user=current_user)
+
+
+
+
 ###############################################################################################
 
 
@@ -337,11 +345,6 @@ class Student(UniUser):
     def CreateSurvey(self,courseId,surveyName,startDate,endDate):
         return common.Render.home()
 
-
-    def AnswerSurvey(self,survey,course):
-        # run code for answering if applicable
-        return render_template("answersurvey.html", survey=survey,
-                                       course=course)
 
     def ModifySurvey(self,survey,course):
         return common.Render.home()
@@ -372,11 +375,40 @@ class Student(UniUser):
         return common.Render.home()
 
     def OpenPublishedSurvey(self,survey,course):
-        return current_user.ViewSurveyResults(survey, course)
+        if current_user in survey.users:
+            return render_template("answersurvey.html",survey=survey,course=course)
+        return render_template("home.html", user=current_user)
 
     def OpenQuestions(self):
         common.Debug.errorMSG("routes.questioninfo","unauthorised user attempted access:",current_user.id)
         return render_template("home.html", user=current_user)
+
+
+    def AnswerSurvey(self,survey,mc_response=[],gen_response=[]):
+        #double check this person has not already responded? 
+
+        surveyResponse = surveys_model.SurveyResponse(survey.id)
+        db_session.add(surveyResponse)
+
+
+        #this sorts and stores the answers into the survey response based on type
+        for question,response in zip(survey.gen_questions,gen_response):
+            response = questions_model.GeneralResponse(surveyResponse.id,question.id,response)
+            surveyResponse.gen_responses.append(response)
+
+        for question,response in zip(survey.mc_questions,mc_response):
+            response = questions_model.MCResponse(surveyResponse.id,question.id,response)
+            surveyResponse.mc_responses.append(response)
+
+        #remove the student from the survey list (so they cannont answer again)
+        survey.users.remove(current_user)
+
+        #commit the new survey response to this survey
+        db_session.commit()
+
+        return redirect(url_for("submit"))
+
+
 
 
 
@@ -391,11 +423,6 @@ class Guest(UniUser):
     def CreateSurvey(self,courseId,surveyName,startDate,endDate):
         return common.Render.home()
 
-
-    def AnswerSurvey(self,survey,course):
-        # run code for answering if applicable
-        return render_template("answersurvey.html", survey=survey,
-                                       course=course)
 
     def ModifySurvey(self,survey,course):
         return common.Render.home()
@@ -426,11 +453,40 @@ class Guest(UniUser):
         return common.Render.home()
 
     def OpenPublishedSurvey(self,survey,course):
-        return current_user.ViewSurveyResults(survey, course)
+        if current_user in survey.users:
+            return render_template("answersurvey.html",survey=survey,course=course)
+        return render_template("home.html", user=current_user)
 
     def OpenQuestions(self):
         common.Debug.errorMSG("routes.questioninfo","unauthorised user attempted access:",current_user.id)
         return render_template("home.html", user=current_user)
+
+
+    def AnswerSurvey(self,survey,mc_response=[],gen_response=[]):
+        #double check this person has not already responded? 
+
+        surveyResponse = surveys_model.SurveyResponse(survey.id)
+        db_session.add(surveyResponse)
+
+
+        #this sorts and stores the answers into the survey response based on type
+        for question,response in zip(survey.gen_questions,gen_response):
+            response = questions_model.GeneralResponse(surveyResponse.id,question.id,response)
+            surveyResponse.gen_responses.append(response)
+
+        for question,response in zip(survey.mc_questions,mc_response):
+            response = questions_model.MCResponse(surveyResponse.id,question.id,response)
+            surveyResponse.mc_responses.append(response)
+
+        #remove the student from the survey list (so they cannont answer again)
+        survey.users.remove(current_user)
+
+        #commit the new survey response to this survey
+        db_session.commit()
+
+        return redirect(url_for("submit"))
+
+
 
 
 ###############################################################################################

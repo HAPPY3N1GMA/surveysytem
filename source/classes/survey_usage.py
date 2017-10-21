@@ -68,8 +68,6 @@ class OpenSurvey:
                 if survey.status < 2:
                     return current_user.ModifySurvey(survey, course)
                 if survey.status == 2:
-                    return current_user.AnswerSurvey(survey, course)
-                if survey.status == 3:
                     return current_user.OpenPublishedSurvey(survey, course)
         else:
             flash("Please Select a Survey to Open")
@@ -161,7 +159,6 @@ class RemoveQuestionSurvey:
 
         remove_status = RemoveFailure()
         survey_question = request.form.getlist('question')
-        surveyID = request.form.getlist("surveyid")
         survey = None
         course = None
         question = None
@@ -200,3 +197,59 @@ class RemoveFailure(RemoveStatus):
 
     def execute(self,question=None,survey=None,course=None):
         return OpenSurvey().open_attempt()   
+
+
+class AnswerSurvey:
+
+    def answer_attempt(self):
+
+        survey = LoadSurvey.load(request.form.getlist('surveyid'))
+        if survey:
+            course = course_usage.LoadCourse.load(survey.course_id)  
+            if course:
+                if current_user in survey.users:
+                    genResponseList = self.getGenResponse(survey)
+                    if genResponseList is not None:
+                        mcResponseList = self.getMCResponse(survey)
+                        if mcResponseList is not None:
+                            return current_user.AnswerSurvey(survey,mcResponseList,genResponseList)
+
+        return OpenSurvey().open_attempt()   
+
+
+
+    def getGenResponse(self,survey=None):
+        genResponseList = []
+        if len(survey.gen_questions)>0:
+            genResponseList = request.form.getlist('genResponse')
+            genResponseList = list(filter(None, genResponseList))
+
+            if len(survey.gen_questions)!=len(genResponseList):
+                flash('Please Complete All Extended Response Questions')
+                return None
+
+            for text in genResponseList:
+                if (get.cleanString(str(text))==False):
+                    flash('Invalid Characters Used In Extended Response')
+                    return None
+
+        return genResponseList
+
+
+    def getMCResponse(self,survey=None):
+        mcResponseList = []
+        if len(survey.mc_questions)>0:
+            for question in survey.mc_questions:
+                if (request.form.getlist(str(question.id))==[]):
+                    flash('Please Complete All Multiple Choice Questions')
+                    return None
+
+                mcResponseList.append(request.form[str(question.id)])
+
+        mcResponseList = list(filter(None, mcResponseList))
+
+        if len(survey.mc_questions)!=len(mcResponseList):
+            flash('Please Complete All Multiple Choice Questions')
+            return None
+
+        return mcResponseList

@@ -230,7 +230,7 @@ def surveys():
 			if surveyform=='5':
 				return survey_usage.StatusSurvey().update_attempt()	
 			if surveyform=='6':
-				return util.answersurvey()
+				return survey_usage.AnswerSurvey().answer_attempt()	
 
 			return common.Render.surveys()
 
