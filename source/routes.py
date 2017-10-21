@@ -217,26 +217,24 @@ def surveys():
 		return common.Render.surveys()
 	else:
 		surveyform = request.form.getlist("surveyformid")
-		if surveyform == []:
-			return redirect(url_for("home"))
+		if surveyform:
+			surveyform = surveyform[0]
+			if surveyform=='1':
+				return survey_usage.CreateSurvey().create_attempt()	
+			if surveyform=='2':
+				return survey_usage.OpenSurvey().open_attempt()	
+			if surveyform=='3':
+				return survey_usage.RemoveQuestionSurvey().remove_attempt()
+			if surveyform=='4':
+				return survey_usage.AddQuestionSurvey().add_attempt()
+			if surveyform=='5':
+				return survey_usage.StatusSurvey().update_attempt()	
+			if surveyform=='6':
+				return util.answersurvey()
 
-		surveyform = surveyform[0]
-			
-		if surveyform=='1':
-			return survey_usage.CreateSurvey().create_attempt()	
-		if surveyform=='2':
-			return survey_usage.OpenSurvey().open_attempt()	
-		if surveyform=='3':
-			return survey_usage.RemoveQuestionSurvey().remove_attempt()
-		if surveyform=='4':
-			return survey_usage.AddQuestionSurvey().add_attempt()
-		if surveyform=='5':
-			return survey_usage.StatusSurvey().update_attempt()	
-		if surveyform=='6':
-			return util.answersurvey()
+			return common.Render.surveys()
 
-		return common.Render.surveys()
-
+	return redirect(url_for("home"))
 
 #######################################################################
 ########################## 	 QUESTIONS 	###############################
