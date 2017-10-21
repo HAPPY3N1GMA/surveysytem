@@ -9,7 +9,7 @@ from models import surveys_model, courses_model
 
 from flask_login import login_user, login_required, current_user, logout_user
 from abc import ABCMeta, abstractmethod
-from classes import course_usage, common
+from classes import course_usage, question_usage, common
 
 
 class CreateSurvey:
@@ -70,11 +70,7 @@ class OpenSurvey:
                 if survey.status == 2:
                     return current_user.AnswerSurvey(survey, course)
                 if survey.status == 3:
-                    if current_user.role == 'Student' or current_user.role == 'Guest':
-                        return current_user.ViewSurveyResults(survey, course)
-                    else:
-                        #staff and admin go to an overview page still
-                        return current_user.ModifySurvey(survey, course)
+                    return current_user.OpenPublishedSurvey(survey, course)
         else:
             flash("Please Select a Survey to Open")
         return common.Render.surveys()
@@ -116,34 +112,91 @@ class AddQuestionSurvey:
     'adds questions to surveys'
     def add_attempt(self):
 
+        add_status = AddFailure()
+        survey = None
+        course = None
+        questions = []
         survey_questions = request.form.getlist('question')
-        surveyID = request.form.getlist("surveyid")
-        survey = LoadSurvey.load(request.form.getlist('surveyid'))
-        course = course_usage.LoadCourse.load(survey.course_id)  
-
         if survey_questions:
+            survey = LoadSurvey.load(request.form.getlist('surveyid'))
             if survey:
-                survey_questions = ast.literal_eval(str(survey_questions)[1:-1])
-                print(survey_questions)
-                return current_user.AddQuestionSurvey(survey_questions,survey,course)
+                course = course_usage.LoadCourse.load(survey.course_id)  
+                if course:
+                    for q in survey_questions:
+                        q = ast.literal_eval(q)
+                        q = question_usage.QuestionType.type(q)
+                        if q:
+                            questions.append(q)
+                    if questions:
+                        add_status = AddSuccess()
         else:
             flash('No questions selected')
-        return OpenSurvey().open_attempt() 
+
+        return add_status.execute(questions,survey,course)  
+
+class AddStatus:
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def execute(self,survey_questions=[],survey=None,course=None):
+        pass
+
+class AddSuccess(AddStatus):
+    'purpose: handles a good add question request'
+
+    def execute(self,survey_questions=[],survey=None,course=None):
+        return current_user.AddQuestionSurvey(survey_questions,survey,course)
+
+class AddFailure(AddStatus):
+    'purpose: handles a bad add question request'
+
+    def execute(self,survey_questions=[],survey=None,course=None):
+        return OpenSurvey().open_attempt()   
 
 
 
 class RemoveQuestionSurvey:
     'removes a question from a survey'
     def remove_attempt(self):
+
+        remove_status = RemoveFailure()
         survey_question = request.form.getlist('question')
         surveyID = request.form.getlist("surveyid")
-        survey = LoadSurvey.load(request.form.getlist('surveyid'))
-        course = course_usage.LoadCourse.load(survey.course_id)  
+        survey = None
+        course = None
+        question = None
         if survey_question:
             survey_question = request.form['question']
+            survey = LoadSurvey.load(request.form.getlist('surveyid'))
             if survey:
-                survey_question = ast.literal_eval(survey_question)
-                return current_user.RemoveQuestionSurvey(survey_question,survey,course)
+                course = course_usage.LoadCourse.load(survey.course_id)  
+                if course:
+                    survey_question = ast.literal_eval(survey_question)
+                    question = question_usage.QuestionType.type(survey_question)
+                    if question:
+                        remove_status = RemoveSuccess()
         else:
-            flash('No questions selected')
-        return OpenSurvey().open_attempt()         
+            flash('No question selected')
+
+        return remove_status.execute(question,survey,course)    
+        #return OpenSurvey().open_attempt()         
+
+
+class RemoveStatus:
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def execute(self,question=None,survey=None,course=None):
+        pass
+
+class RemoveSuccess(RemoveStatus):
+    'purpose: handles a good remove question request'
+
+    def execute(self,question=None,survey=None,course=None):
+        return current_user.RemoveQuestionSurvey(question,survey,course)
+
+class RemoveFailure(RemoveStatus):
+    'purpose: handles a bad remove question request'
+
+    def execute(self,question=None,survey=None,course=None):
+        return OpenSurvey().open_attempt()   

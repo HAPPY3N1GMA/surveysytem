@@ -31,6 +31,15 @@ class GeneralQuestion(Base):
     def __repr__(self):
         return  str([self.id,self.question,self.status])
 
+    def removefromsurvey(self,survey):
+        if self in survey.gen_questions:
+          survey.gen_questions.remove(self)
+          db_session.commit()
+
+    def addtosurvey(self,survey):
+          survey.gen_questions.append(self)
+          db_session.commit()
+
 
 class MCQuestion(Base):
     __tablename__ = 'mcquestion'
@@ -60,6 +69,17 @@ class MCQuestion(Base):
                               self.answerThree, self.answerFour])
         questionAnswers = ast.literal_eval(str(questionAnswers))
         return str([self.id,self.question,questionAnswers,self.status])
+
+
+    def removefromsurvey(self,survey):
+        if self in survey.mc_questions:
+          survey.mc_questions.remove(self)
+          db_session.commit()
+
+    def addtosurvey(self,survey):
+          survey.mc_questions.append(self)
+          db_session.commit()
+
 
 
 

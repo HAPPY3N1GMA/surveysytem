@@ -128,6 +128,10 @@ class UniUser(Base):
     def RemoveQuestionSurvey(self,survey_question,survey,course):
         pass
 
+    @abstractmethod
+    def OpenPublishedSurvey(self,survey,course):
+        pass        
+
     __mapper_args__ = {
         'polymorphic_on':role,
         'polymorphic_identity':'uniuser'
@@ -224,37 +228,18 @@ class Admin(UniUser):
 
     def AddQuestionSurvey(self,survey_questions,survey,course):
         'Add list of questions to the survey'
-        print("adding")
-
         for question in survey_questions:
-            question = ast.literal_eval(str(question))
-            if (question[0]==0):  
-                print("mc",question)  
-                question = questions_model.MCQuestion.query.filter_by(id=int(question[1])).first()
-                survey.mc_questions.append(question)
-            elif (question[0]==1):
-                print("gen",question)  
-                question = questions_model.GeneralQuestion.query.filter_by(id=int(question[1])).first()
-                survey.gen_questions.append(question)
-
-        db_session.commit()
-
+            question.addtosurvey(survey)
         return current_user.ModifySurvey(survey, course)
 
 
     def RemoveQuestionSurvey(self,survey_question,survey,course):
         'Remove a question from a survey'
-        if (survey_question[0] == '0'):
-            question = questions_model.MCQuestion.query.filter_by(id=int(survey_question[1])).first()
-            survey.mc_questions.remove(question)
-        elif (survey_question[0]=='1'):
-            question = questions_model.GeneralQuestion.query.filter_by(id=int(survey_question[1])).first()
-            survey.gen_questions.remove(question)
-
-        db_session.commit()
+        survey_question.removefromsurvey(survey)
         return current_user.ModifySurvey(survey, course)
 
-
+    def OpenPublishedSurvey(self,survey,course):
+        return current_user.ModifySurvey(survey, course)
 
 
 
@@ -316,35 +301,20 @@ class Staff(UniUser):
 
     def AddQuestionSurvey(self,survey_questions,survey,course):
         'Add list of questions to the survey'
-        print("adding")
-
         for question in survey_questions:
-            question = ast.literal_eval(str(question))
-            if (question[0]==0):  
-                print("mc",question)  
-                question = questions_model.MCQuestion.query.filter_by(id=int(question[1])).first()
-                survey.mc_questions.append(question)
-            elif (question[0]==1):
-                print("gen",question)  
-                question = questions_model.GeneralQuestion.query.filter_by(id=int(question[1])).first()
-                survey.gen_questions.append(question)
-
-        db_session.commit()
-
+            question.addtosurvey(survey)
         return current_user.ModifySurvey(survey, course)
 
 
     def RemoveQuestionSurvey(self,survey_question,survey,course):
         'Remove a question from a survey'
-        if (survey_question[0] == '0'):
-            question = questions_model.MCQuestion.query.filter_by(id=int(survey_question[1])).first()
-            survey.mc_questions.remove(question)
-        elif (survey_question[0]=='1'):
-            question = questions_model.GeneralQuestion.query.filter_by(id=int(survey_question[1])).first()
-            survey.gen_questions.remove(question)
-
-        db_session.commit()
+        survey_question.removefromsurvey(survey)
         return current_user.ModifySurvey(survey, course)
+
+
+    def OpenPublishedSurvey(self,survey,course):
+        return current_user.ModifySurvey(survey, course)
+
 
 
 
@@ -391,6 +361,8 @@ class Student(UniUser):
     def RemoveQuestionSurvey(self,survey_question,survey,course):
         return common.Render.home()
 
+    def OpenPublishedSurvey(self,survey,course):
+        return current_user.ViewSurveyResults(survey, course)
 
 
 class Guest(UniUser):
@@ -435,6 +407,11 @@ class Guest(UniUser):
 
     def RemoveQuestionSurvey(self,survey_question,survey,course):
         return common.Render.home()
+
+    def OpenPublishedSurvey(self,survey,course):
+        return current_user.ViewSurveyResults(survey, course)
+
+
 
 
 
