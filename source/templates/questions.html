@@ -137,11 +137,10 @@
                       </thead>
                         {% for question in multi -%}
                           <tr>
-                            <!--dont show deleted questions to anyone! and staff only see optional questions!"""-->
                             {% if question.status==1 or current_user.role=='Admin' and question.status!=2%}
                               <td>
                                 <input type="radio" name="question" onclick="$('.genChoiceList').prop('checked', false);" value="{{0,question.id}}"/>
-                              </td>
+                              </td> 
                                 {% if current_user.role=='Admin' %}
                                   <td>
                                 {% if question.status == 1 %}

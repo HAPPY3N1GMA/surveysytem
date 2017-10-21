@@ -40,6 +40,10 @@ class GeneralQuestion(Base):
           survey.gen_questions.append(self)
           db_session.commit()
 
+    def type(self):
+      'type of question'
+      return 2
+
 
 class MCQuestion(Base):
     __tablename__ = 'mcquestion'
@@ -80,7 +84,9 @@ class MCQuestion(Base):
           survey.mc_questions.append(self)
           db_session.commit()
 
-
+    def type(self):
+      'type of question'
+      return 1
 
 
 class GeneralResponse(Base):

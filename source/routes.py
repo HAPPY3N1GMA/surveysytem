@@ -1,17 +1,15 @@
 import ast, os, time, copy
-from classes import authenticate, survey_usage, course_usage
+from classes import authenticate, survey_usage, course_usage, question_usage, common, security
 from datetime import datetime
 from flask import Flask, redirect, render_template, request, url_for, flash
 from server import app
 from defines import debug
 from functions import get
-#from models import GeneralQuestion, MCQuestion, SurveyResponse,\
-#					GeneralResponse, MCResponse
 from models import users_model, surveys_model, questions_model, courses_model
 from database import db_session, Base
 from flask_login import login_user, login_required, current_user, logout_user
 from util import SurveyUtil, QuestionUtil
-from classes import common, security
+
 
 # create security manager for runtime use
 secCheck = security.SecChecks()
@@ -159,8 +157,7 @@ def logout():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-	if (current_user.is_authenticated):
-		return redirect(url_for("home"))
+	secCheck.authCheck()
 
 	if request.method == 'POST':
 		attempt = authenticate.Register()
@@ -177,15 +174,10 @@ def register():
 
 @app.route("/requests", methods=["GET", "POST"])
 def requests():
-	if (current_user.is_authenticated):
-		if(current_user.role == 'Admin'):
-			if request.method == 'POST':
-				attempt = authenticate.Register()
-				return attempt.register_approve()
-			else:
-				return render_template("requests.html")
+	secCheck.authCheck()
+	#abstract this more!
+	return current_user.registerRequest()
 
-	return redirect(url_for("home"))
 
 #######################################################################
 ########################## 	SURVEYS 	###############################
@@ -237,16 +229,10 @@ def questions():
 
 	questionform = request.form["questionformid"]
 	if questionform=='1':
-		# return question_usage.OpenQuestion().open_attempt()
-		return util.openquestion()
+		return question_usage.OpenQuestion().open_attempt()
 	if questionform=='2':
-		# return question_usage.AddQuestion().add_attempt()
-		return util.addquestion()
+		return question_usage.CreateQuestion().create_attempt()
 	if questionform=='3':
-		# return question_usage.RemoveQuestion().remove_attempt()
-		return util.removequestion()
-	if questionform=='4':
-		# return question_usage.ModifyQuestion().modify_attempt()
-		return util.modifyquestion()
+		return question_usage.ModifyQuestion().modify_attempt()
 
-	return util.questioninfo()
+	return common.Render.questions()

@@ -134,6 +134,39 @@ class UniUser(Base):
     def AnswerSurvey(self,survey,mc_response=[],gen_response=[]):
         pass
 
+
+    @abstractmethod
+    def OpenQuestion(self,question):
+        print("open parent question")
+        pass
+
+
+    @abstractmethod
+    def ViewQuestions(self):
+        pass
+
+
+    @abstractmethod
+    def createQuestion(self,newquestion):
+        pass
+
+    @abstractmethod
+    def deleteQuestion(self,qObject):
+        pass
+
+    @abstractmethod
+    def updateGenQuestion(self,qObject,oldType,question,status):
+        pass
+
+    @abstractmethod
+    def updateMCQuestion(self,qObject,oldType,question,status,answer_one,
+                    answer_two,answer_three,answer_four):
+        pass
+
+    @abstractmethod
+    def registerRequest(self):
+        pass
+
     __mapper_args__ = {
         'polymorphic_on':role,
         'polymorphic_identity':'uniuser'
@@ -230,12 +263,71 @@ class Admin(UniUser):
         return current_user.ModifySurvey(survey, course)
 
     def ViewAllQuestions(self):
-        general = questions_model.GeneralQuestion.query.all()
-        multi = questions_model.MCQuestion.query.all()
-        return render_template("questions.html",user=current_user,multi=multi,general=general)
+        return common.Render.questions()
 
     def AnswerSurvey(self,survey,mc_response=[],gen_response=[]):
-        return render_template("home.html", user=current_user)
+        return common.Render.home()
+
+    def OpenQuestion(self,question):
+        return render_template("modifyquestion.html",questionObject=question,questionType=question.type())
+
+    def createQuestion(self,newquestion):
+        db_session.add(newquestion)
+        db_session.commit()
+        return common.Render.questions()
+
+
+    def deleteQuestion(self,qObject):
+        qObject.status = 2
+        db_session.commit()
+        return common.Render.questions()
+
+
+    def updateGenQuestion(self,qObject,oldType,question,status):
+
+        if(oldType=='2'):
+            #same general type of question, just changing fields
+            qObject.question = question
+            qObject.status = status
+        else:
+            #change of question type - delete old type, and make new type
+            qObject.status = 2
+            new = questions_model.GeneralQuestion(question,status)
+            db_session.add(new)
+            
+        db_session.commit() 
+        return common.Render.questions()
+
+
+    def updateMCQuestion(self,qObject,oldType,question,status,answer_one,
+                        answer_two,answer_three,answer_four):
+
+        #has by data type changed? If no, then I just update the MC fields
+        if(oldType=='1'):
+            qObject.question = question
+            qObject.status = status
+            qObject.answerOne = answer_one
+            qObject.answerTwo = answer_two
+            qObject.answerThree = answer_three
+            qObject.answerFour = answer_four    
+        else:
+            #new mc question, set old question to deleted, and make new general question type
+            qObject.status = 2
+            new = questions_model.MCQuestion(question,answer_one,answer_two,answer_three,answer_four,status)
+            db_session.add(new)
+        
+        db_session.commit()
+
+        return common.Render.questions()
+
+
+    def registerRequest(self):
+        if request.method == 'POST':
+            attempt = authenticate.Register()
+            return attempt.register_approve()
+        else:
+            return render_template("requests.html")
+
 
 ###############################################################################################
 
@@ -298,11 +390,31 @@ class Staff(UniUser):
         return current_user.ModifySurvey(survey, course)
 
     def ViewAllQuestions(self):
-        common.Debug.errorMSG("routes.questioninfo","unauthorised user attempted access:",current_user.id)
-        return render_template("home.html", user=current_user)
+        return common.Render.home()
 
     def AnswerSurvey(self,survey,mc_response=[],gen_response=[]):
-        return render_template("home.html", user=current_user)
+        return common.Render.home()
+
+    def OpenQuestion(self,question):
+        return common.Render.home()
+
+    def createQuestion(self,newquestion):
+        return common.Render.home()
+
+    def updateGenQuestion(self,qObject,oldType,question,status):
+        return common.Render.home()
+
+    def updateMCQuestion(self,qObject,oldType,question,status,answer_one,
+                    answer_two,answer_three,answer_four):
+        return common.Render.home()
+
+    def deleteQuestion(self,qObject):
+        return common.Render.home()
+
+    def registerRequest(self):
+        return common.Render.home()
+
+
 
 ###############################################################################################
 
@@ -341,11 +453,10 @@ class Student(UniUser):
     def OpenPublishedSurvey(self,survey,course):
         if current_user in survey.users:
             return render_template("answersurvey.html",survey=survey,course=course)
-        return render_template("home.html", user=current_user)
+        return common.Render.home()
 
     def ViewAllQuestions(self):
-        common.Debug.errorMSG("routes.questioninfo","unauthorised user attempted access:",current_user.id)
-        return render_template("home.html", user=current_user)
+        return common.Render.home()
 
     def AnswerSurvey(self,survey,mc_response=[],gen_response=[]):
         #double check this person has not already responded? 
@@ -368,7 +479,27 @@ class Student(UniUser):
         #commit the new survey response to this survey
         db_session.commit()
 
-        return redirect(url_for("submit"))
+        return common.Render.submit()
+
+
+    def OpenQuestion(self,question):
+        return common.Render.home()
+
+    def createQuestion(self,newquestion):
+        return common.Render.home()
+
+    def updateGenQuestion(self,qObject,oldType,question,status):
+        return common.Render.home()
+
+    def updateMCQuestion(self,qObject,oldType,question,status,answer_one,
+                    answer_two,answer_three,answer_four):
+        return common.Render.home()
+
+    def deleteQuestion(self,qObject):
+        return common.Render.home()
+
+    def registerRequest(self):
+        return common.Render.home()
 
 ###############################################################################################
 
@@ -406,12 +537,11 @@ class Guest(UniUser):
 
     def OpenPublishedSurvey(self,survey,course):
         if current_user in survey.users:
-            return render_template("answersurvey.html",survey=survey,course=course)
-        return render_template("home.html", user=current_user)
+            return common.Render.answer_survey(survey,course)
+        return common.Render.home()
 
     def ViewAllQuestions(self):
-        common.Debug.errorMSG("routes.questioninfo","unauthorised user attempted access:",current_user.id)
-        return render_template("home.html", user=current_user)
+        return common.Render.home()
 
     def AnswerSurvey(self,survey,mc_response=[],gen_response=[]):
         #double check this person has not already responded? 
@@ -428,13 +558,32 @@ class Guest(UniUser):
             response = questions_model.MCResponse(surveyResponse.id,question.id,response)
             surveyResponse.mc_responses.append(response)
 
-        #remove the student from the survey list (so they cannont answer again)
         survey.users.remove(current_user)
 
-        #commit the new survey response to this survey
         db_session.commit()
 
-        return redirect(url_for("submit"))
+        return common.Render.submit()
+
+
+    def OpenQuestion(self,question):
+        return common.Render.home()
+
+
+    def createQuestion(self,newquestion):
+        return common.Render.home()
+
+    def updateGenQuestion(self,qObject,oldType,question,status):
+        return common.Render.home()
+
+    def updateMCQuestion(self,qObject,oldType,question,status,answer_one,
+                    answer_two,answer_three,answer_four):
+        return common.Render.home()
+
+    def deleteQuestion(self,qObject):
+        return common.Render.home()
+
+    def registerRequest(self):
+        return common.Render.home()
 
 ###############################################################################################
 
