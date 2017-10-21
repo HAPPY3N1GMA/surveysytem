@@ -8,7 +8,6 @@ from functions import get
 from models import users_model, surveys_model, questions_model, courses_model
 from database import db_session, Base
 from flask_login import login_user, login_required, current_user, logout_user
-from util import SurveyUtil, QuestionUtil
 
 
 # create security manager for runtime use
@@ -188,7 +187,6 @@ def requests():
 def surveys():
 
 	secCheck.authCheck()
-	util = SurveyUtil()
 
 	if request.method == "GET":
 		return common.Render.surveys()
@@ -222,7 +220,6 @@ def surveys():
 def questions():
 
 	secCheck.authCheck()
-	util = QuestionUtil()
 
 	if request.method == "GET":
 		return current_user.ViewAllQuestions()
