@@ -12,7 +12,6 @@ from models import users_model, surveys_model, questions_model, courses_model
 
 from database import db_session, Base
 from flask_login import login_user, login_required, current_user, logout_user
-from util import SurveyUtil, QuestionUtil
 from abc import ABCMeta, abstractmethod
 from classes import common, course_usage
 

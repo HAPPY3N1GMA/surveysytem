@@ -109,10 +109,8 @@ class Survey(Base):
 
     def add_users(self,userList=[],course=None):
         if userList == []:
-            print("add_users","userList is empty")
             return False
         if course == None:
-            print("add_users","course is empty")
             return False
 
         for user in userList:

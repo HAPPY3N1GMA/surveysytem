@@ -25,8 +25,6 @@ class GeneralQuestion(Base):
         self.question = question
         self.status = status
 
-    #def __repr__(self):
-    #    return '<General Question %r>' % (self.question)    
 
     def __repr__(self):
         return  str([self.id,self.question,self.status])

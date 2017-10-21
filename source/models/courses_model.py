@@ -18,7 +18,6 @@ class Course(Base):
     uniusers = relationship("UniUser",
                             secondary="ucassociation",
                             backref="course")
-    #survey_id = Column(Integer, ForeignKey('survey.id'))
 
     survey = relationship("Survey",
                        secondary="csassociation",
@@ -28,7 +27,6 @@ class Course(Base):
         self.name = name
         self.offering = offeringid
         self.survey = survey
-        #self.uniuser_id = uniuserid
 
     def __repr__(self):
         return '<CourseName %r>' % (self.name)
