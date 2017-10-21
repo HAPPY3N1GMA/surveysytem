@@ -46,7 +46,10 @@ class LoginSuccess(LoginStatus):
 	def execute(self, user=None):
 		login_user(user)
 		next = request.args.get('next')
-		return redirect(next or url_for('home'))
+		if next != None and next != "/logout":
+			return redirect(next)
+		else:
+			return redirect(url_for('home'))
 
 class LoginFailure(LoginStatus):
 	'purpose: handles any bad login'

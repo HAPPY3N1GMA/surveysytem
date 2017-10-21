@@ -11,27 +11,28 @@ from models import users_model, surveys_model, questions_model, courses_model
 from database import db_session, Base
 from flask_login import login_user, login_required, current_user, logout_user
 from util import SurveyUtil, QuestionUtil
-from classes import common
+from classes import common, security
+
+# create security manager for runtime use
+secCheck = security.SecChecks()
 
 @app.route("/")
 def index():
-	if (current_user.is_authenticated):
-		return render_template("home.html", user=current_user)
-	else:
-		return redirect(url_for("login"))
+
+	secCheck.authCheck()
+	return render_template("home.html", user=current_user)
 
 @app.route("/home")
 def home():
-	if (current_user.is_authenticated):
-		return render_template("home.html", user=current_user)
-	else:
-		return redirect(url_for("login"))
 
+	secCheck.authCheck()
+	return render_template("home.html", user=current_user)
 
 @app.route("/submitted")
 def submit(): 
-	if (current_user.is_authenticated):
-		return render_template("completed.html")
+
+	secCheck.authCheck()
+	return render_template("completed.html")
 
 #######################################################################
 ##########################     Results   ##############################
@@ -128,6 +129,7 @@ def results(id, qid):
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+
 	if request.method == 'POST':
 		attempt = authenticate.Login()
 		return attempt.login_attempt()
@@ -209,9 +211,9 @@ def requests():
 @app.route("/surveys", methods=["GET", "POST"])
 @login_required
 def surveys():
+
+	secCheck.authCheck()
 	util = SurveyUtil()
-	if (current_user.is_authenticated)==False:
-		return redirect(url_for("login"))
 
 	if request.method == "GET":
 		return common.Render.surveys()
@@ -243,9 +245,9 @@ def surveys():
 @app.route('/questions', methods=["GET", "POST"])
 @login_required
 def questions():
+
+	secCheck.authCheck()
 	util = QuestionUtil()
-	if (current_user.is_authenticated)==False:
-		return redirect(url_for("login"))
 
 	if request.method == "GET":
 		return current_user.OpenQuestions()
@@ -261,61 +263,3 @@ def questions():
 		return util.modifyquestion()
 
 	return util.questioninfo()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
