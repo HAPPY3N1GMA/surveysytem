@@ -26,4 +26,3 @@ class QuestionType:
 				question = questions_model.GeneralQuestion.query.filter_by(id=int(questioninfo[1])).first()
 				print(question.question)
 		return question
-

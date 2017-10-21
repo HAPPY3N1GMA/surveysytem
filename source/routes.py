@@ -237,16 +237,16 @@ def questions():
 
 	questionform = request.form["questionformid"]
 	if questionform=='1':
-		# return question_usage.OpenQuestion()
+		# return question_usage.OpenQuestion().open_attempt()
 		return util.openquestion()
 	if questionform=='2':
-		# return question_usage.AddQuestion()
+		# return question_usage.AddQuestion().add_attempt()
 		return util.addquestion()
 	if questionform=='3':
-		# return question_usage.RemoveQuestion()
+		# return question_usage.RemoveQuestion().remove_attempt()
 		return util.removequestion()
 	if questionform=='4':
-		# return question_usage.ModifyQuestion()
+		# return question_usage.ModifyQuestion().modify_attempt()
 		return util.modifyquestion()
 
 	return util.questioninfo()
