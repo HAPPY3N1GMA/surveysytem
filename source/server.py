@@ -16,6 +16,3 @@ login_manager.login_view = "login"
 @login_manager.user_loader
 def load_user(userid):
 	return users_model.UniUser.query.get(userid)
-
-
-
