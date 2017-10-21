@@ -6,7 +6,7 @@ import ast
 from flask_login import current_user
 from abc import ABCMeta, abstractmethod
 from flask import Flask, redirect, render_template, request, url_for, flash
-from classes import common
+from classes import common, authenticate
 from models import surveys_model, questions_model, courses_model
 
 class UniUser(Base):
@@ -92,11 +92,11 @@ class UniUser(Base):
 
     @abstractmethod
     def CreateSurvey(self,courseId,surveyName,startDate,endDate):
-        pass
+        return common.Render.home()
 
     @abstractmethod
-    def ModifySurvey(self,survey,course): 
-        pass
+    def ModifySurvey(self,survey,course):
+        return common.Render.home()
 
     @abstractmethod
     def ViewSurveyResults(self,survey):
@@ -104,23 +104,23 @@ class UniUser(Base):
 
     @abstractmethod
     def PushSurvey(self,survey,course): 
-        pass
+        return common.Render.home()
 
     @abstractmethod
     def EndSurvey(self,survey,course): 
-        pass
+        return common.Render.home()
 
     @abstractmethod
     def PublishSurvey(self,survey,course): 
-        pass
+        return common.Render.home()        
 
     @abstractmethod
     def AddQuestionSurvey(self,survey_questions,survey,course):
-        pass
+        return common.Render.home()
 
     @abstractmethod
     def RemoveQuestionSurvey(self,survey_question,survey,course):
-        pass
+        return common.Render.home()
 
     @abstractmethod
     def OpenPublishedSurvey(self,survey,course):
@@ -128,44 +128,37 @@ class UniUser(Base):
 
     @abstractmethod
     def ViewAllQuestions(self):
-        pass
+        return common.Render.home()
 
     @abstractmethod
     def AnswerSurvey(self,survey,mc_response=[],gen_response=[]):
-        pass
-
+        return common.Render.home()
 
     @abstractmethod
     def OpenQuestion(self,question):
-        print("open parent question")
-        pass
-
-
-    @abstractmethod
-    def ViewQuestions(self):
-        pass
-
+        return common.Render.home()
 
     @abstractmethod
     def createQuestion(self,newquestion):
-        pass
+        return common.Render.home()
 
     @abstractmethod
     def deleteQuestion(self,qObject):
-        pass
+        return common.Render.home()
 
     @abstractmethod
     def updateGenQuestion(self,qObject,oldType,question,status):
-        pass
+        return common.Render.home()
 
     @abstractmethod
     def updateMCQuestion(self,qObject,oldType,question,status,answer_one,
                     answer_two,answer_three,answer_four):
-        pass
+        return common.Render.home()
 
     @abstractmethod
     def registerRequest(self):
-        pass
+        return common.Render.home()
+
 
     __mapper_args__ = {
         'polymorphic_on':role,
@@ -259,14 +252,12 @@ class Admin(UniUser):
         return current_user.ModifySurvey(survey, course)
 
     def OpenPublishedSurvey(self,survey,course):
-        print("open survey thats been published")
         return current_user.ModifySurvey(survey, course)
 
     def ViewAllQuestions(self):
         return common.Render.questions()
 
-    def AnswerSurvey(self,survey,mc_response=[],gen_response=[]):
-        return common.Render.home()
+
 
     def OpenQuestion(self,question):
         return render_template("modifyquestion.html",questionObject=question,questionType=question.type())
@@ -337,8 +328,7 @@ class Staff(UniUser):
         'polymorphic_identity':'Staff'
     }
 
-    def CreateSurvey(self,courseId,surveyName,startDate,endDate):
-        return common.Render.home()
+
 
     def ModifySurvey(self,survey,course):
         general = questions_model.GeneralQuestion.query.all()
@@ -389,30 +379,6 @@ class Staff(UniUser):
     def OpenPublishedSurvey(self,survey,course):
         return current_user.ModifySurvey(survey, course)
 
-    def ViewAllQuestions(self):
-        return common.Render.home()
-
-    def AnswerSurvey(self,survey,mc_response=[],gen_response=[]):
-        return common.Render.home()
-
-    def OpenQuestion(self,question):
-        return common.Render.home()
-
-    def createQuestion(self,newquestion):
-        return common.Render.home()
-
-    def updateGenQuestion(self,qObject,oldType,question,status):
-        return common.Render.home()
-
-    def updateMCQuestion(self,qObject,oldType,question,status,answer_one,
-                    answer_two,answer_three,answer_four):
-        return common.Render.home()
-
-    def deleteQuestion(self,qObject):
-        return common.Render.home()
-
-    def registerRequest(self):
-        return common.Render.home()
 
 
 
@@ -424,39 +390,18 @@ class Student(UniUser):
         'polymorphic_identity':'Student'
     }
 
-    def CreateSurvey(self,courseId,surveyName,startDate,endDate):
-        return common.Render.home()
-
-    def ModifySurvey(self,survey,course):
-        return common.Render.home()
 
     def ViewSurveyResults(self,survey,course):
         # run code for viewing results if applicable
         flash('model.py - Student will get redirected to survey results page')
         return common.Render.surveys()
 
-    def PushSurvey(self,survey,course): 
-        return common.Render.home()
-
-    def PublishSurvey(self,survey,course): 
-        return common.Render.home()        
-
-    def EndSurvey(self,survey,course): 
-        return common.Render.home()
-
-    def AddQuestionSurvey(self,survey_questions,survey,course):
-        return common.Render.home()
-
-    def RemoveQuestionSurvey(self,survey_question,survey,course):
-        return common.Render.home()
 
     def OpenPublishedSurvey(self,survey,course):
         if current_user in survey.users:
             return render_template("answersurvey.html",survey=survey,course=course)
         return common.Render.home()
 
-    def ViewAllQuestions(self):
-        return common.Render.home()
 
     def AnswerSurvey(self,survey,mc_response=[],gen_response=[]):
         #double check this person has not already responded? 
@@ -482,24 +427,6 @@ class Student(UniUser):
         return common.Render.submit()
 
 
-    def OpenQuestion(self,question):
-        return common.Render.home()
-
-    def createQuestion(self,newquestion):
-        return common.Render.home()
-
-    def updateGenQuestion(self,qObject,oldType,question,status):
-        return common.Render.home()
-
-    def updateMCQuestion(self,qObject,oldType,question,status,answer_one,
-                    answer_two,answer_three,answer_four):
-        return common.Render.home()
-
-    def deleteQuestion(self,qObject):
-        return common.Render.home()
-
-    def registerRequest(self):
-        return common.Render.home()
 
 ###############################################################################################
 
@@ -509,39 +436,18 @@ class Guest(UniUser):
         'polymorphic_identity':'Guest'
     }
 
-    def CreateSurvey(self,courseId,surveyName,startDate,endDate):
-        return common.Render.home()
-
-    def ModifySurvey(self,survey,course):
-        return common.Render.home()
 
     def ViewSurveyResults(self,survey,course):
         # run code for viewing results if applicable
         flash('model.py - Guest will get redirected to survey results page')
         return common.Render.surveys()
 
-    def PushSurvey(self,survey,course): 
-        return common.Render.home()
-
-    def PublishSurvey(self,survey,course): 
-        return common.Render.home()        
-
-    def EndSurvey(self,survey,course): 
-        return common.Render.home()
-
-    def AddQuestionSurvey(self,survey_questions,survey,course):
-        return common.Render.home()
-
-    def RemoveQuestionSurvey(self,survey_question,survey,course):
-        return common.Render.home()
 
     def OpenPublishedSurvey(self,survey,course):
         if current_user in survey.users:
             return common.Render.answer_survey(survey,course)
         return common.Render.home()
 
-    def ViewAllQuestions(self):
-        return common.Render.home()
 
     def AnswerSurvey(self,survey,mc_response=[],gen_response=[]):
         #double check this person has not already responded? 
@@ -559,31 +465,11 @@ class Guest(UniUser):
             surveyResponse.mc_responses.append(response)
 
         survey.users.remove(current_user)
-
         db_session.commit()
 
         return common.Render.submit()
 
 
-    def OpenQuestion(self,question):
-        return common.Render.home()
-
-
-    def createQuestion(self,newquestion):
-        return common.Render.home()
-
-    def updateGenQuestion(self,qObject,oldType,question,status):
-        return common.Render.home()
-
-    def updateMCQuestion(self,qObject,oldType,question,status,answer_one,
-                    answer_two,answer_three,answer_four):
-        return common.Render.home()
-
-    def deleteQuestion(self,qObject):
-        return common.Render.home()
-
-    def registerRequest(self):
-        return common.Render.home()
 
 ###############################################################################################
 

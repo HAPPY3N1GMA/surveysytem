@@ -11,7 +11,7 @@ class Render:
     def surveys():
         return render_template("surveys.html",user=current_user)
 
-    def answer_survey(self,survey,course):
+    def answer_survey(survey,course):
         return render_template("answersurvey.html",survey=survey,course=course)
 
     def questions():
