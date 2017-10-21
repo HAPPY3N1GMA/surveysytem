@@ -23,7 +23,7 @@ class SurveyUtil(object):
         if (current_user.is_authenticated)==False:
             return redirect(url_for("login"))
 
-        print("view survey results now")
+        print("attempting to view survey")
 
         #temp
         return survey_usage.OpenSurvey().open_attempt()	
@@ -33,6 +33,8 @@ class SurveyUtil(object):
     def answersurvey(self):
         if (current_user.is_authenticated)==False:
             return redirect(url_for("login"))
+
+        print("attempting to answer survey")
 
         #this is tempn
         if current_user.role != 'Student':
@@ -120,20 +122,7 @@ class SurveyUtil(object):
         return redirect(url_for("submit"))
 
 class QuestionUtil(object):
-    def questioninfo(self):
-        if (current_user.is_authenticated)==False:
-            return redirect(url_for("login"))
-
-        if(current_user.role != 'Admin'):
-            common.Debug.errorMSG("routes.questioninfo","unauthorised user attempted access:",current_user.id)
-            return render_template("home.html", user=current_user)
-
-        #read in list of questions from db, filter out any not available to user or deleted
-        general = questions_model.GeneralQuestion.query.all()
-        multi = questions_model.MCQuestion.query.all()
-        return render_template("questions.html",user=current_user,multi=multi,general=general)
-
-
+    
     def openquestion(self):
         if (current_user.is_authenticated)==False:
             return redirect(url_for("login"))
