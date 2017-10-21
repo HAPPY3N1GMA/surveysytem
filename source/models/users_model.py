@@ -7,9 +7,7 @@ from flask_login import current_user
 from abc import ABCMeta, abstractmethod
 from flask import Flask, redirect, render_template, request, url_for, flash
 from classes import common
-
 from models import surveys_model, questions_model, courses_model
-
 
 class UniUser(Base):
     __tablename__ = 'uniuser'
@@ -129,15 +127,12 @@ class UniUser(Base):
         pass        
 
     @abstractmethod
-    def OpenQuestions(self):
+    def ViewAllQuestions(self):
         pass
-
 
     @abstractmethod
     def AnswerSurvey(self,survey,mc_response=[],gen_response=[]):
         pass
-
-
 
     __mapper_args__ = {
         'polymorphic_on':role,
@@ -163,7 +158,6 @@ class Admin(UniUser):
         'polymorphic_identity':'Admin'
     }
 
-
     def CreateSurvey(self,courseId,surveyName,startDate,endDate):
 
         survey = surveys_model.Survey(surveyName, courseId)
@@ -179,7 +173,6 @@ class Admin(UniUser):
 
         return common.Render.surveys()
 
-
     def ModifySurvey(self,survey,course):
         # run code for modifying if applicable
         general = questions_model.GeneralQuestion.query.all()
@@ -190,12 +183,10 @@ class Admin(UniUser):
 
         return common.Render.modify_survey(surveygen,surveymc,survey,course,general,multi)
 
-
     def ViewSurveyResults(self,survey,course):
         # run code for viewing results if applicable
         flash('model.py - Admin will get redirected to survey results page')
         return common.Render.surveys()
-
 
     def PushSurvey(self,survey,course):       
         'Update survey status to editable by staff members'
@@ -205,7 +196,6 @@ class Admin(UniUser):
         else:
             flash("Error Adding Staff to surveys_model.Survey")
         return current_user.ModifySurvey(survey, course)
-
 
     def PublishSurvey(self,survey,course): 
         'Update survey status to answerable by students/guests'
@@ -219,20 +209,16 @@ class Admin(UniUser):
 
         return current_user.ModifySurvey(survey, course)
 
-
     def EndSurvey(self,survey,course): 
         survey.status = 3
         db_session.commit()
         return current_user.ModifySurvey(survey, course)
-
-
 
     def AddQuestionSurvey(self,survey_questions,survey,course):
         'Add list of questions to the survey'
         for question in survey_questions:
             question.addtosurvey(survey)
         return current_user.ModifySurvey(survey, course)
-
 
     def RemoveQuestionSurvey(self,survey_question,survey,course):
         'Remove a question from a survey'
@@ -243,8 +229,7 @@ class Admin(UniUser):
         print("open survey thats been published")
         return current_user.ModifySurvey(survey, course)
 
-
-    def OpenQuestions(self):
+    def ViewAllQuestions(self):
         general = questions_model.GeneralQuestion.query.all()
         multi = questions_model.MCQuestion.query.all()
         return render_template("questions.html",user=current_user,multi=multi,general=general)
@@ -252,9 +237,7 @@ class Admin(UniUser):
     def AnswerSurvey(self,survey,mc_response=[],gen_response=[]):
         return render_template("home.html", user=current_user)
 
-
-
-
+###############################################################################################
 
 class Staff(UniUser):
 
@@ -265,7 +248,6 @@ class Staff(UniUser):
     def CreateSurvey(self,courseId,surveyName,startDate,endDate):
         return common.Render.home()
 
-
     def ModifySurvey(self,survey,course):
         general = questions_model.GeneralQuestion.query.all()
         multi = questions_model.MCQuestion.query.all()
@@ -275,23 +257,19 @@ class Staff(UniUser):
 
         return common.Render.modify_survey(surveygen,surveymc,survey,course,general,multi)
 
-
     def ViewSurveyResults(self,survey,course):
         # run code for viewing results if applicable
         flash('model.py - Staff will get redirected to survey results page')
         return common.Render.surveys()
 
-
     def PushSurvey(self,survey,course): 
         common.Debug.errorMSG("routes.statussurvey","unauthorised user attempted access:",current_user.id)
         return common.Render.home()
-
 
     def EndSurvey(self,survey,course): 
         survey.status = 3
         db_session.commit()
         return current_user.ModifySurvey(survey, course)
-
 
     def PublishSurvey(self,survey,course): 
 
@@ -305,36 +283,28 @@ class Staff(UniUser):
 
         return current_user.ModifySurvey(survey, course)
 
-
     def AddQuestionSurvey(self,survey_questions,survey,course):
         'Add list of questions to the survey'
         for question in survey_questions:
             question.addtosurvey(survey)
         return current_user.ModifySurvey(survey, course)
 
-
     def RemoveQuestionSurvey(self,survey_question,survey,course):
         'Remove a question from a survey'
         survey_question.removefromsurvey(survey)
         return current_user.ModifySurvey(survey, course)
 
-
     def OpenPublishedSurvey(self,survey,course):
         return current_user.ModifySurvey(survey, course)
 
-    def OpenQuestions(self):
+    def ViewAllQuestions(self):
         common.Debug.errorMSG("routes.questioninfo","unauthorised user attempted access:",current_user.id)
         return render_template("home.html", user=current_user)
-
 
     def AnswerSurvey(self,survey,mc_response=[],gen_response=[]):
         return render_template("home.html", user=current_user)
 
-
-
-
 ###############################################################################################
-
 
 class Student(UniUser):
 
@@ -345,28 +315,22 @@ class Student(UniUser):
     def CreateSurvey(self,courseId,surveyName,startDate,endDate):
         return common.Render.home()
 
-
     def ModifySurvey(self,survey,course):
         return common.Render.home()
-
 
     def ViewSurveyResults(self,survey,course):
         # run code for viewing results if applicable
         flash('model.py - Student will get redirected to survey results page')
         return common.Render.surveys()
 
-
     def PushSurvey(self,survey,course): 
         return common.Render.home()
-
 
     def PublishSurvey(self,survey,course): 
         return common.Render.home()        
 
-
     def EndSurvey(self,survey,course): 
         return common.Render.home()
-
 
     def AddQuestionSurvey(self,survey_questions,survey,course):
         return common.Render.home()
@@ -379,17 +343,15 @@ class Student(UniUser):
             return render_template("answersurvey.html",survey=survey,course=course)
         return render_template("home.html", user=current_user)
 
-    def OpenQuestions(self):
+    def ViewAllQuestions(self):
         common.Debug.errorMSG("routes.questioninfo","unauthorised user attempted access:",current_user.id)
         return render_template("home.html", user=current_user)
-
 
     def AnswerSurvey(self,survey,mc_response=[],gen_response=[]):
         #double check this person has not already responded? 
 
         surveyResponse = surveys_model.SurveyResponse(survey.id)
         db_session.add(surveyResponse)
-
 
         #this sorts and stores the answers into the survey response based on type
         for question,response in zip(survey.gen_questions,gen_response):
@@ -407,10 +369,6 @@ class Student(UniUser):
         db_session.commit()
 
         return redirect(url_for("submit"))
-
-
-
-
 
 ###############################################################################################
 
@@ -423,28 +381,22 @@ class Guest(UniUser):
     def CreateSurvey(self,courseId,surveyName,startDate,endDate):
         return common.Render.home()
 
-
     def ModifySurvey(self,survey,course):
         return common.Render.home()
-
 
     def ViewSurveyResults(self,survey,course):
         # run code for viewing results if applicable
         flash('model.py - Guest will get redirected to survey results page')
         return common.Render.surveys()
 
-
     def PushSurvey(self,survey,course): 
         return common.Render.home()
-
 
     def PublishSurvey(self,survey,course): 
         return common.Render.home()        
 
-
     def EndSurvey(self,survey,course): 
         return common.Render.home()
-
 
     def AddQuestionSurvey(self,survey_questions,survey,course):
         return common.Render.home()
@@ -457,17 +409,15 @@ class Guest(UniUser):
             return render_template("answersurvey.html",survey=survey,course=course)
         return render_template("home.html", user=current_user)
 
-    def OpenQuestions(self):
+    def ViewAllQuestions(self):
         common.Debug.errorMSG("routes.questioninfo","unauthorised user attempted access:",current_user.id)
         return render_template("home.html", user=current_user)
-
 
     def AnswerSurvey(self,survey,mc_response=[],gen_response=[]):
         #double check this person has not already responded? 
 
         surveyResponse = surveys_model.SurveyResponse(survey.id)
         db_session.add(surveyResponse)
-
 
         #this sorts and stores the answers into the survey response based on type
         for question,response in zip(survey.gen_questions,gen_response):
@@ -485,9 +435,6 @@ class Guest(UniUser):
         db_session.commit()
 
         return redirect(url_for("submit"))
-
-
-
 
 ###############################################################################################
 
@@ -508,6 +455,3 @@ class RegistrationRequest(Base):
     def __repr__(self):
         return '<RegistrationRequest for %r and  %r>' % (self.userId,
                                              self.course_id)
-
-
-

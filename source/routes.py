@@ -119,9 +119,6 @@ def results(id, qid):
 										   responses=responses,
 										   question=question)
 
-
-
-
 #######################################################################
 ########################## 		LOGIN 	 ##############################
 #######################################################################
@@ -190,20 +187,6 @@ def requests():
 
 	return redirect(url_for("home"))
 
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
 #######################################################################
 ########################## 	SURVEYS 	###############################
 #######################################################################
@@ -250,16 +233,20 @@ def questions():
 	util = QuestionUtil()
 
 	if request.method == "GET":
-		return current_user.OpenQuestions()
+		return current_user.ViewAllQuestions()
 
 	questionform = request.form["questionformid"]
 	if questionform=='1':
+		# return question_usage.OpenQuestion()
 		return util.openquestion()
 	if questionform=='2':
+		# return question_usage.AddQuestion()
 		return util.addquestion()
 	if questionform=='3':
+		# return question_usage.RemoveQuestion()
 		return util.removequestion()
 	if questionform=='4':
+		# return question_usage.ModifyQuestion()
 		return util.modifyquestion()
 
 	return util.questioninfo()
