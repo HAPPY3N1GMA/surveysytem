@@ -247,12 +247,8 @@ def questions():
 	if (current_user.is_authenticated)==False:
 		return redirect(url_for("login"))
 
-	if(current_user.role != 'Admin'):
-		common.Debug.errorMSG("routes.questions","unauthorised user attempted access:",current_user.id)
-		return render_template("home.html", user=current_user)
-
 	if request.method == "GET":
-		return util.questioninfo()
+		return current_user.OpenQuestions()
 
 	questionform = request.form["questionformid"]
 	if questionform=='1':

@@ -128,13 +128,16 @@ class UniUser(Base):
     def RemoveQuestionSurvey(self,survey_question,survey,course):
         pass
 
+    @abstractmethod
+    def OpenQuestions(self):
+        pass
+
     __mapper_args__ = {
         'polymorphic_on':role,
         'polymorphic_identity':'uniuser'
     }
 
-
-
+###############################################################################################
 
 class Admin(UniUser):
     reg_requests = relationship("RegistrationRequest", backref='uniuser')
@@ -254,11 +257,12 @@ class Admin(UniUser):
         db_session.commit()
         return current_user.ModifySurvey(survey, course)
 
+    def OpenQuestions(self):
+        general = questions_model.GeneralQuestion.query.all()
+        multi = questions_model.MCQuestion.query.all()
+        return render_template("questions.html",user=current_user,multi=multi,general=general)
 
-
-
-
-
+###############################################################################################
 
 class Staff(UniUser):
 
@@ -346,7 +350,11 @@ class Staff(UniUser):
         db_session.commit()
         return current_user.ModifySurvey(survey, course)
 
+    def OpenQuestions(self):
+        common.Debug.errorMSG("routes.questioninfo","unauthorised user attempted access:",current_user.id)
+        return render_template("home.html", user=current_user)
 
+###############################################################################################
 
 class Student(UniUser):
 
@@ -391,7 +399,11 @@ class Student(UniUser):
     def RemoveQuestionSurvey(self,survey_question,survey,course):
         return common.Render.home()
 
+    def OpenQuestions(self):
+        common.Debug.errorMSG("routes.questioninfo","unauthorised user attempted access:",current_user.id)
+        return render_template("home.html", user=current_user)
 
+###############################################################################################
 
 class Guest(UniUser):
 
@@ -436,9 +448,11 @@ class Guest(UniUser):
     def RemoveQuestionSurvey(self,survey_question,survey,course):
         return common.Render.home()
 
+    def OpenQuestions(self):
+        common.Debug.errorMSG("routes.questioninfo","unauthorised user attempted access:",current_user.id)
+        return render_template("home.html", user=current_user)
 
-
-
+###############################################################################################
 
 class RegistrationRequest(Base):
     __tablename__ = 'regrequest'
