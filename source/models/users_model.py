@@ -93,6 +93,8 @@ class UniUser(Base):
 
     @abstractmethod
     def ModifySurvey(self,survey,course):
+        if survey.status > 2:
+            return survey_usage.ViewSurveyResults().view_attempt(survey)
         return common.Render.home()
 
     @abstractmethod

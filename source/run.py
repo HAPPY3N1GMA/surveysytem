@@ -5,6 +5,5 @@ from defines import debug
 
 db_load = DB_Loader()
 init_db()
-if(debug):  # wipe db if debug  set true
-    db_load.db_load()
+db_load.db_load()
 app.run(debug=True)
