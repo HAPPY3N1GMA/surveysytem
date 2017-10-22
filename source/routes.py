@@ -92,6 +92,13 @@ def requests():
 def surveys():
 	secCheck.authCheck()
 	if request.method == "GET":
+		#this is a temp fix as I dont know how to schedule tasks that work with sqlalchemy
+		u_courses = current_user.courses
+		for course in u_courses:
+			for survey in course.survey:
+				survey.status_check()
+
+
 		return common.Render.surveys()
 	else:
 		surveyform = request.form.getlist("surveyformid")
@@ -106,7 +113,6 @@ def surveys():
 			if surveyform=='4':
 				return survey_usage.AddQuestionSurvey().add_attempt()
 			if surveyform=='5':
-				print("part 1",request.form.getlist('submit'))
 				if request.form['submit'] == '1':
 					return survey_usage.StatusSurvey().update_attempt()	
 				else:

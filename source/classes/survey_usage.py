@@ -65,7 +65,7 @@ class OpenSurvey:
         if survey:
             course = course_usage.LoadCourse.load(survey.course_id)  
             if course:
-                if survey.status == 2:
+                if survey.status == 3:
                     return current_user.OpenPublishedSurvey(survey, course)
                 else:
                     return current_user.ModifySurvey(survey, course)
@@ -262,6 +262,10 @@ class ViewSurveyResults:
 
         num_responses = len(survey.responses)
         mcdata = []
+
+        if num_responses == 0:
+            flash('There are no results at this time')
+            return OpenSurvey().open_attempt()  
 
         #build the data for the mc pie charts
         for question in survey.mc_questions:

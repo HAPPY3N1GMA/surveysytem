@@ -1,7 +1,7 @@
 import csv
 from datetime import datetime, timedelta
 #from models import users_model.UniUser, courses_model.Course
-from models import users_model, courses_model
+from models import users_model, courses_model, surveys_model
 from database import db_session
 
 
@@ -12,6 +12,7 @@ class DB_Loader(object):
         self.user_load()
         self.enrolment_load()
         self.admin_load()
+        self.survey_status()
         print ('Database load complete - starting app...')
 
     def admin_load(self):
@@ -64,3 +65,11 @@ class DB_Loader(object):
         # for user in q_users:
         #     print(user)
         
+
+
+
+    def survey_status(self):
+        print("Publishing/Ending Surveys")
+        surveys = surveys_model.Survey.query.all()
+        for survey in surveys:
+            survey.status_check()

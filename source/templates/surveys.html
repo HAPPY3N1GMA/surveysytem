@@ -125,6 +125,8 @@ $(function(){
                               {% elif survey.status==1 %}
                               <p>Review</p>
                               {% elif survey.status==2 %}
+                              <p>PreOpen</p>
+                              {% elif survey.status==3 %}
                               <p>Active</p>
                               {% else %}
                               <p>Closed</p>

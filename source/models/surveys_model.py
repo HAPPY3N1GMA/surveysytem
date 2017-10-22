@@ -30,8 +30,16 @@ class SurveyDate(Base):
 
     def is_active(self):
         """Return true if the survey is active."""
-        current_time = datetime.now()
-        if self.date_start > current_time and self.date_end < current_time:
+
+        current_time = datetime.date(datetime.today())
+        if self.date_start < current_time and self.date_end > current_time:
+            return True
+        return False
+
+    def is_expired(self):
+        """Return true if the survey is active."""
+        current_time = datetime.date(datetime.today())
+        if self.date_end < current_time:
             return True
         return False
 
@@ -85,6 +93,19 @@ class Survey(Base):
 
     def __repr__(self):
         return '<Survey %r>' % (self.title)  
+
+    def status_check(self):
+        if self.date.is_active():
+            if self.status == 2:
+                print("Starting Survey: ",self.title," - survey is now live!")
+                if self.add_students() == False:
+                    print('Error Adding Students to survey id:',self)
+                self.status = 3
+        elif self.date.is_expired():
+            if self.status == 3:
+                print("Ending Survey: ",self.title," - survey is now closed!")
+                self.status = 4
+        db_session.commit()        
 
 
     def get_course(self):

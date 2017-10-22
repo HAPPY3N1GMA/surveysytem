@@ -93,7 +93,7 @@ class UniUser(Base):
 
     @abstractmethod
     def ModifySurvey(self,survey,course):
-        if survey.status > 2:
+        if survey.status > 3:
             return survey_usage.ViewSurveyResults().view_attempt(survey)
         return common.Render.home()
 
@@ -101,7 +101,7 @@ class UniUser(Base):
     def ViewSurveyResultsRequest(self,surveyid=None):
         survey = surveys_model.Survey.query.get(surveyid)
         if survey:
-            if survey.status > 2:
+            if survey.status > 3:
                 return survey_usage.ViewSurveyResults().view_attempt(survey)
         return common.Render.surveys()
 
@@ -233,8 +233,8 @@ class Admin(UniUser):
         'Update survey status to answerable by students/guests'
         if survey.mc_questions == [] and survey.gen_questions == []:
             flash('No questions added to surveys_model.Survey')
-        elif survey.add_students() == False:
-            flash('Error Adding Students to surveys_model.Survey')
+        # elif survey.add_students() == False:
+        #     flash('Error Adding Students to surveys_model.Survey')
         else:
             survey.status = 2
             db_session.commit()
@@ -242,7 +242,7 @@ class Admin(UniUser):
         return current_user.ModifySurvey(survey, course)
 
     def EndSurvey(self,survey,course): 
-        survey.status = 3
+        survey.status = 4
         db_session.commit()
         return current_user.ModifySurvey(survey, course)
 
@@ -350,7 +350,7 @@ class Staff(UniUser):
         return common.Render.home()
 
     def EndSurvey(self,survey,course): 
-        survey.status = 3
+        survey.status = 4
         db_session.commit()
         return current_user.ModifySurvey(survey, course)
 

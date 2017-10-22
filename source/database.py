@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from defines import debug
+
 _debug = debug
 
 engine = create_engine('sqlite:///comp1531.db', convert_unicode=True)
@@ -22,3 +23,7 @@ def init_db():
         Base.metadata.drop_all(bind=engine)
     import models
     Base.metadata.create_all(bind=engine)
+
+
+
+
