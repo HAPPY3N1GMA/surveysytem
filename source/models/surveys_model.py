@@ -32,7 +32,7 @@ class SurveyDate(Base):
         """Return true if the survey is active."""
 
         current_time = datetime.date(datetime.today())
-        if self.date_start < current_time and self.date_end > current_time:
+        if self.date_start <= current_time and self.date_end >= current_time:
             return True
         return False
 
