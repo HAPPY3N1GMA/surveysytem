@@ -97,13 +97,13 @@ class Survey(Base):
     def status_check(self):
         if self.date.is_active():
             if self.status == 2:
-                print("Starting Survey: ",self.title," - survey is now live!")
+                print("Starting Survey: ",self.id," - survey is now live!")
                 if self.add_students() == False:
                     print('Error Adding Students to survey id:',self)
                 self.status = 3
         elif self.date.is_expired():
             if self.status == 3:
-                print("Ending Survey: ",self.title," - survey is now closed!")
+                print("Ending Survey: ",self.id," - survey is now closed!")
                 self.status = 4
         db_session.commit()        
 

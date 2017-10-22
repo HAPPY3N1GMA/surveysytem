@@ -116,7 +116,6 @@ def surveys():
 				if request.form['submit'] == '1':
 					return survey_usage.StatusSurvey().update_attempt()	
 				else:
-					print("results")
 					return current_user.ViewSurveyResultsRequest(request.form.getlist('surveyid'))
 			if surveyform=='6':
 				return survey_usage.AnswerSurvey().answer_attempt()	

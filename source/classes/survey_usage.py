@@ -96,9 +96,9 @@ class StatusSurvey:
                 return current_user.PushSurvey(survey,course)
             if survey.status == 1:    
                 return current_user.PublishSurvey(survey,course)
-            if survey.status == 2:
-                return current_user.EndSurvey(survey,course)
             if survey.status == 3:
+                return current_user.EndSurvey(survey,course)
+            if survey.status == 4:
                 return current_user.ViewSurveyResultsRequest(survey.id) 
 
         return OpenSurvey().open_attempt() 

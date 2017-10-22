@@ -242,7 +242,9 @@ class Admin(UniUser):
         return current_user.ModifySurvey(survey, course)
 
     def EndSurvey(self,survey,course): 
+        print("Admin Manually Terminated Survey:",survey.title)
         survey.status = 4
+        survey.date.set_end(datetime.now())
         db_session.commit()
         return current_user.ModifySurvey(survey, course)
 
