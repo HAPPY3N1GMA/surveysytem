@@ -1,6 +1,6 @@
 import ast, os, time, copy
 from datetime import datetime
-from flask import Flask, request, flash
+from flask import Flask, request, flash, render_template
 from functions import get
 
 #from models import Survey, Course, UniUser, Admin, Staff, Student, Guest
@@ -65,10 +65,10 @@ class OpenSurvey:
         if survey:
             course = course_usage.LoadCourse.load(survey.course_id)  
             if course:
-                if survey.status < 2:
-                    return current_user.ModifySurvey(survey, course)
                 if survey.status == 2:
                     return current_user.OpenPublishedSurvey(survey, course)
+                else:
+                    return current_user.ModifySurvey(survey, course)
         else:
             flash("Please Select a Survey to Open")
         return common.Render.surveys()
@@ -88,7 +88,6 @@ class LoadSurvey:
 class StatusSurvey:
     'updates the status of the survey'
     def update_attempt(self):
-        surveyID = request.form.getlist("surveyid")
         survey = LoadSurvey.load(request.form.getlist('surveyid'))
         course = course_usage.LoadCourse.load(survey.course_id)  
         
@@ -100,7 +99,7 @@ class StatusSurvey:
             if survey.status == 2:
                 return current_user.EndSurvey(survey,course)
             if survey.status == 3:
-                return current_user.ViewSurveyResults(survey,course) 
+                return current_user.ViewSurveyResultsRequest(survey.id) 
 
         return OpenSurvey().open_attempt() 
 
@@ -253,3 +252,60 @@ class AnswerSurvey:
             return None
 
         return mcResponseList
+
+
+
+
+class ViewSurveyResults:
+
+    def view_attempt(self,survey):
+
+        num_responses = len(survey.responses)
+        mcdata = []
+
+        #build the data for the mc pie charts
+        for question in survey.mc_questions:
+            mc_responses = []
+            for response in survey.responses:
+                for mc_response in response.mc_responses:
+                    if mc_response.question_id == question.id:
+                        mc_responses.append(mc_response)
+
+            list_of_lists = []
+
+            colours = []
+            labels = []
+            data = []  # the above list in percentages
+            a_one = 0
+            a_two = 0
+            a_th = 0
+            a_four = 0
+            for resp in mc_responses:
+                if resp.response == '1':
+                  a_one += 1
+                if resp.response == '2':
+                  a_two += 1
+                if resp.response == '3':
+                  a_th += 1
+                if resp.response == '4':
+                  a_four += 1
+
+            
+            dataone = [a_one/num_responses,question.answerOne]
+            datatwo = [a_two/num_responses,question.answerTwo]
+            datathree = [a_th/num_responses,question.answerThree]
+            datafour = [a_four/num_responses,question.answerFour]
+
+            mcdata.append([question,[dataone,datatwo,datathree,datafour],num_responses])
+
+            colours.append("red")
+            colours.append("green")
+            colours.append("blue")
+            colours.append("yellow")
+
+        return render_template("results.html", survey=survey,mcdata=mcdata)
+
+#######################################################################
+##########################      LOGIN    ##############################
+#######################################################################
+

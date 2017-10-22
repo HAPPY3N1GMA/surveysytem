@@ -6,7 +6,7 @@ import ast
 from flask_login import current_user
 from abc import ABCMeta, abstractmethod
 from flask import Flask, redirect, render_template, request, url_for, flash
-from classes import common, authenticate
+from classes import common, authenticate, survey_usage
 from models import surveys_model, questions_model, courses_model
 
 class UniUser(Base):
@@ -64,21 +64,18 @@ class UniUser(Base):
     def get_admin():
         admin = UniUser.query.filter_by(role='Admin').first() 
         if(admin==None):
-            print("get_admin","admin object list is empty")
             return False
         return admin
 
     def get_staff():
         staff = UniUser.query.filter_by(role='Staff').all() 
         if(staff==None):
-            print("get_staff","staff object list is empty")
             return False
         return staff
 
     def get_students():
         students = UniUser.query.filter_by(role='Student').all() 
         if(students==None):
-            print("get_students","staff object list is empty")
             return False
         return students
 
@@ -99,8 +96,12 @@ class UniUser(Base):
         return common.Render.home()
 
     @abstractmethod
-    def ViewSurveyResults(self,survey):
-        pass
+    def ViewSurveyResultsRequest(self,surveyid=None):
+        survey = surveys_model.Survey.query.get(surveyid)
+        if survey:
+            if survey.status > 2:
+                return survey_usage.ViewSurveyResults().view_attempt(survey)
+        return common.Render.surveys()
 
     @abstractmethod
     def PushSurvey(self,survey,course): 
@@ -172,7 +173,6 @@ class Admin(UniUser):
 
     def __init__(self, id, password, role, courses=[],
                  surveys=[],reg_requests=[]):
-        print("creating an admin user")
         self.id = id
         self.password = password
         self.role = role
@@ -209,9 +209,13 @@ class Admin(UniUser):
 
         return common.Render.modify_survey(surveygen,surveymc,survey,course,general,multi)
 
-    def ViewSurveyResults(self,survey,course):
+    def ViewSurveyResultsRequest(self,surveyid=None):
         # run code for viewing results if applicable
-        flash('model.py - Admin will get redirected to survey results page')
+        #admins can see survey results at any time
+        survey = surveys_model.Survey.query.get(surveyid)
+        if survey:
+            return survey_usage.ViewSurveyResults().view_attempt(survey)
+        flash("Please Select a Valid Survey")
         return common.Render.surveys()
 
     def PushSurvey(self,survey,course):       
@@ -339,11 +343,6 @@ class Staff(UniUser):
 
         return common.Render.modify_survey(surveygen,surveymc,survey,course,general,multi)
 
-    def ViewSurveyResults(self,survey,course):
-        # run code for viewing results if applicable
-        flash('model.py - Staff will get redirected to survey results page')
-        return common.Render.surveys()
-
     def PushSurvey(self,survey,course): 
         common.Debug.errorMSG("routes.statussurvey","unauthorised user attempted access:",current_user.id)
         return common.Render.home()
@@ -391,12 +390,6 @@ class Student(UniUser):
     }
 
 
-    def ViewSurveyResults(self,survey,course):
-        # run code for viewing results if applicable
-        flash('model.py - Student will get redirected to survey results page')
-        return common.Render.surveys()
-
-
     def OpenPublishedSurvey(self,survey,course):
         if current_user in survey.users:
             return render_template("answersurvey.html",survey=survey,course=course)
@@ -435,13 +428,6 @@ class Guest(UniUser):
     __mapper_args__ = {
         'polymorphic_identity':'Guest'
     }
-
-
-    def ViewSurveyResults(self,survey,course):
-        # run code for viewing results if applicable
-        flash('model.py - Guest will get redirected to survey results page')
-        return common.Render.surveys()
-
 
     def OpenPublishedSurvey(self,survey,course):
         if current_user in survey.users:

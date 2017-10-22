@@ -1,77 +1,154 @@
 <!doctype html>
 <html>
-		<head>
-				<title>Home</title>
-                <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">				<link rel="stylesheet" type= "text/css" href="/source/static/styles/font-awesome.min.css">
-				<link rel="stylesheet" type= "text/css" href="/source/static/styles/ionicons.min.css">
-                <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-                <link rel="stylesheet" type= "text/css" href="/source/static/styles/styles.css">
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.min.js"></script>
-                <style>
-                    header .navbar {
-                        color:black;
-                        min-width: 100%;
-                        padding-right:150px;
-                    }
+<head>
+  <title>Survey Results</title>
+  <!-- CSS Style Sheet -->
+  <link rel="stylesheet" type= "text/css" href="static/styles/bootstrap.min.css">
+  <link rel="stylesheet" type= "text/css" href="static/styles/font-awesome.min.css">
+  <link rel="stylesheet" type= "text/css" href="static/styles/ionicons.min.css">
+  <script src="static/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" type= "text/css" href="static/styles/styles.css">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="keywords" content="" />
+  <!--Gives access to Google Fonts-->
+  <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+</head>
+<header>
+  <div class="container row full-width">
+   <nav class="navbar navbar-default col-sm-10">
+    <ul class="nav navbar-nav navbar-right">
+     <li><a href="/home">Home</a></li>
+     <li><a href="/surveys">Surveys</a></li>
+    {% if current_user.role=='Admin'%}
+    <li><a href="/questions">Questions</a></li>
+    <li><a href="/requests">Requests</a></li>
+    {% endif %}
+    <li><a href="/logout">Logout</a></li>
+   </ul>
+ </nav>
+</div>
+</header>
+<body> 
+  <div class="container">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h1 align="center"> {{survey.title}} Results </h1>
+      </div>
+    <div class="panel-body">
 
-                    .full-width {
-                        width: 105vw;
-                        overflow: hidden;
-                    }
-                    .panel .panel-body {
-                        margin:auto;
-                    }
-                    input {
-                        width: 100%;
-                    }
-                    </style>
-		</head>
-		<header>
-            <div class="container row full-width">
-                    <nav class="navbar navbar-default col-sm-10">
-                            <ul class="nav navbar-nav navbar-right">
-                                    <li><a href="/home">Home</a></li>
-                                    <li><a href="/surveys">Surveys</a></li>
-                                    {% if current_user.role=='Admin'%}
-                                    <li><a href="/questions">Questions</a></li>
-                                    {% endif %}
-                                <li><a href="/logout">Logout</a></li>										
-                            </ul>
-                    </nav> 
-            </div>
-		</header>
-    
-    <div class="container">
-        <h1>Results for: {{ survey.title }} - {{ question.question }}</h1>
-        <div class="container">
-            <canvas id="myChart" width="600" height="400"></canvas>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class=flashes align="center" style="color:red">
+        {% for message in messages %}
+          <p> {{ message }}</p>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+        <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 align="center">Extended Responses</h3>
         </div>
+          <div class="panel-heading">
+                <div class="surveygen">
+                      {% for question in survey.gen_questions -%}
+                      <div class="panel panel-default">
+                        <h4 align="center">{{question.question}}</h4>
+                          {%- for response in survey.responses -%}
+                            {%- for gen in response.gen_responses -%}
+                              {%- if gen.question_id == question.id -%}
+                              <div class="panel panel-heading">
+                                {{gen.response}}
+                              </div> 
+                              {%- endif -%}
+                            {%- endfor -%}
+                          {%- endfor -%}
+                          </div> 
+                      {%- endfor -%}
+                  </div> 
 
-    </div>
-            <script>
-            var chartData = {
-                labels : [{% for item in labels %}
-                        "{{item}}",
-                        {% endfor %}],
-                datasets : [{
-                    data : [{% for item in data %}
-                            {{item}},
-                            {% endfor %}
-                        ],
-                    backgroundColor: [
-                        "#0074D9", "#FF4136", "#2ECC40", "#FF851B"
+              </div>  
+
+<script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+        <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 align="center">Multiple Choice Responses</h3>
+        </div>
+          <div class="panel-heading">
+                <div class="surveygen">
+                        {% for questiondata in mcdata -%}
+                        <div class="panel panel-default">
+                        <div class="panel panel-heading">
+                          <h4 align="center">{{questiondata[0].question}}</h4>
+                          </div>
+                          <div id="{{ questiondata[0].id }}" style="width: 45%; height: 300px;display: inline-block;"></div>
+                          <div id="1{{ questiondata[0].id }}" style="width: 45%; height: 300px;display: inline-block;"></div>                          
+                          <p>Total Respondants: {{questiondata[2]}}</p>
+                          </div>
+                        {%- endfor %}
+                    </div>
+                  </div> 
+                </div>
+              </div>
+          </div>
+        </div>       
+      </div> 
+    </div> 
+  </div> 
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/js/bootstrap.min.js" integrity="sha384-vZ2WRJMwsjRMW/8U7i6PWi6AlO1L79snBrmgiDpgIWJ82z8eA5lenwvxbMV1PAh7" crossorigin="anonymous"></script>
+    {% for questiondata in mcdata -%}
+      <script type="text/javascript">
+        var chart = new CanvasJS.Chart("{{ questiondata[0].id }}",
+            {
+                animationEnabled: true,
+                title: {
+                    text: "Pie Chart",
+                },
+                data: [
+                {
+                    type: "pie",
+                    showInLegend: true,
+                    dataPoints: [
+                    {% for data in questiondata[1] %}
+                      {%- if data[1] -%}
+                        { y: {{data[0]}}, legendText: "{{data[1]}}" },
+                      {%- endif -%}
+                    {% endfor %}
                     ]
-                }]
-            }
-             
-                // get chart canvas
-                var ctx = document.getElementById("myChart").getContext("2d");
+                },
+                ]
+            });
+        chart.render();
 
-                // create the chart using the chart canvas
-                var myChart = new Chart(ctx, {
-                type: 'pie',
-                data: chartData
-                });
-             
-            </script>
-            </body></html>
+    var chart2 = new CanvasJS.Chart("1{{ questiondata[0].id }}",
+        {
+            animationEnabled: true,
+            title: {
+                text: "Column Chart"
+            },
+            axisX: {
+                interval: 2,
+            },
+            data: [
+            {
+                type: "column",
+                showInLegend: false,
+                dataPoints: [
+                {% for data in questiondata[1] %}
+                  {%- if data[1] -%}
+                    { y: {{data[0]}}, label:"{{data[1]}}"},
+                  {%- endif -%}
+                {% endfor %}
+                ]
+            },
+            ]
+        });
+    chart2.render();
+      </script> 
+    {%- endfor %}
+  </body>
+</html>

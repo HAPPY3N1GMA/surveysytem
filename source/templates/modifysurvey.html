@@ -276,45 +276,48 @@
 </div>
   <div class="container">
 <form method="POST">
-  <input type="hidden" name="surveyformid" id="surveyformid" value="5">  
+<input type="hidden" name="surveyformid" id="surveyformid" value="5">  
+<input type="hidden" name="resultsrequest" id="resultsrequest" value="0">  
   <input type="hidden" name="surveyid" id="surveyid" value="{{survey.id}}">        
     <div class="panel panel-default">
       <div class="panel-body">
 
 
-
       {% if survey.status==0 %}
 
         {% if current_user.role=='Admin' %}
-        <button type="submit" class="btn btn-primary btn-lg btn-block">Staff Review</button>
-        <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">Publish Survey</button>
-        <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">View Results</button>
-      {% endif %}
+          <button type="submit" name = "submit" class="btn btn-primary btn-lg btn-block" value="1">Staff Review</button>
+          <button type="submit" name = "submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block" value="1">Publish Survey</button>
+          <button type="submit" name = "submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block" value="2">View Results</button>
+        {% else %}
+          <button type="submit" name = "submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block" value="1">Publish Survey</button>
+          <button type="submit" name = "submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block" value="2">View Results</button>
+        {% endif %}
 
       {% elif survey.status==1 %}
 
         {% if current_user.role=='Admin' or current_user.role=='Staff'%}
-        <button type="submit" class="btn btn-primary btn-lg btn-block">Publish Survey</button>
+          <button type="submit" name = "submit" class="btn btn-primary btn-lg btn-block" value="1">Publish Survey</button>
         {% else %}
-        <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">Publish Survey</button>
+          <button type="submit" name = "submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block" value="1">Publish Survey</button>
         {% endif %}
-        <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">View Results</button>
+        
+        <button type="submit" name = "submit" disabled="disabled"  class="btn btn-secondary btn-lg btn-block" value="2">View Results</button>
 
       {% elif survey.status==2 %}
 
         {% if current_user.role=='Admin' %}
-        <button type="submit" class="btn btn-primary btn-lg btn-block">End Survey</button>
+        <button type="submit" class="btn btn-primary btn-lg btn-block" name = "submit" value="1">End Survey</button>
+        <button type="submit" class="btn btn-secondary btn-lg btn-block" name = "submit" value="2">View Results</button>  
         {% else %}
-        <button type="submit" disabled="disabled" class="btn btn-secondary btn-lg btn-block">End Survey</button>
+        <button type="submit" disabled="disabled"  class="btn btn-secondary btn-lg btn-block" name = "submit" value="1">End Survey</button>
+        <button type="submit" disabled="disabled"  class="btn btn-secondary btn-lg btn-block" name = "submit" value="2">View Results</button>     
         {% endif %}
 
-      </form>
-        <a href ="/results/{{ survey.id }}"><button type="button" class="btn btn-secondary btn-lg btn-block">View Results</button></a>
-        {% else %}
-        <a href ="/results/{{ survey.id }}"><button type="button" class="btn btn-secondary btn-lg btn-block">View Results</button></a>        
-        {% endif %}
+      {% else %}
+        <button type="submit" name = "submit" class="btn btn-primary btn-lg btn-block" value="2">View Results</button>         
+      {% endif %}
 
-      </div>
   </div>
 </div>
 </form>
