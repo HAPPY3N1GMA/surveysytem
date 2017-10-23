@@ -107,7 +107,6 @@ class Survey(Base):
                 self.status = 4
         db_session.commit()        
 
-
     def get_course(self):
         course = courses_model.Course.query.filter_by(id=self.course_id).first()    
         if(course==None):

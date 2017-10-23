@@ -1,5 +1,5 @@
 import ast, os, time, copy
-from classes import authenticate, survey_usage, course_usage, question_usage, common, security
+from classes import authenticate, survey_usage, course_usage, question_usage, common, security, unit_tests
 from datetime import datetime
 from flask import Flask, redirect, render_template, request, url_for, flash
 from server import app
@@ -8,7 +8,6 @@ from functions import get
 from models import users_model, surveys_model, questions_model, courses_model
 from database import db_session, Base
 from flask_login import login_user, login_required, current_user, logout_user
-
 
 # create security manager for runtime use
 secCheck = security.SecChecks()
