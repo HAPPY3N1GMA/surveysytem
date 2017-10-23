@@ -4,7 +4,9 @@ from flask import Flask
 from flask_login import LoginManager
 from models import users_model, questions_model, surveys_model, courses_model
 from classes.authenticate import Credentials, LoginSuccess, LoginFailure
+from classes import survey_usage
 from database import db_session
+from sqlalchemy import exc
 
 
 class TestRunner(unittest.TestCase):
@@ -33,15 +35,6 @@ class TestRunner(unittest.TestCase):
 		self.co_tests.test_course_create()
 		self.co_tests.test_add_to_course()
 		self.su_tests.survey_create_test()
-		print("----------------------------------------------------------")
-		print("                       Final Tests                        ")
-		print("----------------------------------------------------------")
-		print(".")
-		print(".")
-		print(".")		
-		print(".")
-		print(".")
-		print(".")
 		self.su_tests.test_user_addition()
 		self.su_tests.question_removal()
 		self.res_tests.test_response()
@@ -140,10 +133,8 @@ class QuestionTest(unittest.TestCase):
 
 	def test_optional(self):
 		print("------------------------------")
-		print(">>>> Testing Optional and Mandatory Questions")
-		print(".")
-		print(".")
-		print(".")
+		print(">>>> Testing Optional and Mandatory Questions\n")
+
 		_genquestion_man = questions_model.GeneralQuestion.query.filter_by(question="UnitTest Man General Question").first()
 		_mcquestion_man = questions_model.MCQuestion.query.filter_by(question="UnitTest Man MC Question").first()
 		_mcquestion_real = questions_model.MCQuestion.query.filter_by(question="UnitTest MCQuestion Edit").first()
@@ -152,9 +143,7 @@ class QuestionTest(unittest.TestCase):
 		self.assertEqual(_mcquestion_real.status, 0)
 		self.assertEqual(_genquestion_man.status, 1)
 		self.assertEqual(_mcquestion_man.status, 1)
-		print(".")
-		print(".")
-		print(".")
+
 		print("<<<<< Optional Question Testing Passed")
 		print("------------------------------")
 
@@ -162,33 +151,58 @@ class QuestionTest(unittest.TestCase):
 class StudentTest(unittest.TestCase):
 
 	def test_student_creation(self):
+		print("------------------------------")
+		print("Testing Student Creation and Saving\n")
+		print(">>>> Testing Invalid Student Creation and Saving")
+		student = users_model.Student("", "passwordUT", "Student", [], [])
+		try:
+			db_session.add(student)
+			db_session.commit()
+		except exc.SQLAlchemyError:
+			print("Test Passed\n")
+			db_session.rollback()
+
+		print(">>>> Testing Valid Student Creation and Saving")
 		student = users_model.Student("12345", "passwordUT", "Student", [], [])
 		db_session.add(student)
 		db_session.commit()
+
 
 		# Test existence
 		_student = users_model.Student.query.get(12345)
 		assert _student is not None
 		assert _student.password == "passwordUT"
 		assert _student.role == "Student"
+		print(">>>> Test Passed\n")
 
 	def test_student_edit(self):
+		print(">>>> Testing Valid Student Edit and Saving")
 		_student = users_model.Student.query.get(12345)
 		_student.password = "passwordEditUT"
 		db_session.commit()
+		print(">>>> Test Passed\n")
 
 		# Test Edit
 		student = users_model.Student.query.get(12345)
 		assert (student.password == "passwordEditUT"), student.password
-
-	def student_cleanup(self):
-		student = users_model.Student.query.get(12345)
-
+		print("<<<<< All Student Creation Tests Passed")
+		print("------------------------------")
 
 
 class StaffTest(unittest.TestCase):
 
 	def test_staff_creation(self):
+		print("------------------------------")
+		print("Testing Student Creation and Saving\n")
+		print(">>>> Testing Invalid Staff Creation and Saving")
+		staff = users_model.Staff("", "passwordUT", "Staff", [], [])
+		try:
+			db_session.add(staff)
+			db_session.commit()
+		except exc.SQLAlchemyError:
+			print(">>>> Test Passed\n")
+			db_session.rollback()
+
 		staff = users_model.Staff("23456", "passwordUT", "Staff", [], [])
 		db_session.add(staff)
 		db_session.commit()
@@ -200,6 +214,7 @@ class StaffTest(unittest.TestCase):
 		assert _staff.role == "Staff"
 
 	def test_staff_edit(self):
+		print(">>>> Testing Invalid Staff Editing and Saving")
 		_staff = users_model.Staff.query.get(23456)
 		_staff.password = "passwordEditUT"
 		db_session.commit()
@@ -207,6 +222,9 @@ class StaffTest(unittest.TestCase):
 		# Test Edit
 		staff = users_model.Staff.query.get(23456)
 		assert staff.password == "passwordEditUT"
+		print(">>>> Test Passed\n")
+		print("<<<<< All Student Creation Tests Passed")
+		print("------------------------------")
 
 
 class CourseUnitTest(unittest.TestCase):
@@ -223,10 +241,7 @@ class CourseUnitTest(unittest.TestCase):
 
 	def test_add_to_course(self):
 		print("------------------------------")
-		print(">>>> Testing Enrollent of Student into Course")
-		print(".")
-		print(".")
-		print(".")
+		print(">>>> Testing Enrollent of Student into Course\n")
 		_student = users_model.Student.query.get(12345)
 		assert _student is not None
 		_staff = users_model.Staff.query.get(23456)
@@ -242,9 +257,6 @@ class CourseUnitTest(unittest.TestCase):
 		assert student is not None
 		self.assertTrue(student.courses)
 		self.assertEqual(student.courses[0].id, _course.id)
-		print(".")
-		print(".")
-		print(".")
 		print("<<<< Student Successfully enrolled in course")
 		print("------------------------------")
 		staff = users_model.Staff.query.get(23456)
@@ -255,10 +267,8 @@ class SurveyTest(unittest.TestCase):
 
 	def survey_create_test(self):
 		print("------------------------------")
-		print(">>>> Testing Create a survey")
-		print(".")
-		print(".")
-		print(".")
+		print("Testing Create a survey\n")
+
 		# Set up tests using passed tests
 		_course = courses_model.Course.query.filter_by(name="UTCourse17").first()
 		assert _course is not None
@@ -272,6 +282,19 @@ class SurveyTest(unittest.TestCase):
 		mc_questions.append(_mcquestion_real)
 		gen_questions.append(_genquestion_real)
 
+		print(">>>> Testing Create survey with no title")
+		try:
+			if not survey_usage.CreateSurvey.err_check('', _course.id,'2017/10/23', '2017/10/30'):
+				print(">>>> Test Passed\n")
+		except:
+			print(">>>> Test Passed\n")
+		print(">>>> Testing Create survey with no course")
+		try:
+			survey_usage.CreateSurvey.err_check('title', '','2017/10/23', '2017/10/30')
+		except:
+			print(">>>> Test Passed\n")
+
+		print(">>>> Testing Create valid survey")	
 		survey = surveys_model.Survey("Unit Test Survey", _course.id, [], [], [])
 		start = datetime(2017,10,23)
 		end = datetime(2017,10,23)
@@ -289,13 +312,10 @@ class SurveyTest(unittest.TestCase):
 		self.assertTrue(_survey.mc_questions)
 		self.assertTrue(_survey.gen_questions)
 		assert _survey.course_id == _course.id
-		print(".")
-		print(".")
-		print(".")
-		print("<<<< Survey Testing Passed all Tests")
-		print("------------------------------")
+		print(">>>> Test Passed\n")
 
 	def test_user_addition(self):
+		print(">>>> Testing Create valid survey")	
 		survey = surveys_model.Survey.query.filter_by(title="Unit Test Survey").first()
 		assert survey is not None
 		survey.add_staff()
@@ -305,8 +325,10 @@ class SurveyTest(unittest.TestCase):
 		# Test addition
 		_survey = surveys_model.Survey.query.filter_by(title="Unit Test Survey").first()
 		self.assertTrue(_survey.users)
+		print(">>>> Test Passed\n")
 
 	def question_removal(self):
+		print(">>>> Testing Create valid survey")	
 		_survey = surveys_model.Survey.query.filter_by(title="Unit Test Survey").first()
 
 		for question in _survey.mc_questions:
@@ -315,11 +337,16 @@ class SurveyTest(unittest.TestCase):
 
 		# Test Removal
 		self.assertEqual(len(_survey.mc_questions), 1)
+		print(">>>> Test Passed\n")
+		print("<<<< Survey Testing Passed all Tests")
+		print("------------------------------")
 
 
 class ResponseTest(unittest.TestCase):
 
 	def test_response(self):
+		print("------------------------------")
+		print(">>>> Testing Survey Response\n")
 		_survey = surveys_model.Survey.query.filter_by(title="Unit Test Survey").first()
 		_mcquestion = questions_model.MCQuestion.query.filter_by(question="UnitTest MCQuestion Edit").first()
 		_genquestion = questions_model.GeneralQuestion.query.filter_by(question="UnitTest GenQuestion Edit").first()
@@ -341,7 +368,8 @@ class ResponseTest(unittest.TestCase):
 		assert _surveyResp is not None
 		self.assertTrue(_surveyResp.mc_responses)
 		self.assertTrue(_surveyResp.gen_responses)
-
+		print("<<<< Survey Response Testing Passed all Tests")
+		print("------------------------------")
 
 class TestCleanup(unittest.TestCase):
 	

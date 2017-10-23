@@ -34,8 +34,14 @@ class CreateSurvey:
             flash('Please Enter a Valid Survey Name')
             return False
 
+        course = courses_model.Course.query.filter_by(id=courseId).first()    
+        
+        if(course == None):
+            # errorMSG("routes.newsurvey", "course object is empty")
+            return False
+
         if (get.cleanString(str(surveyName)) == False):
-            errorMSG("routes.newsurvey", "Invalid Characters in survey name")
+            # errorMSG("routes.newsurvey", "Invalid Characters in survey name")
             return False
 
         try:
@@ -53,13 +59,8 @@ class CreateSurvey:
             flash('Invalid End Date')
             return False
 
-        course = courses_model.Course.query.filter_by(id=courseId).first()    
-        if(course == None):
-            errorMSG("routes.newsurvey", "course object is empty")
-            return False
-
         if LoadSurvey.load(request.form.getlist('surveyid')):
-            errorMSG("routes.newsurvey", "survey already exists!")
+            # errorMSG("routes.newsurvey", "survey already exists!")
             return False
 
         return True
