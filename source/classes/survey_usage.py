@@ -49,8 +49,7 @@ class CreateSurvey:
             flash('Invalid Start/End Date')
             return False
 
-        current_time = datetime.date(datetime.today())
-        if endDate <= current_time:
+        if endDate <= datetime.today():
             flash('Invalid End Date')
             return False
 

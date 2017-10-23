@@ -226,15 +226,15 @@ class Admin(UniUser):
             survey.status = 1
             db_session.commit()
         else:
-            flash("Error Adding Staff to surveys_model.Survey")
+            flash("Error Adding Staff to survey")
         return current_user.ModifySurvey(survey, course)
 
     def PublishSurvey(self,survey,course): 
         'Update survey status to answerable by students/guests'
         if survey.mc_questions == [] and survey.gen_questions == []:
-            flash('No questions added to surveys_model.Survey')
+            flash('No questions added to survey')
         # elif survey.add_students() == False:
-        #     flash('Error Adding Students to surveys_model.Survey')
+        #     flash('Error Adding Students to survey')
         else:
             survey.status = 2
             db_session.commit()
@@ -359,9 +359,9 @@ class Staff(UniUser):
     def PublishSurvey(self,survey,course): 
 
         if survey.mc_questions == [] and survey.gen_questions == []:
-            flash('No questions added to surveys_model.Survey')
+            flash('No questions added to survey')
         elif survey.add_students() == False:
-            flash('Error Adding Students to surveys_model.Survey')
+            flash('Error Adding Students to survey')
         else:
             survey.status = 2
             db_session.commit()
@@ -469,7 +469,7 @@ class RegistrationRequest(Base):
     userId = Column(Integer)
     password = Column(String)
     course_id = Column(Integer, ForeignKey('course.id'))
-    admin = Column(Integer, ForeignKey('uniuser.id'))
+    admin_id = Column(Integer, ForeignKey('uniuser.id'))
 
     def __init__(self, userId=None, password="",
                  course_id=""):

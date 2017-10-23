@@ -70,9 +70,10 @@ def logout():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-	chk = secCheck.authCheck()
-	if chk:
-		return chk
+
+	if (current_user.is_authenticated):
+		return redirect(url_for("home"))
+
 	if request.method == 'POST':
 		attempt = authenticate.Register()
 		return attempt.register_attempt()
