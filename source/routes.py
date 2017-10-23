@@ -40,6 +40,10 @@ def submit():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+	
+	if (current_user.is_authenticated):
+		return redirect(url_for("home"))
+
 	if request.method == 'POST':
 		attempt = authenticate.Login()
 		return attempt.login_attempt()
