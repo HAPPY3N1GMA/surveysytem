@@ -20,7 +20,6 @@ def init_db():
     # you will have to import them first before calling init_db()
     #  Delete old tables then re-create - while we work out table format
     if(_debug):
-        print("Dropping Tables")
         Base.metadata.drop_all(bind=engine)
     import models
     Base.metadata.create_all(bind=engine)

@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import Flask
 from flask_login import LoginManager
 from models import users_model, questions_model, surveys_model, courses_model
-# from authenticate import Credentials, LoginSuccess, LoginFailure
+from classes.authenticate import Credentials, LoginSuccess, LoginFailure
 from database import db_session
 
 
@@ -37,7 +37,7 @@ class TestRunner(unittest.TestCase):
 # basic skeletons for unit tests - not functional
 
 # set up testing values (these substitute request.form values)
-i = 0; login_inputs = ['1','1'] # add other login values
+# add other login values
 
 
 # class LoginTest(unittest.TestCase):
@@ -50,9 +50,13 @@ i = 0; login_inputs = ['1','1'] # add other login values
 # class LoginTestable:
 
 # 	def login_attempt(self):
+# 		i = 0
+# 		login_inputs = ['1','1'] 
 # 		credentials = Credentials()
-# 		credentials.username = login_inputs[i]; i=i+1
-# 		credentials.password = login_inputs[i]; i=i+1
+# 		credentials.username = login_inputs[i]
+# 		i=i+1
+# 		credentials.password = login_inputs[i]
+# 		i=i+1
 
 # 		login_status = LoginFailure()
 
