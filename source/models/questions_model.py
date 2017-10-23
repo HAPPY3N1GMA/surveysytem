@@ -10,7 +10,6 @@ from classes import common
 
 
 
-#  Can be used for free text and yes/no q's
 class GeneralQuestion(Base):
     __tablename__ = 'generalquestion'
     id = Column(Integer, primary_key=True)

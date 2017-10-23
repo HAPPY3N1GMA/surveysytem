@@ -12,8 +12,6 @@ from models import courses_model, users_model, questions_model
 
 
 
-
-#this is new and needs adding to diagrams
 class SurveyDate(Base):
     __tablename__ = 'surveydate'
     id = Column(Integer, primary_key=True)
@@ -70,7 +68,7 @@ class Survey(Base):
     gen_questions = relationship("GeneralQuestion",
                                  secondary="genassociation",
                                  backref='survey')
-    #what users have accesss to this survey (both students and staff - can remove students then)
+
     users = relationship("users_model.UniUser", secondary="usassociation",
                          backref="survey")
 

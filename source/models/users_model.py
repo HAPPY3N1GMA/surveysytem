@@ -19,8 +19,6 @@ class UniUser(Base):
                            secondary="ucassociation",
                            backref='uniuser')
 
-    #surveys = relationship("surveys_model.Survey", backref='uniuser')
-
     surveys = relationship("surveys_model.Survey",
                            secondary="usassociation",
                            backref='uniuser')
@@ -233,8 +231,6 @@ class Admin(UniUser):
         'Update survey status to answerable by students/guests'
         if survey.mc_questions == [] and survey.gen_questions == []:
             flash('No questions added to survey')
-        # elif survey.add_students() == False:
-        #     flash('Error Adding Students to survey')
         else:
             survey.status = 2
             db_session.commit()
