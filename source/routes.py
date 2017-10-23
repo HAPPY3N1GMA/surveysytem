@@ -1,5 +1,5 @@
 import ast, os, time, copy
-from classes import authenticate, survey_usage, course_usage, question_usage, common, security, unit_tests
+from classes import authenticate, survey_usage, course_usage, question_usage, common, security
 from datetime import datetime
 from flask import Flask, redirect, render_template, request, url_for, flash
 from server import app

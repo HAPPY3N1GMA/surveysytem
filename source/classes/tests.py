@@ -48,43 +48,6 @@ class TestRunner(unittest.TestCase):
 		print("----------------------------------------------------------")
 
 
-# basic skeletons for unit tests - not functional
-
-# set up testing values (these substitute request.form values)
-# add other login values
-
-
-# class LoginTest(unittest.TestCase):
-
-# 	def test_login_correct_creds(self):
-# 		login = LoginTestable()
-# 		self.assertEqual(login.login_attempt(), redirect(next or url_for('home')))
-
-# # had to edit out http requests to be able to make unit tests
-# class LoginTestable:
-
-# 	def login_attempt(self):
-# 		i = 0
-# 		login_inputs = ['1','1'] 
-# 		credentials = Credentials()
-# 		credentials.username = login_inputs[i]
-# 		i=i+1
-# 		credentials.password = login_inputs[i]
-# 		i=i+1
-
-# 		login_status = LoginFailure()
-
-# 		user = users_model.UniUser.query.get(credentials.get_user())
-# 		if user:
-# 			if credentials.get_pass() == user.password:
-# 				login_status = LoginSuccess()
-
-# 		return login_status.execute(user)	
-
-# test_login = LoginTest()
-# test_login.test_login_correct_creds()
-
-
 class QuestionTest(unittest.TestCase):
 
 	def question_create(self):
@@ -426,3 +389,7 @@ class TestCleanup(unittest.TestCase):
 		assert gen_response is None
 		mc_response = questions_model.MCResponse.query.filter_by(response_id=_surveyResp.id).first()
 		assert mc_response is None
+
+if __name__=="__main__":
+	runner = TestRunner()
+	runner.run()
