@@ -15,17 +15,23 @@ secCheck = security.SecChecks()
 
 @app.route("/")
 def index():
-	secCheck.authCheck()
+	chk = secCheck.authCheck()
+	if chk:
+		return chk
 	return render_template("home.html", user=current_user)
 
 @app.route("/home")
 def home():
-	secCheck.authCheck()
+	chk = secCheck.authCheck()
+	if chk:
+		return chk
 	return render_template("home.html", user=current_user)
 
 @app.route("/submitted")
 def submit(): 
-	secCheck.authCheck()
+	chk = secCheck.authCheck()
+	if chk:
+		return chk
 	return render_template("completed.html")
 
 #######################################################################
@@ -64,7 +70,9 @@ def logout():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-	secCheck.authCheck()
+	chk = secCheck.authCheck()
+	if chk:
+		return chk
 	if request.method == 'POST':
 		attempt = authenticate.Register()
 		return attempt.register_attempt()
@@ -79,7 +87,9 @@ def register():
 
 @app.route("/requests", methods=["GET", "POST"])
 def requests():
-	secCheck.authCheck()
+	chk = secCheck.authCheck()
+	if chk:
+		return chk
 	return current_user.registerRequest()
 
 
@@ -90,7 +100,9 @@ def requests():
 @app.route("/surveys", methods=["GET", "POST"])
 @login_required
 def surveys():
-	secCheck.authCheck()
+	chk = secCheck.authCheck()
+	if chk:
+		return chk
 	if request.method == "GET":
 		#this is a temp fix as I dont know how to schedule tasks that work with sqlalchemy
 		u_courses = current_user.courses
@@ -131,7 +143,9 @@ def surveys():
 @app.route('/questions', methods=["GET", "POST"])
 @login_required
 def questions():
-	secCheck.authCheck()
+	chk = secCheck.authCheck()
+	if chk:
+		return chk
 	if request.method == "GET":
 		return current_user.ViewAllQuestions()
 

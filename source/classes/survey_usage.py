@@ -45,6 +45,15 @@ class CreateSurvey:
             flash('Please Enter a Start and Finish Date')
             return False
         
+        if endDate <= startDate:
+            flash('Invalid Start/End Date')
+            return False
+
+        current_time = datetime.date(datetime.today())
+        if endDate <= current_time:
+            flash('Invalid End Date')
+            return False
+
         course = courses_model.Course.query.filter_by(id=courseId).first()    
         if(course == None):
             errorMSG("routes.newsurvey", "course object is empty")
