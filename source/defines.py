@@ -1,2 +1,2 @@
 # Global object class lists
-debug = True  # set to true to reset db on restarts
+debug = False  # set to true to reset db on restarts
