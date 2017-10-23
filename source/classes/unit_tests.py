@@ -19,8 +19,13 @@ class TestRunner(unittest.TestCase):
 		self.clean = TestCleanup()
 
 	def run(self):
+		print("----------------------------------------------------------")
+		print("                 Commencing Unit Testing                  ")
+		print("----------------------------------------------------------")
+		
 		self.q_tests.question_create()
 		self.q_tests.question_edit()
+		self.q_tests.test_optional()
 		self.stu_tests.test_student_creation()
 		self.stu_tests.test_student_edit()
 		self.sta_tests.test_staff_creation()
@@ -28,10 +33,26 @@ class TestRunner(unittest.TestCase):
 		self.co_tests.test_course_create()
 		self.co_tests.test_add_to_course()
 		self.su_tests.survey_create_test()
+		print("----------------------------------------------------------")
+		print("                       Final Tests                        ")
+		print("----------------------------------------------------------")
+		print(".")
+		print(".")
+		print(".")		
+		print(".")
+		print(".")
+		print(".")
 		self.su_tests.test_user_addition()
 		self.su_tests.question_removal()
 		self.res_tests.test_response()
+		print("----------------------------------------------------------")
+		print("        Testing Complete - Cleaning Up Test Cases         ")
+		print("----------------------------------------------------------")
 		self.clean.cleanup_all()
+
+		print("----------------------------------------------------------")
+		print("                   Finished Unit Testing                  ")
+		print("----------------------------------------------------------")
 
 
 # basic skeletons for unit tests - not functional
@@ -76,8 +97,12 @@ class QuestionTest(unittest.TestCase):
 	def question_create(self):
 		mcquestion = questions_model.MCQuestion("UnitTest MC Question", "1", "2", "3", "4", 0)
 		genquestion = questions_model.GeneralQuestion("UnitTest General Question", 0)
+		mcquestion_man = questions_model.MCQuestion("UnitTest Man MC Question", "1", "2", "3", "4", 1)
+		genquestion_man = questions_model.GeneralQuestion("UnitTest Man General Question", 1)
 		db_session.add(mcquestion)
 		db_session.add(genquestion)
+		db_session.add(mcquestion_man)
+		db_session.add(genquestion_man)
 		db_session.commit()
 
 		# Test existence
@@ -88,6 +113,10 @@ class QuestionTest(unittest.TestCase):
 		assert _mcquestion.answerFour == "4"
 		_genquestion = questions_model.GeneralQuestion.query.filter_by(question="UnitTest General Question").first()
 		assert _genquestion is not None
+		_genquestion_man = questions_model.GeneralQuestion.query.filter_by(question="UnitTest Man General Question").first()
+		assert _genquestion_man is not None
+		_mcquestion_man = questions_model.MCQuestion.query.filter_by(question="UnitTest Man MC Question").first()
+		assert _mcquestion_man is not None
 
 	def question_edit(self):
 		mcquestion = questions_model.MCQuestion.query.filter_by(question="UnitTest MC Question").first()
@@ -108,6 +137,26 @@ class QuestionTest(unittest.TestCase):
 		assert _mcquestion_real.answerTwo == "6"
 		assert _mcquestion_real.answerThree == "7"
 		assert _mcquestion_real.answerFour == "8"
+
+	def test_optional(self):
+		print("------------------------------")
+		print(">>>> Testing Optional and Mandatory Questions")
+		print(".")
+		print(".")
+		print(".")
+		_genquestion_man = questions_model.GeneralQuestion.query.filter_by(question="UnitTest Man General Question").first()
+		_mcquestion_man = questions_model.MCQuestion.query.filter_by(question="UnitTest Man MC Question").first()
+		_mcquestion_real = questions_model.MCQuestion.query.filter_by(question="UnitTest MCQuestion Edit").first()
+		_genquestion_real = questions_model.GeneralQuestion.query.filter_by(question="UnitTest GenQuestion Edit").first()
+		self.assertEqual(_genquestion_real.status, 0)
+		self.assertEqual(_mcquestion_real.status, 0)
+		self.assertEqual(_genquestion_man.status, 1)
+		self.assertEqual(_mcquestion_man.status, 1)
+		print(".")
+		print(".")
+		print(".")
+		print("<<<<< Optional Question Testing Passed")
+		print("------------------------------")
 
 
 class StudentTest(unittest.TestCase):
@@ -173,6 +222,11 @@ class CourseUnitTest(unittest.TestCase):
 		assert _course.offering == "18s1"
 
 	def test_add_to_course(self):
+		print("------------------------------")
+		print(">>>> Testing Enrollent of Student into Course")
+		print(".")
+		print(".")
+		print(".")
 		_student = users_model.Student.query.get(12345)
 		assert _student is not None
 		_staff = users_model.Staff.query.get(23456)
@@ -187,6 +241,12 @@ class CourseUnitTest(unittest.TestCase):
 		student = users_model.Student.query.get(12345)
 		assert student is not None
 		self.assertTrue(student.courses)
+		self.assertEqual(student.courses[0].id, _course.id)
+		print(".")
+		print(".")
+		print(".")
+		print("<<<< Student Successfully enrolled in course")
+		print("------------------------------")
 		staff = users_model.Staff.query.get(23456)
 		assert staff is not None
 		self.assertTrue(staff.courses)
@@ -194,6 +254,11 @@ class CourseUnitTest(unittest.TestCase):
 class SurveyTest(unittest.TestCase):
 
 	def survey_create_test(self):
+		print("------------------------------")
+		print(">>>> Testing Create a survey")
+		print(".")
+		print(".")
+		print(".")
 		# Set up tests using passed tests
 		_course = courses_model.Course.query.filter_by(name="UTCourse17").first()
 		assert _course is not None
@@ -224,6 +289,11 @@ class SurveyTest(unittest.TestCase):
 		self.assertTrue(_survey.mc_questions)
 		self.assertTrue(_survey.gen_questions)
 		assert _survey.course_id == _course.id
+		print(".")
+		print(".")
+		print(".")
+		print("<<<< Survey Testing Passed all Tests")
+		print("------------------------------")
 
 	def test_user_addition(self):
 		survey = surveys_model.Survey.query.filter_by(title="Unit Test Survey").first()
@@ -285,6 +355,8 @@ class TestCleanup(unittest.TestCase):
 		_surveyResp = surveys_model.SurveyResponse.query.filter_by(survey_id=_survey.id).first()
 		_gen_response = questions_model.GeneralResponse.query.filter_by(response_id=_surveyResp.id).first()
 		_mc_response = questions_model.MCResponse.query.filter_by(response_id=_surveyResp.id).first()
+		_genquestion_man = questions_model.GeneralQuestion.query.filter_by(question="UnitTest Man General Question").first()
+		_mcquestion_man = questions_model.MCQuestion.query.filter_by(question="UnitTest Man MC Question").first()
 
 		# Clean up the many to many relationships
 		_course.uniusers = []
@@ -302,6 +374,8 @@ class TestCleanup(unittest.TestCase):
 		db_session.delete(_mc_response)
 		db_session.delete(_surveyResp)
 		db_session.delete(_course)
+		db_session.delete(_genquestion_man)
+		db_session.delete(_mcquestion_man)
 
 		db_session.commit()
 
