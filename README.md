@@ -2,17 +2,13 @@
 
 ## Team
 
-### Keiran Sampson	--  3N1GMA-HPY 		
-Z5168147		
+### 3N1GMA-HPY 		
 
-### Nicholas Quinn	--  thequinneffect		
-Z5117408		
+### thequinneffect		
 
-### Ryan Eves --------  RyanJE
-Z5164560		
+### RyanJE
 
-### Matthew Adeline	--  mkadeline	
-Z5157128		
+### mkadeline	
 
 Set Debug in Defines to ```True``` to drop and re-create all database tables
 
